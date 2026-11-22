@@ -21,8 +21,8 @@ defineProps<{
 
 <style lang="scss" module>
 .root {
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-	border-radius: 8px;
+	box-shadow: var(--MI-shadow-pop);
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 	contain: content;
 }

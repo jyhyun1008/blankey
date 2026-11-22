@@ -101,7 +101,7 @@ function onDeleteButtonClicked() {
 .recipientButton {
 	background-color: transparent;
 	border: none;
-	border-radius: 9999px;
+	border-radius: var(--MI-radius-full);
 	box-sizing: border-box;
 	margin-top: -2px;
 	margin-bottom: -2px;

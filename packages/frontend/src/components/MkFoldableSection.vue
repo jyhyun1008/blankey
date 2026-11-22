@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
 <style lang="scss" module>
 .folderToggleEnterActive, .folderToggleLeaveActive {
 	overflow-y: clip;
-	transition: opacity 0.5s, height 0.5s !important;
+	transition: opacity var(--MI-duration-slow) var(--MI-ease), height var(--MI-duration-slow) var(--MI-ease) !important;
 }
 
 .folderToggleEnterFrom, .folderToggleLeaveTo {
@@ -130,17 +130,36 @@ onBeforeUnmount(() => {
 	place-content: center;
 	margin: 0;
 	padding: 12px 16px 12px 0;
+	font-size: 1.05em;
+	font-weight: bold;
+
+	i {
+		margin-right: 4px;
+		color: var(--MI-c-accentInk);
+	}
 }
 
 .divider {
 	flex: 1;
 	margin: auto;
 	height: 1px;
-	background: var(--MI_THEME-divider);
+	background: var(--MI-c-border);
 }
 
 .button {
-	padding: 12px 0 12px 16px;
+	display: grid;
+	place-items: center;
+	align-self: center;
+	width: 32px;
+	height: 32px;
+	margin-left: 12px;
+	color: var(--MI-c-fgMuted);
+	border-radius: var(--MI-radius-full);
+	transition: background var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		background: var(--MI-c-hover);
+	}
 }
 
 @container (max-width: 500px) {

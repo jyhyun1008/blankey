@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<i class="ti ti-info-circle"></i>
 	</span>
 	<span :class="$style.title">{{ i18n.ts.reloadRequiredToApplySettings }}</span>
-	<span :class="$style.body"><button class="_textButton" style="color: var(--MI_THEME-fgOnAccent);" @click="reload">{{ i18n.ts.reload }}</button> | <button class="_textButton" style="color: var(--MI_THEME-fgOnAccent);" @click="skip">{{ i18n.ts.skip }}</button></span>
+	<span :class="$style.body"><button class="_textButton" style="color: var(--MI-c-fgOnAccent);" @click="reload">{{ i18n.ts.reload }}</button> | <button class="_textButton" style="color: var(--MI-c-fgOnAccent);" @click="skip">{{ i18n.ts.skip }}</button></span>
 </div>
 </template>
 
@@ -39,7 +39,7 @@ function skip() {
 	overflow: clip;
 	contain: strict;
 	background: var(--MI_THEME-accent);
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 }
 
 .icon {

@@ -263,7 +263,7 @@ function onEmptyDrop(ev: DragEvent) {
 	position: absolute;
 	z-index: 99999;
 	background: var(--MI_THEME-accent);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	pointer-events: none;
 }
 

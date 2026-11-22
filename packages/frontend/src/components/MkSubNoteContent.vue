@@ -77,8 +77,8 @@ const collapsed = ref(isLong);
 				background: var(--MI_THEME-panel);
 				padding: 6px 10px;
 				font-size: 0.8em;
-				border-radius: 999px;
-				box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+				border-radius: var(--MI-radius-full);
+				box-shadow: 0 0 0 1px var(--MI-c-border);
 			}
 
 			&:hover {
@@ -92,7 +92,7 @@ const collapsed = ref(isLong);
 
 .reply {
 	margin-right: 6px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .rp {
@@ -113,7 +113,7 @@ const collapsed = ref(isLong);
 	background: var(--MI_THEME-popup);
 	padding: 6px 10px;
 	font-size: 0.8em;
-	border-radius: 999px;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+	border-radius: var(--MI-radius-full);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 }
 </style>

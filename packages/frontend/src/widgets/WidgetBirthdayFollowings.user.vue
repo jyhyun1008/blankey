@@ -81,6 +81,6 @@ const countdownDate = computed(() => {
 }
 
 .postIcon {
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 }
 </style>

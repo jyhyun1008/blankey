@@ -418,6 +418,18 @@ export class MiMeta {
 	public inquiryUrl: string | null;
 
 	@Column('varchar', {
+		length: 2048,
+		nullable: true,
+	})
+	public webFontRegularUrl: string | null;
+
+	@Column('varchar', {
+		length: 2048,
+		nullable: true,
+	})
+	public webFontBoldUrl: string | null;
+
+	@Column('varchar', {
 		length: 8192,
 		nullable: true,
 	})

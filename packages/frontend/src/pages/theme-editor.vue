@@ -248,7 +248,7 @@ definePage(() => ({
 				position: relative;
 				width: 64px;
 				height: 64px;
-				border-radius: 8px;
+				border-radius: var(--MI-radius-sm);
 
 				> .preview {
 					position: absolute;
@@ -259,8 +259,8 @@ definePage(() => ({
 					margin: auto;
 					width: 42px;
 					height: 42px;
-					border-radius: 4px;
-					box-shadow: 0 2px 4px rgb(0 0 0 / 30%);
+					border-radius: var(--MI-radius-xs);
+					box-shadow: var(--MI-shadow-md);
 					transition: transform 0.15s ease;
 				}
 
@@ -275,10 +275,10 @@ definePage(() => ({
 				}
 
 				&.rounded {
-					border-radius: 999px;
+					border-radius: var(--MI-radius-full);
 
 					> .preview {
-						border-radius: 999px;
+						border-radius: var(--MI-radius-full);
 					}
 				}
 

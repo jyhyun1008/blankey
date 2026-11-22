@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <MkStickyContainer>
-	<template #header>
+	<template v-if="showFilters" #header>
 		<MkTab
 			v-model="tab"
 			:tabs="[
@@ -18,7 +18,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		>
 		</MkTab>
 	</template>
-	<MkNotesTimeline v-if="tab === 'featured'" :noGap="true" :paginator="featuredPaginator" :pullToRefresh="false" :class="$style.tl"/>
+	<MkNotesTimeline v-if="showFilters && tab === 'featured'" :noGap="true" :paginator="featuredPaginator" :pullToRefresh="false" :class="$style.tl"/>
 	<MkNotesTimeline v-else :noGap="true" :paginator="notesPaginator" :pullToRefresh="false" :class="$style.tl"/>
 </MkStickyContainer>
 </template>
@@ -31,9 +31,12 @@ import MkTab from '@/components/MkTab.vue';
 import { i18n } from '@/i18n.js';
 import { Paginator } from '@/utility/paginator.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	user: Misskey.entities.UserDetailed;
-}>();
+	showFilters?: boolean;
+}>(), {
+	showFilters: true,
+});
 
 const tab = ref<'featured' | 'notes' | 'all' | 'files'>('all');
 
@@ -48,15 +51,15 @@ const notesPaginator = markRaw(new Paginator('users/notes', {
 	limit: 10,
 	computedParams: computed(() => ({
 		userId: props.user.id,
-		withRenotes: tab.value === 'all',
-		withReplies: tab.value === 'all',
-		withChannelNotes: tab.value === 'all',
-		withFiles: tab.value === 'files',
+		withRenotes: props.showFilters && tab.value === 'all',
+		withReplies: props.showFilters && tab.value === 'all',
+		withChannelNotes: props.showFilters && tab.value === 'all',
+		withFiles: props.showFilters && tab.value === 'files',
 	})),
 }));
 
 defineExpose({
-	reload: () => (tab.value === 'featured' ? featuredPaginator : notesPaginator).reload(),
+	reload: () => (props.showFilters && tab.value === 'featured' ? featuredPaginator : notesPaginator).reload(),
 });
 </script>
 
@@ -69,6 +72,10 @@ defineExpose({
 .tl {
 	background: var(--MI_THEME-bg);
 	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
+	--MI-paginationControl-margin: 0;
+	--MI-paginationControl-padding: 10px 12px;
+	--MI-paginationControl-border: solid 1px var(--MI-c-border);
 }
 </style>

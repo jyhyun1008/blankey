@@ -103,7 +103,7 @@ watch(() => props.lang, (to) => {
 .outerStyle.codeBlockRoot :global(.shiki) {
 	padding: 1em;
 	margin: 0;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	border: 1px solid var(--MI_THEME-divider);
 	background-color: var(--shiki-fallback-bg);
 }
@@ -141,7 +141,7 @@ watch(() => props.lang, (to) => {
 	& :global(.shiki) {
 		padding: 12px;
 		margin: 0;
-		border-radius: 6px;
+		border-radius: var(--MI-radius-xs);
 		border: none;
 		min-height: 130px;
 		pointer-events: none;

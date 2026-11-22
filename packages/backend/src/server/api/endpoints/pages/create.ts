@@ -63,6 +63,7 @@ export const paramDef = {
 		script: { type: 'string' },
 		eyeCatchingImageId: { type: 'string', format: 'misskey:id', nullable: true },
 		font: { type: 'string', enum: ['serif', 'sans-serif'], default: 'sans-serif' },
+		supportersOnly: { type: 'boolean' },
 		alignCenter: { type: 'boolean', default: false },
 		hideTitleWhenPinned: { type: 'boolean', default: false },
 	},
@@ -110,7 +111,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					summary: ps.summary ?? null,
 				});
 
-				return await this.pageEntityService.pack(page);
+				return await this.pageEntityService.pack(page, me);
 			} catch (err) {
 				if (err instanceof IdentifiableError && err.id === '1a79e38e-3d83-4423-845b-a9d83ff93b61') {
 					throw new ApiError(meta.errors.nameAlreadyExists);

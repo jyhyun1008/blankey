@@ -109,7 +109,7 @@ definePage(() => ({
 .decoration {
 	cursor: pointer;
 	padding: 16px 16px 28px 16px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	text-align: center;
 	font-size: 90%;
 	overflow: clip;

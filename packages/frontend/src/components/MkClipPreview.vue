@@ -55,7 +55,7 @@ const remaining = computed(() => {
 
 	&:hover {
 		text-decoration: none;
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 

@@ -117,6 +117,27 @@ function getResponseSize(value: string | string[] | number | undefined): number 
 	return Number.isSafeInteger(size) && size >= 0 ? size : null;
 }
 
+const privateBodyRoutes = new Set([
+	'/webhooks/buy-me-a-coffee/:id',
+	'/api/i/buy-me-a-coffee',
+	'/api/i/private-live',
+	'/api/i/private-live-publish-settings',
+	'/api/i/private-live-chat',
+	'/obs/live-chat/:creatorId/messages',
+	'/obs/buy-me-a-coffee/:id/events',
+	'/api/pages/create',
+	'/api/pages/update',
+	'/api/pages/show',
+	'/api/pages/featured',
+	'/api/users/pages',
+	'/api/i/pages',
+	'/api/i/update',
+	'/api/i/page-likes',
+	'/api/users/show',
+	'/api/i',
+	'/private-live/:creatorId/*',
+]);
+
 /** Fastify全体へAccess log用のリクエスト・エラー・応答フックを登録します。 */
 export function registerHttpAccessLog(fastify: FastifyInstance, manager: LogManager = logManager): void {
 	if (!manager.isAccessLogEnabled()) return;
@@ -141,7 +162,7 @@ export function registerHttpAccessLog(fastify: FastifyInstance, manager: LogMana
 
 	// 送信前のpayloadを読み取りますが、元の値は変更せず、そのまま次のhookへ渡します。
 	fastify.addHook('onSend', (request, reply, payload, done) => {
-		if (!manager.shouldWriteAccess(reply.statusCode)) {
+		if (privateBodyRoutes.has(request.routeOptions.url ?? '') || !manager.shouldWriteAccess(reply.statusCode)) {
 			done(null, payload);
 			return;
 		}

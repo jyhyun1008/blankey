@@ -90,14 +90,14 @@ function remove(id: string): void {
 .itemNumber {
 	display: flex;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	font-size: 14px;
 	font-weight: bold;
 	width: 28px;
 	height: 28px;
 	align-items: center;
 	justify-content: center;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	margin-right: 8px;
 }
 
@@ -112,7 +112,7 @@ function remove(id: string): void {
 	height: 40px;
 	color: var(--MI_THEME-error);
 	margin-left: auto;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	&:hover {
 		background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));

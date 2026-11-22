@@ -4,39 +4,59 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div class="_spacer" style="--MI_SPACER-w: 700px;">
+<XPostCategoryList class="_spacer _profileContent" :userId="user.id" :pageSize="pageSize" :loadBatch="loadBatch" :getTags="getGalleryPostHashtags">
+	<template #actions>
+		<div v-if="$i?.id === user.id" class="_buttons">
+			<MkButton primary type="routerLink" to="/gallery/new"><i class="ti ti-plus"></i> {{ i18n.ts.add }}</MkButton>
+		</div>
+	</template>
 	<MkPagination v-slot="{items}" :paginator="paginator" withControl>
 		<div :class="$style.root">
 			<MkGalleryPostPreview v-for="post in items" :key="post.id" :post="post" class="post"/>
 		</div>
 	</MkPagination>
-</div>
+	<template #filtered="{ items }">
+		<div :class="$style.root">
+			<MkGalleryPostPreview v-for="post in items" :key="post.id" :post="post" class="post"/>
+		</div>
+	</template>
+</XPostCategoryList>
 </template>
 
 <script lang="ts" setup>
 import { computed, markRaw } from 'vue';
-import * as Misskey from 'misskey-js';
+import type * as Misskey from 'misskey-js';
+import XPostCategoryList from './post-category-list.vue';
+import MkButton from '@/components/MkButton.vue';
 import MkGalleryPostPreview from '@/components/MkGalleryPostPreview.vue';
 import MkPagination from '@/components/MkPagination.vue';
 import { Paginator } from '@/utility/paginator.js';
+import { getGalleryPostHashtags } from '@/utility/post-hashtags.js';
+import { misskeyApi } from '@/utility/misskey-api.js';
+import { $i } from '@/i.js';
+import { i18n } from '@/i18n.js';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
 	user: Misskey.entities.User;
-}>(), {
-});
+}>();
 
+const pageSize = 6;
 const paginator = markRaw(new Paginator('users/gallery/posts', {
-	limit: 6,
+	limit: pageSize,
 	computedParams: computed(() => ({
 		userId: props.user.id,
 	})),
 }));
+
+function loadBatch(userId: string, limit: number, untilId: string | undefined, signal: AbortSignal) {
+	return misskeyApi('users/gallery/posts', { userId, limit, untilId }, undefined, signal);
+}
 </script>
 
 <style lang="scss" module>
 .root {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
 	grid-gap: 12px;
 	margin: var(--MI-margin);
 }

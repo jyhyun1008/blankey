@@ -158,7 +158,7 @@ misskeyApiGet('federation/instances', {
 	background: color(from var(--MI_THEME-panel) srgb r g b / 0.5);
 	-webkit-backdrop-filter: var(--MI-blur, blur(15px));
 	backdrop-filter: var(--MI-blur, blur(15px));
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	overflow: clip;
 	width: 800px;
 	padding: 8px 0;
@@ -175,7 +175,7 @@ misskeyApiGet('federation/instances', {
 	padding: 6px 12px 6px 6px;
 	margin: 0 10px 0 0;
 	background: var(--MI_THEME-panel);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 
 .federationInstanceIcon {
@@ -183,6 +183,6 @@ misskeyApiGet('federation/instances', {
 	width: 20px;
 	height: 20px;
 	margin-right: 5px;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 </style>

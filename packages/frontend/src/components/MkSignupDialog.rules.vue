@@ -153,7 +153,7 @@ async function updateAgreeNote(v: boolean) {
 	text-align: center;
 	font-size: 26px;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .rules {
@@ -179,12 +179,12 @@ async function updateAgreeNote(v: boolean) {
 		height: 32px;
 		line-height: 32px;
 		background-color: var(--MI_THEME-accentedBg);
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		font-size: 13px;
 		font-weight: bold;
 		align-items: center;
 		justify-content: center;
-		border-radius: 999px;
+		border-radius: var(--MI-radius-full);
 	}
 }
 

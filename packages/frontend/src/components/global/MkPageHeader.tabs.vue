@@ -225,25 +225,40 @@ onUnmounted(() => {
 .tab {
 	display: inline-block;
 	position: relative;
-	padding: 0 10px;
+	padding: 0 12px;
 	height: 100%;
 	font-weight: normal;
-	opacity: 0.7;
+	color: var(--MI-c-fgMuted);
+
+	&::before {
+		content: '';
+		position: absolute;
+		inset: 6px 2px;
+		border-radius: var(--MI-radius-md);
+		background: transparent;
+		transition: background var(--MI-duration-fast) var(--MI-ease);
+		pointer-events: none;
+	}
 
 	&:hover {
-		opacity: 1;
+		color: var(--MI_THEME-fgHighlighted);
+
+		&::before {
+			background: var(--MI-c-hover);
+		}
 	}
 
 	&.active {
-		opacity: 1;
+		color: var(--MI-c-accentInk);
 	}
 
 	&.animate {
-		transition: opacity 0.2s ease;
+		transition: color var(--MI-duration) var(--MI-ease);
 	}
 }
 
 .tabInner {
+	position: relative;
 	display: flex;
 	align-items: center;
 }
@@ -256,7 +271,7 @@ onUnmounted(() => {
 	overflow: hidden;
 
 	&.animate {
-		transition: width .15s linear, padding-left .15s linear;
+		transition: width var(--MI-duration) var(--MI-ease), padding-left var(--MI-duration) var(--MI-ease);
 	}
 }
 
@@ -265,12 +280,12 @@ onUnmounted(() => {
 	bottom: 0;
 	height: 3px;
 	background: var(--MI_THEME-accent);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	transition: none;
 	pointer-events: none;
 
 	&.animate {
-		transition: width 0.15s ease, left 0.15s ease;
+		transition: width var(--MI-duration-slow) var(--MI-easeSpring), left var(--MI-duration-slow) var(--MI-easeSpring);
 	}
 }
 

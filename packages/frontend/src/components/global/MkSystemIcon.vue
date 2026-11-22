@@ -48,7 +48,7 @@ const props = defineProps<{
 	stroke-linejoin: round;
 
 	&.info {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 
 	&.question {
@@ -68,7 +68,7 @@ const props = defineProps<{
 	}
 
 	&.waiting {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 

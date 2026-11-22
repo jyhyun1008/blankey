@@ -31,6 +31,7 @@ export interface PageBody {
 	eyeCatchingImage?: MiDriveFile | null;
 	font: 'serif' | 'sans-serif';
 	alignCenter: boolean;
+	supportersOnly?: boolean;
 	hideTitleWhenPinned: boolean;
 }
 
@@ -81,6 +82,7 @@ export class PageService {
 			eyeCatchingImageId: body.eyeCatchingImage ? body.eyeCatchingImage.id : null,
 			userId: me.id,
 			visibility: 'public',
+			supportersOnly: body.supportersOnly ?? false,
 			alignCenter: body.alignCenter,
 			hideTitleWhenPinned: body.hideTitleWhenPinned,
 			font: body.font,
@@ -136,6 +138,7 @@ export class PageService {
 				variables: body.variables,
 				script: body.script,
 				alignCenter: body.alignCenter,
+				supportersOnly: body.supportersOnly,
 				hideTitleWhenPinned: body.hideTitleWhenPinned,
 				font: body.font,
 				eyeCatchingImageId: body.eyeCatchingImage === undefined ? undefined : (body.eyeCatchingImage?.id ?? null),

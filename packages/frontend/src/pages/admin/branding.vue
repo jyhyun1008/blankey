@@ -106,6 +106,22 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</MkColorInput>
 				</SearchMarker>
 
+				<SearchMarker :keywords="['font', 'webfont']">
+					<MkInput v-model="webFontRegularUrl" type="url">
+						<template #prefix><i class="ti ti-link"></i></template>
+						<template #label><SearchLabel>{{ i18n.ts.webFontRegularUrl }}</SearchLabel></template>
+						<template #caption>{{ i18n.ts.webFontUrlDescription }}</template>
+					</MkInput>
+				</SearchMarker>
+
+				<SearchMarker :keywords="['font', 'webfont']">
+					<MkInput v-model="webFontBoldUrl" type="url">
+						<template #prefix><i class="ti ti-link"></i></template>
+						<template #label><SearchLabel>{{ i18n.ts.webFontBoldUrl }}</SearchLabel></template>
+						<template #caption>{{ i18n.ts.webFontUrlDescription }}</template>
+					</MkInput>
+				</SearchMarker>
+
 				<SearchMarker :keywords="['theme', 'default', 'light']">
 					<MkTextarea v-model="defaultLightTheme">
 						<template #label><SearchLabel>{{ i18n.ts.instanceDefaultLightTheme }}</SearchLabel></template>
@@ -184,6 +200,8 @@ const app512IconUrl = ref(meta.app512IconUrl);
 const bannerUrl = ref(meta.bannerUrl);
 const backgroundImageUrl = ref(meta.backgroundImageUrl);
 const themeColor = ref(meta.themeColor);
+const webFontRegularUrl = ref(meta.webFontRegularUrl);
+const webFontBoldUrl = ref(meta.webFontBoldUrl);
 const defaultLightTheme = ref(meta.defaultLightTheme);
 const defaultDarkTheme = ref(meta.defaultDarkTheme);
 const serverErrorImageUrl = ref(meta.serverErrorImageUrl);
@@ -206,6 +224,8 @@ function save() {
 		bannerUrl: bannerUrl.value,
 		backgroundImageUrl: backgroundImageUrl.value,
 		themeColor: themeColor.value === '' ? null : themeColor.value,
+		webFontRegularUrl: webFontRegularUrl.value?.trim() || null,
+		webFontBoldUrl: webFontBoldUrl.value?.trim() || null,
 		defaultLightTheme: defaultLightTheme.value === '' ? null : defaultLightTheme.value,
 		defaultDarkTheme: defaultDarkTheme.value === '' ? null : defaultDarkTheme.value,
 		infoImageUrl: infoImageUrl.value === '' ? null : infoImageUrl.value,

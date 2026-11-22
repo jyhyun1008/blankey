@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div class="_spacer" style="--MI_SPACER-w: 1100px;">
+<div class="_spacer _profileContent">
 	<div :class="$style.root">
 		<MkPagination v-slot="{items}" :paginator="paginator" withControl>
 			<div :class="$style.stream">

@@ -10,6 +10,7 @@
 import * as fs from 'node:fs';
 import { load as loadYaml } from 'js-yaml';
 import { languages, primaries } from './const.js';
+import { streamerProfileTranslations, pageTranslations, channelTranslations, rootTranslations } from './streamer-profile.js';
 import type { Locale } from './autogen/locale.js';
 import type { ILocale, ParameterizedString } from './types.js';
 
@@ -91,6 +92,31 @@ function build(): Record<Language, Locale> {
 				);
 				break;
 			}
+		}
+
+		// Apply Blankey translations after the upstream fallback chain.
+		if (key === 'en-US' || key === 'ko-KR') {
+			const { pages, contentHub, ...pageLabels } = pageTranslations[key];
+			a[key] = merge<Locale>(a[key], { pages, contentHub, _profile: streamerProfileTranslations[key], _pages: pageLabels, _channel: channelTranslations[key], ...rootTranslations[key] });
+		}
+		if (key === 'en-US') {
+			a[key]._siteHome = {
+				shortcuts: 'Shortcuts',
+				live: 'Live broadcasts',
+				liveStatusUnavailable: 'Check the creator’s page for broadcast availability.',
+				recentChannels: 'Recently active channels',
+				recentPublicNotes: 'Recent public notes',
+			};
+		}
+		if (key === 'ko-KR') {
+			a[key]._siteHome = {
+				shortcuts: '바로가기',
+				live: '라이브 방송',
+				liveStatusUnavailable: '방송 상태는 스트리머 페이지에서 확인할 수 있어요.',
+				recentChannels: '최근 활동 채널',
+				recentPublicNotes: '최근 공개 노트',
+			};
+			a[key]._gallery.liked = '좋아요한 갤러리';
 		}
 
 		return a;

@@ -182,6 +182,7 @@ import type {
 	ChannelsCreateRequest,
 	ChannelsCreateResponse,
 	ChannelsFavoriteRequest,
+	ChannelsFeaturedRequest,
 	ChannelsFeaturedResponse,
 	ChannelsFollowRequest,
 	ChannelsFollowedRequest,
@@ -419,6 +420,8 @@ import type {
 	IAppsResponse,
 	IAuthorizedAppsRequest,
 	IAuthorizedAppsResponse,
+	IBuyMeACoffeeRequest,
+	IBuyMeACoffeeResponse,
 	IChangePasswordRequest,
 	IClaimAchievementRequest,
 	IDeleteAccountRequest,
@@ -446,6 +449,12 @@ import type {
 	IPagesResponse,
 	IPinRequest,
 	IPinResponse,
+	IPrivateLiveRequest,
+	IPrivateLiveResponse,
+	IPrivateLiveChatRequest,
+	IPrivateLiveChatResponse,
+	IPrivateLivePublishSettingsRequest,
+	IPrivateLivePublishSettingsResponse,
 	IReadAnnouncementRequest,
 	IRegenerateTokenRequest,
 	IRegistryGetRequest,
@@ -464,6 +473,10 @@ import type {
 	IRevokeTokenRequest,
 	ISigninHistoryRequest,
 	ISigninHistoryResponse,
+	IStreamerEmojisCreateRequest,
+	IStreamerEmojisCreateResponse,
+	IStreamerEmojisDeleteRequest,
+	IStreamerEmojisListResponse,
 	IUnpinRequest,
 	IUnpinResponse,
 	IUpdateRequest,
@@ -561,6 +574,8 @@ import type {
 	PagesDeleteRequest,
 	PagesFeaturedResponse,
 	PagesLikeRequest,
+	PagesRecentRequest,
+	PagesRecentResponse,
 	PagesShowRequest,
 	PagesShowResponse,
 	PagesUnlikeRequest,
@@ -794,7 +809,7 @@ export type Endpoints = {
 	'bubble-game/register': { req: BubbleGameRegisterRequest; res: EmptyResponse };
 	'channels/create': { req: ChannelsCreateRequest; res: ChannelsCreateResponse };
 	'channels/favorite': { req: ChannelsFavoriteRequest; res: EmptyResponse };
-	'channels/featured': { req: EmptyRequest; res: ChannelsFeaturedResponse };
+	'channels/featured': { req: ChannelsFeaturedRequest; res: ChannelsFeaturedResponse };
 	'channels/follow': { req: ChannelsFollowRequest; res: EmptyResponse };
 	'channels/followed': { req: ChannelsFollowedRequest; res: ChannelsFollowedResponse };
 	'channels/mute/create': { req: ChannelsMuteCreateRequest; res: EmptyResponse };
@@ -939,6 +954,7 @@ export type Endpoints = {
 	'i/2fa/update-key': { req: I2faUpdateKeyRequest; res: EmptyResponse };
 	'i/apps': { req: IAppsRequest; res: IAppsResponse };
 	'i/authorized-apps': { req: IAuthorizedAppsRequest; res: IAuthorizedAppsResponse };
+	'i/buy-me-a-coffee': { req: IBuyMeACoffeeRequest; res: IBuyMeACoffeeResponse };
 	'i/change-password': { req: IChangePasswordRequest; res: EmptyResponse };
 	'i/claim-achievement': { req: IClaimAchievementRequest; res: EmptyResponse };
 	'i/delete-account': { req: IDeleteAccountRequest; res: EmptyResponse };
@@ -964,6 +980,9 @@ export type Endpoints = {
 	'i/page-likes': { req: IPageLikesRequest; res: IPageLikesResponse };
 	'i/pages': { req: IPagesRequest; res: IPagesResponse };
 	'i/pin': { req: IPinRequest; res: IPinResponse };
+	'i/private-live': { req: IPrivateLiveRequest; res: IPrivateLiveResponse };
+	'i/private-live-chat': { req: IPrivateLiveChatRequest; res: IPrivateLiveChatResponse };
+	'i/private-live-publish-settings': { req: IPrivateLivePublishSettingsRequest; res: IPrivateLivePublishSettingsResponse };
 	'i/read-announcement': { req: IReadAnnouncementRequest; res: EmptyResponse };
 	'i/regenerate-token': { req: IRegenerateTokenRequest; res: EmptyResponse };
 	'i/registry/get': { req: IRegistryGetRequest; res: IRegistryGetResponse };
@@ -976,6 +995,9 @@ export type Endpoints = {
 	'i/registry/set': { req: IRegistrySetRequest; res: EmptyResponse };
 	'i/revoke-token': { req: IRevokeTokenRequest; res: EmptyResponse };
 	'i/signin-history': { req: ISigninHistoryRequest; res: ISigninHistoryResponse };
+	'i/streamer-emojis/create': { req: IStreamerEmojisCreateRequest; res: IStreamerEmojisCreateResponse };
+	'i/streamer-emojis/delete': { req: IStreamerEmojisDeleteRequest; res: EmptyResponse };
+	'i/streamer-emojis/list': { req: EmptyRequest; res: IStreamerEmojisListResponse };
 	'i/unpin': { req: IUnpinRequest; res: IUnpinResponse };
 	'i/update': { req: IUpdateRequest; res: IUpdateResponse };
 	'i/update-email': { req: IUpdateEmailRequest; res: IUpdateEmailResponse };
@@ -1040,6 +1062,7 @@ export type Endpoints = {
 	'pages/delete': { req: PagesDeleteRequest; res: EmptyResponse };
 	'pages/featured': { req: EmptyRequest; res: PagesFeaturedResponse };
 	'pages/like': { req: PagesLikeRequest; res: EmptyResponse };
+	'pages/recent': { req: PagesRecentRequest; res: PagesRecentResponse };
 	'pages/show': { req: PagesShowRequest; res: PagesShowResponse };
 	'pages/unlike': { req: PagesUnlikeRequest; res: EmptyResponse };
 	'pages/update': { req: PagesUpdateRequest; res: EmptyResponse };

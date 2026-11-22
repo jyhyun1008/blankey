@@ -102,7 +102,7 @@ function submit() {
 	margin: 0 auto;
 	z-index: 10;
 	border-radius: var(--MI-radius);
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
 	width: 100%;
 	max-width: 500px;
@@ -113,7 +113,7 @@ function submit() {
 	text-align: center;
 	font-size: 26px;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .mainText {

@@ -63,7 +63,7 @@ function goBack() {
 	display: inline-block;
 	width: 20px;
 	aspect-ratio: 1;
-	border-radius: 5px;
+	border-radius: var(--MI-radius-xs);
 	margin-right: 8px;
 }
 

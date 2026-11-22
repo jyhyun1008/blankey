@@ -127,7 +127,7 @@ definePage(() => ({
 			margin: 0 12px 0 0;
 			width: 42px;
 			height: 42px;
-			border-radius: 8px;
+			border-radius: var(--MI-radius-sm);
 		}
 
 		> .body {

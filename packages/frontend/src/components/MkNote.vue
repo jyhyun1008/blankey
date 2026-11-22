@@ -399,8 +399,8 @@ const keymap = {
 			margin: auto;
 			width: calc(100% - 8px);
 			height: calc(100% - 8px);
-			border: dashed 2px var(--MI_THEME-focus);
-			border-radius: var(--MI-radius);
+			border: solid 2px var(--MI_THEME-focus);
+			border-radius: var(--MI-radius-md);
 			box-sizing: border-box;
 		}
 	}
@@ -423,8 +423,8 @@ const keymap = {
 			padding: 0 4px;
 			margin-bottom: 0 !important;
 			background: var(--MI_THEME-popup);
-			border-radius: 8px;
-			box-shadow: 0px 4px 32px var(--MI_THEME-shadow);
+			border-radius: var(--MI-radius-md);
+			box-shadow: var(--MI-shadow-pop);
 		}
 
 		.footerButton {
@@ -457,7 +457,7 @@ const keymap = {
 	line-height: 24px;
 	font-size: 90%;
 	white-space: pre;
-	color: #d28a3f;
+	color: var(--MI_THEME-warn);
 }
 
 .tip + .article {
@@ -477,6 +477,7 @@ const keymap = {
 	line-height: 28px;
 	white-space: pre;
 	color: var(--MI_THEME-renote);
+	font-size: 0.95em;
 
 	& + .article {
 		padding-top: 8px;
@@ -562,7 +563,7 @@ const keymap = {
 	left: 8px;
 	width: 5px;
 	height: calc(100% - 16px);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	pointer-events: none;
 }
 
@@ -604,8 +605,8 @@ const keymap = {
 	background: var(--MI_THEME-popup);
 	padding: 6px 10px;
 	font-size: 0.8em;
-	border-radius: 999px;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+	border-radius: var(--MI-radius-full);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 }
 
 .contentCollapsed {
@@ -634,8 +635,8 @@ const keymap = {
 	background: var(--MI_THEME-panel);
 	padding: 6px 10px;
 	font-size: 0.8em;
-	border-radius: 999px;
-	box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+	border-radius: var(--MI-radius-full);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 }
 
 .text {
@@ -643,14 +644,14 @@ const keymap = {
 }
 
 .replyIcon {
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	margin-right: 0.5em;
 }
 
 .translation {
-	border: solid 0.5px var(--MI_THEME-divider);
-	border-radius: var(--MI-radius);
-	padding: 12px;
+	background: var(--MI-c-sunken);
+	border-radius: var(--MI-radius-md);
+	padding: 12px 14px;
 	margin-top: 8px;
 }
 
@@ -668,8 +669,9 @@ const keymap = {
 
 .quoteNote {
 	padding: 16px;
-	border: dashed 1px var(--MI_THEME-renote);
-	border-radius: 8px;
+	border: solid 1px var(--MI-c-border);
+	border-left: solid 3px color(from var(--MI_THEME-renote) srgb r g b / 0.6);
+	border-radius: var(--MI-radius-md);
 	overflow: clip;
 }
 
@@ -684,15 +686,21 @@ const keymap = {
 
 .footerButton {
 	margin: 0;
-	padding: 8px;
+	padding: 8px 10px;
+	min-width: 36px;
+	border-radius: var(--MI-radius-full);
 	color: color-mix(in srgb, var(--MI_THEME-panel), var(--MI_THEME-fg) 70%); // opacityなど不透明度で表現するとレンダリングパフォーマンスに影響するので通常の色の混合で代用
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		color var(--MI-duration-fast) var(--MI-ease);
 
 	&:not(:last-child) {
-		margin-right: 28px;
+		margin-right: 16px;
 	}
 
 	&:hover {
 		color: var(--MI_THEME-fgHighlighted);
+		background: var(--MI-c-hover);
 	}
 }
 
@@ -773,7 +781,7 @@ const keymap = {
 	.root:not(.showActionsOnlyHover) {
 		.footerButton {
 			&:not(:last-child) {
-				margin-right: 18px;
+				margin-right: 10px;
 			}
 		}
 	}
@@ -783,7 +791,7 @@ const keymap = {
 	.root:not(.showActionsOnlyHover) {
 		.footerButton {
 			&:not(:last-child) {
-				margin-right: 12px;
+				margin-right: 6px;
 			}
 		}
 	}
@@ -805,7 +813,7 @@ const keymap = {
 	.root:not(.showActionsOnlyHover) {
 		.footerButton {
 			&:not(:last-child) {
-				margin-right: 8px;
+				margin-right: 4px;
 			}
 		}
 	}
@@ -834,9 +842,10 @@ const keymap = {
 	text-align: center;
 	padding: 32px;
 	margin: 6px 32px 28px;
-	--color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+	color: var(--MI-c-fgMuted);
+	--color: var(--MI-c-hover);
 	background-size: auto auto;
 	background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--color) 4px, var(--color) 14px);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 </style>

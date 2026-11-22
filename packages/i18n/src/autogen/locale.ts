@@ -1553,9 +1553,13 @@ export interface Locale extends ILocale {
      */
     "yearX": ParameterizedString<"year">;
     /**
-     * ページ
+     * ブログ
      */
     "pages": string;
+    /**
+     * コンテンツ
+     */
+    "contentHub": string;
     /**
      * 連携
      */
@@ -3832,6 +3836,18 @@ export interface Locale extends ILocale {
      * 自動
      */
     "auto": string;
+    /**
+     * WebフォントのURL（標準）
+     */
+    "webFontRegularUrl": string;
+    /**
+     * WebフォントのURL（太字）
+     */
+    "webFontBoldUrl": string;
+    /**
+     * フォントファイル（WOFF2など）のHTTPS URLを入力してください。外部サーバーを使う場合はCORSの許可が必要です。
+     */
+    "webFontUrlDescription": string;
     /**
      * テーマカラー
      */
@@ -8902,6 +8918,14 @@ export interface Locale extends ILocale {
     };
     "_channel": {
         /**
+         * 最近更新されたチャンネル
+         */
+        "recentlyUpdated": string;
+        /**
+         * 人気のチャンネル
+         */
+        "popular": string;
+        /**
          * チャンネルを作成
          */
         "create": string;
@@ -10520,6 +10544,454 @@ export interface Locale extends ILocale {
          */
         "metadataDescription": string;
         /**
+         * 配信者アカウント
+         */
+        "streamerAccount": string;
+        /**
+         * 配信者アカウントにする
+         */
+        "flagAsStreamer": string;
+        /**
+         * 名前の横に配信者アイコンを表示し、登録した配信リンクをプロフィールに表示します。
+         */
+        "flagAsStreamerDescription": string;
+        /**
+         * 配信者設定
+         */
+        "streamerSettings": string;
+        /**
+         * 配信者設定を利用するには、プロフィール設定で配信者アカウントを有効にしてください。
+         */
+        "streamerSettingsRequiresStreamer": string;
+        /**
+         * 支援者限定ライブ
+         */
+        "privateLive": string;
+        /**
+         * ライブ配信設定
+         */
+        "privateLiveSettings": string;
+        /**
+         * 配信サーバー
+         */
+        "privateLiveServer": string;
+        /**
+         * ストリームキー
+         */
+        "privateLiveStreamKey": string;
+        /**
+         * OBSの配信サービスで「カスタム」を選び、サーバーとストリームキーを入力してください。ストリームキーは他の人に共有しないでください。
+         */
+        "privateLivePublishHelp": string;
+        /**
+         * このアカウントではライブ配信を利用できません。プロフィール設定で配信者アカウントを有効にし、配信設定が割り当てられているか確認してください。
+         */
+        "privateLivePublishUnavailable": string;
+        /**
+         * ライブを視聴
+         */
+        "privateLiveWatch": string;
+        /**
+         * ライブチャット
+         */
+        "privateLiveChat": string;
+        /**
+         * まだメッセージがありません。
+         */
+        "privateLiveChatEmpty": string;
+        /**
+         * メッセージを入力
+         */
+        "privateLiveChatInput": string;
+        /**
+         * 表示名とメッセージは配信画面に表示されることがあります。
+         */
+        "privateLiveChatVisibleOnStream": string;
+        /**
+         * 送信できませんでした。少し待ってからもう一度お試しください。
+         */
+        "privateLiveChatSendError": string;
+        /**
+         * OBSチャットオーバーレイ
+         */
+        "privateLiveChatOverlay": string;
+        /**
+         * OBSのブラウザソースにURLを貼り付けると、ライブチャットのメッセージが配信画面に表示されます。URLは他の人に共有しないでください。
+         */
+        "privateLiveChatOverlayHelp": string;
+        /**
+         * チャット用URLをコピー
+         */
+        "privateLiveChatOverlayCopy": string;
+        /**
+         * URLを再発行
+         */
+        "privateLiveChatOverlayReset": string;
+        /**
+         * URLを再発行しますか？ OBSで新しいURLを設定する必要があります。
+         */
+        "privateLiveChatOverlayResetConfirm": string;
+        /**
+         * ライブプレイヤーの操作
+         */
+        "privateLiveControls": string;
+        /**
+         * 再生
+         */
+        "privateLivePlay": string;
+        /**
+         * 一時停止
+         */
+        "privateLivePause": string;
+        /**
+         * 再生位置
+         */
+        "privateLivePosition": string;
+        /**
+         * ライブ
+         */
+        "privateLiveNow": string;
+        /**
+         * ライブ位置に移動
+         */
+        "privateLiveJump": string;
+        /**
+         * 全画面表示
+         */
+        "privateLiveFullscreen": string;
+        /**
+         * 全画面表示を終了
+         */
+        "privateLiveExitFullscreen": string;
+        /**
+         * このサーバーでは限定ライブ配信が利用できません。
+         */
+        "privateLiveUnavailable": string;
+        /**
+         * ライブを再生できませんでした。配信中かどうかを確認してください。
+         */
+        "privateLiveError": string;
+        /**
+         * この配信は支援者限定です。ログインし、支援時のメールアドレスをBlankeyの設定で認証してください。
+         */
+        "privateLiveDenied": string;
+        /**
+         * Buy Me a Coffee
+         */
+        "coffeeConnectionTitle": string;
+        /**
+         * Buy Me a CoffeeのOBS通知
+         */
+        "coffeeOverlay": string;
+        /**
+         * OBSに「ブラウザ」ソースを追加してURLを入力すると、単発支援、メンバーシップ登録、定期支援の開始を表示できます。URLは他の人に共有しないでください。
+         */
+        "coffeeOverlayHelp": string;
+        /**
+         * OBS用URLをコピー
+         */
+        "coffeeOverlayCopy": string;
+        /**
+         * 単発支援
+         */
+        "coffeeOverlayDonation": string;
+        /**
+         * メンバーシップ
+         */
+        "coffeeOverlayMembership": string;
+        /**
+         * 定期支援
+         */
+        "coffeeOverlayRecurring": string;
+        /**
+         * テスト通知を送信
+         */
+        "coffeeOverlayTestSend": string;
+        /**
+         * テスト通知を送信しました。OBSのブラウザソースで確認してください。
+         */
+        "coffeeOverlayTestSent": string;
+        /**
+         * プロフィール設定でBuy Me a Coffeeの接続を認証すると、OBS用URLをコピーできます。
+         */
+        "coffeeOverlayUnavailable": string;
+        /**
+         * ウェブフックURLを発行し、Buy Me a CoffeeのIntegrationsで登録します。donation、membership、recurring_donationのイベントを選択し、署名キーを保存してからテストイベントを送信してください。
+         */
+        "coffeeConnectionHelp": string;
+        /**
+         * ウェブフックURLを発行
+         */
+        "coffeeCreateWebhook": string;
+        /**
+         * ウェブフックURL
+         */
+        "coffeeWebhookUrl": string;
+        /**
+         * ウェブフック署名キー
+         */
+        "coffeeSigningSecret": string;
+        /**
+         * 連携済み
+         */
+        "coffeeVerified": string;
+        /**
+         * テストイベントの確認待ち
+         */
+        "coffeePending": string;
+        /**
+         * 連携を解除
+         */
+        "coffeeDisconnect": string;
+        /**
+         * 連携を解除すると、受信済みの支援情報と支援者の閲覧権限が削除されますか？
+         */
+        "coffeeDisconnectConfirm": string;
+        /**
+         * 配信リンク
+         */
+        "streamingLinks": string;
+        /**
+         * 配信チャンネル
+         */
+        "streamingChannel": string;
+        /**
+         * 配信者を支援
+         */
+        "streamingSupport": string;
+        /**
+         * 配信チャンネルのURL
+         */
+        "streamingChannelUrl": string;
+        /**
+         * 支援ページのURL
+         */
+        "streamingSupportUrl": string;
+        /**
+         * Buy Me a CoffeeまたはPatreonのページURLを入力できます。
+         */
+        "streamingSupportPlatforms": string;
+        /**
+         * 配信者アカウントをオンにすると、登録したリンクがプロフィールの概要に表示されます。
+         */
+        "streamingLinksDescription": string;
+        /**
+         * https:// から始まる有効なURLを入力してください。
+         */
+        "streamingLinksInvalidUrl": string;
+        /**
+         * 配信リンクや配信バナーは専用の設定から編集してください。
+         */
+        "editStreamingProfileSeparately": string;
+        /**
+         * 配信バナー
+         */
+        "streamingBanners": string;
+        /**
+         * ドライブから画像を複数選べます。配信者アカウントをオンにすると、プロフィールの固定ノートの上に正方形で並びます。
+         */
+        "streamingBannersDescription": string;
+        /**
+         * プレビューできる画像を選んでください。センシティブな画像は使えません。
+         */
+        "streamingBannersImagesOnly": string;
+        /**
+         * 配信バナー {n}
+         */
+        "streamingBannerAlt": ParameterizedString<"n">;
+        /**
+         * バナー {n} のリンク（任意）
+         */
+        "streamingBannerLink": ParameterizedString<"n">;
+        /**
+         * 配信バナー {n} を削除
+         */
+        "removeStreamingBanner": ParameterizedString<"n">;
+        /**
+         * ブログ
+         */
+        "profileBlog": string;
+        /**
+         * 今後追加予定です。
+         */
+        "profileTabComingSoon": string;
+        /**
+         * 配信者プロフィールの概要
+         */
+        "streamingOverview": string;
+        /**
+         * コンテンツ
+         */
+        "streamingContent": string;
+        /**
+         * 配信スケジュール
+         */
+        "streamingSchedule": string;
+        /**
+         * 配信時刻
+         */
+        "streamingScheduleTime": string;
+        /**
+         * 配信内容
+         */
+        "streamingScheduleContent": string;
+        /**
+         * お休み
+         */
+        "streamingScheduleOff": string;
+        /**
+         * 動画
+         */
+        "streamingVideoArchive": string;
+        /**
+         * カスタム絵文字を見る
+         */
+        "streamingOpenCustomEmojis": string;
+        /**
+         * タイトルを入力してください。
+         */
+        "streamingResourceTitleRequired": string;
+        /**
+         * リンク先URL
+         */
+        "streamingResourceUrl": string;
+        /**
+         * 本文
+         */
+        "streamingResourceBody": string;
+        /**
+         * 販売ページのURL
+         */
+        "streamingSalesUrl": string;
+        /**
+         * 販売ページを開く
+         */
+        "streamingOpenSalesPage": string;
+        /**
+         * 購入する
+         */
+        "streamingBuy": string;
+        /**
+         * 説明
+         */
+        "streamingDescription": string;
+        /**
+         * 価格
+         */
+        "streamingPrice": string;
+        /**
+         * サムネイル
+         */
+        "streamingThumbnail": string;
+        /**
+         * ポートフォリオ
+         */
+        "streamingPortfolio": string;
+        /**
+         * ポートフォリオ項目を追加
+         */
+        "streamingPortfolioAdd": string;
+        /**
+         * 上げる
+         */
+        "streamingBump": string;
+        /**
+         * グッズ・サービスの一覧やトップページで、この項目を新着として先頭に表示します。
+         */
+        "streamingBumpDescription": string;
+        /**
+         * 次に上げられるのは{time}以降です。
+         */
+        "streamingBumpCooldown": ParameterizedString<"time">;
+        /**
+         * 一覧の先頭に上げました
+         */
+        "streamingBumped": string;
+        /**
+         * 配信者のカスタム絵文字
+         */
+        "streamingCustomEmojis": string;
+        /**
+         * 半角小文字、数字、アンダースコアが使えます。
+         */
+        "streamingCustomEmojiNameHint": string;
+        /**
+         * 絵文字を追加するには、プロフィール設定で配信者アカウントを有効にしてください。
+         */
+        "streamingCustomEmojisRequiresStreamer": string;
+        /**
+         * ドライブから1 MiB以下の画像を選び、最大20個の絵文字を登録できます。登録した絵文字はプロフィールに表示され、サーバーの他のユーザーも使用できます。元の画像はドライブに残してください。
+         */
+        "streamingCustomEmojisDescription": string;
+        /**
+         * 配信者アカウントを選択してください。
+         */
+        "streamingEmojiSelectStreamer": string;
+        /**
+         * グッズ・サービス
+         */
+        "streamingGoodsServices": string;
+        /**
+         * リンク
+         */
+        "streamingQuickLinks": string;
+        /**
+         * 最近のニュース
+         */
+        "streamingRecentNews": string;
+        /**
+         * コミュニティのノート
+         */
+        "streamingCommunityNotes": string;
+        /**
+         * 最近の投稿
+         */
+        "streamingRecentPages": string;
+        /**
+         * 最近のギャラリー画像
+         */
+        "streamingRecentGallery": string;
+        /**
+         * ハッシュタグの公開ノート
+         */
+        "streamingTaggedNotes": string;
+        /**
+         * タグを開く
+         */
+        "openStreamingTag": string;
+        /**
+         * プロフィールに表示するハッシュタグ
+         */
+        "streamingTags": string;
+        /**
+         * ハッシュタグを追加
+         */
+        "addStreamingTag": string;
+        /**
+         * ラベル（任意）
+         */
+        "streamingTagLabel": string;
+        /**
+         * 異なるハッシュタグを1行につき1つ、最大{n}件追加できます。先頭の # は省略できます。
+         */
+        "streamingTagsDescription": ParameterizedString<"n">;
+        /**
+         * コミュニティ
+         */
+        "streamingCommunity": string;
+        /**
+         * コミュニティチャンネルのURL
+         */
+        "streamingCommunityUrl": string;
+        /**
+         * このサーバーで自分が作成した、アーカイブされていない非センシティブなチャンネルのURLを入力してください。
+         */
+        "streamingCommunityDescription": string;
+        /**
+         * 追加情報と配信者プロフィールの設定は合わせて16件まで登録できます。
+         */
+        "profileFieldsLimit": string;
+        /**
          * ラベル
          */
         "metadataLabel": string;
@@ -10780,11 +11252,23 @@ export interface Locale extends ILocale {
     };
     "_pages": {
         /**
-         * ページの作成
+         * 支援者限定
+         */
+        "supportersOnly": string;
+        /**
+         * 本文を、支援時のメールアドレスをBlankeyで認証した支援者に公開します。本文に含めた外部リンクやドライブファイルは、それぞれの公開設定に従います。
+         */
+        "supportersOnlyHelp": string;
+        /**
+         * このページは支援者限定です。Buy Me a Coffeeで支援した際のメールアドレスをBlankeyの設定で認証してください。
+         */
+        "supportersOnlyLocked": string;
+        /**
+         * ブログ記事の作成
          */
         "newPage": string;
         /**
-         * ページの編集
+         * ブログ記事の編集
          */
         "editPage": string;
         /**
@@ -10808,7 +11292,7 @@ export interface Locale extends ILocale {
          */
         "invalidNameText": string;
         /**
-         * このページを編集
+         * この記事を編集
          */
         "editThisPage": string;
         /**
@@ -10816,7 +11300,7 @@ export interface Locale extends ILocale {
          */
         "viewSource": string;
         /**
-         * ページを見る
+         * 記事を見る
          */
         "viewPage": string;
         /**
@@ -10828,11 +11312,15 @@ export interface Locale extends ILocale {
          */
         "unlike": string;
         /**
-         * 自分のページ
+         * 投稿
+         */
+        "posts": string;
+        /**
+         * 自分の投稿
          */
         "my": string;
         /**
-         * いいねしたページ
+         * いいねした投稿
          */
         "liked": string;
         /**
@@ -10900,9 +11388,45 @@ export interface Locale extends ILocale {
          */
         "chooseBlock": string;
         /**
+         * 太字
+         */
+        "mfmBold": string;
+        /**
+         * 斜体
+         */
+        "mfmItalic": string;
+        /**
+         * 取り消し線
+         */
+        "mfmStrike": string;
+        /**
          * セクションタイトルを入力
          */
         "enterSectionTitle": string;
+        /**
+         * 「# 見出し」で章を分け、画像はドラッグ＆ドロップか貼り付けで追加できます。ノートのURLだけの行は埋め込みになります。
+         */
+        "markdownHelp": string;
+        /**
+         * 書く
+         */
+        "write": string;
+        /**
+         * {n}分で読めます
+         */
+        "readingTime": ParameterizedString<"n">;
+        /**
+         * 目次
+         */
+        "toc": string;
+        /**
+         * {name}のほかの記事
+         */
+        "moreFromAuthor": ParameterizedString<"name">;
+        /**
+         * まだ配信者が登録されていません。
+         */
+        "streamersEmpty": string;
         /**
          * 種類を選択
          */
@@ -13480,5 +14004,27 @@ export interface Locale extends ILocale {
          * MFM
          */
         "mfm": string;
+    };
+    "_siteHome": {
+        /**
+         * ショートカット
+         */
+        "shortcuts": string;
+        /**
+         * ライブ配信
+         */
+        "live": string;
+        /**
+         * 配信状況は配信者のページでご確認ください。
+         */
+        "liveStatusUnavailable": string;
+        /**
+         * 最近更新されたチャンネル
+         */
+        "recentChannels": string;
+        /**
+         * 最近の公開ノート
+         */
+        "recentPublicNotes": string;
     };
 }

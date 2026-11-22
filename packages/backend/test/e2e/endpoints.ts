@@ -10,9 +10,9 @@ import { describe, beforeAll, test, expect, vi } from 'vitest';
 // node-fetch only supports it's own Blob yet
 // https://github.com/node-fetch/node-fetch/pull/1664
 import { Blob } from 'node-fetch';
-import { api, castAsError, initTestDb, post, role, signup, simpleGet, uploadFile } from '../utils.js';
+import { api, castAsError, initTestDb, page, post, role, signup, simpleGet, uploadFile } from '../utils.js';
 import type * as misskey from 'misskey-js';
-import { MiUser } from '@/models/_.js';
+import { MiPage, MiUser } from '@/models/_.js';
 
 const waitForPushToTlOptions = { timeout: 3000, interval: 25 };
 
@@ -29,6 +29,130 @@ describe('Endpoints', () => {
 		dave = await signup({ username: 'dave' });
 		await api('admin/update-meta', { federation: 'all' }, alice as misskey.entities.SignupResponse);
 	}, 1000 * 60 * 2);
+
+	test('lets a streamer manage emojis created from their own Drive', async () => {
+		const streamer = await signup({ username: 'self_emoji_streamer' });
+		const name = 'self_streamer_emoji';
+		const fullName = `${name}_${streamer.username}`;
+		const file = await uploadFile(streamer);
+		assert.strictEqual(file.status, 200);
+		const request = { name, fileId: file.body!.id, aliases: ['stream', 'hello'], license: 'CC0' };
+
+		const disabled = await api('i/streamer-emojis/create', request, streamer);
+		assert.strictEqual(castAsError(disabled.body).error.code, 'NOT_STREAMER');
+
+		assert.strictEqual((await api('i/update', { isStreamer: true }, streamer)).status, 200);
+		const foreignFile = await uploadFile(alice);
+		assert.strictEqual(foreignFile.status, 200);
+		const forbidden = await api('i/streamer-emojis/create', { name, fileId: foreignFile.body!.id }, streamer);
+		assert.strictEqual(castAsError(forbidden.body).error.code, 'NO_SUCH_FILE');
+
+		const results = await Promise.all([
+			api('i/streamer-emojis/create', request, streamer),
+			api('i/streamer-emojis/create', request, streamer),
+		]);
+		const created = results.find(result => result.status === 200);
+		assert.ok(created, JSON.stringify(results));
+		const duplicate = results.find(result => result.status !== 200);
+		assert.ok(duplicate);
+		assert.strictEqual(castAsError(duplicate.body).error.code, 'DUPLICATE_NAME');
+
+		const { id } = created.body;
+		try {
+			assert.strictEqual(created.body.streamerId, streamer.id);
+			assert.strictEqual(created.body.name, fullName);
+			assert.strictEqual(created.body.category, streamer.username);
+			assert.strictEqual(created.body.isStreamerOwned, true);
+			assert.deepEqual(created.body.aliases, request.aliases);
+			assert.strictEqual(created.body.license, request.license);
+			const listed = (await api('emojis', {})).body.emojis.find(emoji => emoji.name === fullName);
+			assert.ok(listed);
+			assert.strictEqual(listed.streamerId, streamer.id);
+			assert.strictEqual(listed.isStreamerOwned, true);
+			assert.strictEqual(listed.license, request.license);
+			assert.deepEqual((await api('i/streamer-emojis/list', {}, streamer)).body.map(emoji => emoji.id), [id]);
+			assert.deepEqual((await api('i/streamer-emojis/list', {}, bob)).body, []);
+
+			const otherDelete = await api('i/streamer-emojis/delete', { id }, bob);
+			assert.ok(otherDelete.body);
+			assert.strictEqual(castAsError(otherDelete.body).error.code, 'NO_SUCH_EMOJI');
+			assert.strictEqual((await api('i/streamer-emojis/delete', { id }, streamer)).status, 204);
+			assert.deepEqual((await api('i/streamer-emojis/list', {}, streamer)).body, []);
+		} finally {
+			await api('admin/emoji/delete', { id }, alice);
+		}
+
+		const sharedName = 'shared_streamer_emoji';
+		const competing = await Promise.all([
+			api('admin/emoji/add', { name: `${sharedName}_${streamer.username}`, fileId: foreignFile.body!.id }, alice),
+			api('i/streamer-emojis/create', { ...request, name: sharedName }, streamer),
+		]);
+		const winners = competing.filter(result => result.status === 200);
+		try {
+			assert.strictEqual(winners.length, 1);
+			const duplicateRegistration = competing.find(result => result.status !== 200);
+			assert.ok(duplicateRegistration);
+			assert.strictEqual(castAsError(duplicateRegistration.body).error.code, 'DUPLICATE_NAME');
+		} finally {
+			for (const winner of winners) await api('admin/emoji/delete', { id: winner.body.id }, alice);
+		}
+	});
+
+	test('assigns a custom emoji to a local streamer and clears the assignment', async () => {
+		const streamer = await signup({ username: 'emoji_streamer' });
+		assert.strictEqual((await api('i/update', { isStreamer: true }, streamer)).status, 200);
+
+		const file = await uploadFile(alice);
+		assert.strictEqual(file.status, 200);
+		const name = 'streamer_emoji';
+		const emoji = await api('admin/emoji/add', { name, fileId: file.body!.id }, alice);
+		assert.strictEqual(emoji.status, 200);
+		const id = emoji.body.id;
+
+		try {
+			const invalid = await api('admin/emoji/update', { id, streamerId: bob.id }, alice);
+			assert.strictEqual(invalid.status, 400);
+			assert.ok(invalid.body);
+			assert.strictEqual(castAsError(invalid.body).error.code, 'INVALID_STREAMER');
+
+			assert.strictEqual((await api('admin/emoji/update', { id, streamerId: streamer.id }, alice)).status, 204);
+			assert.strictEqual((await api('admin/emoji/update', { id, aliases: ['streamer'] }, alice)).status, 204);
+			assert.strictEqual((await api('emoji', { name })).body.streamerId, streamer.id);
+			const deleteAssigned = await api('i/streamer-emojis/delete', { id }, streamer);
+			assert.ok(deleteAssigned.body);
+			assert.strictEqual(castAsError(deleteAssigned.body).error.code, 'NO_SUCH_EMOJI');
+			const listed = (await api('emojis', {})).body.emojis.find(item => item.name === name);
+			assert.ok(listed);
+			assert.strictEqual(listed.streamerId, streamer.id);
+			assert.strictEqual(listed.isStreamerOwned, undefined);
+
+			assert.strictEqual((await api('admin/emoji/update', { id, streamerId: null }, alice)).status, 204);
+			assert.strictEqual((await api('emoji', { name })).body.streamerId, undefined);
+		} finally {
+			await api('admin/emoji/delete', { id }, alice);
+		}
+	});
+
+	test('pages/recent lists public pages across authors from newest to oldest', async () => {
+		const older = await page(alice, { name: 'older-public-page', title: 'older-public-page' });
+		const newer = await page(bob, { name: 'newer-public-page', title: 'newer-public-page', supportersOnly: true });
+		const hidden = await page(carol, { name: 'unlisted-page', title: 'unlisted-page' });
+		const db = await initTestDb(true);
+		try {
+			await db.getRepository(MiPage).update(hidden.id, { visibility: 'specified' });
+			const recent = await api('pages/recent', { limit: 1 });
+			expect(recent.status).toBe(200);
+			expect(recent.body.map(item => item.id)).toEqual([newer.id]);
+			expect(recent.body[0].content).toEqual([]);
+			expect(recent.body[0].supportersOnlyLocked).toBe(true);
+
+			const next = await api('pages/recent', { limit: 1, untilId: newer.id });
+			expect(next.status).toBe(200);
+			expect(next.body.map(item => item.id)).toEqual([older.id]);
+		} finally {
+			await db.destroy();
+		}
+	});
 
 	describe('signup', () => {
 		test('不正なユーザー名でアカウントが作成できない', async () => {
@@ -571,6 +695,29 @@ describe('Endpoints', () => {
 			assert.strictEqual(res.status, 200);
 			assert.strictEqual(typeof res.body === 'object' && Array.isArray(res.body), true);
 			assert.strictEqual(res.body.length, 2);
+		});
+		test('filters public channel results by creator for signed-out visitors', async () => {
+			const channelIds = [];
+			for (const name of ['First community', 'Second community', 'Third community']) {
+				const channel = await api('channels/create', { name }, carol);
+				assert.strictEqual(channel.status, 200);
+				channelIds.push(channel.body.id);
+			}
+			const otherChannel = await api('channels/create', { name: 'Another creator' }, alice);
+			const sensitiveChannel = await api('channels/create', { name: 'Sensitive channel', isSensitive: true }, carol);
+			const archivedChannel = await api('channels/create', { name: 'Archived channel' }, carol);
+			assert.strictEqual(otherChannel.status, 200);
+			assert.strictEqual(sensitiveChannel.status, 200);
+			assert.strictEqual(archivedChannel.status, 200);
+			const updated = await api('channels/update', { channelId: archivedChannel.body.id, isArchived: true }, carol);
+			assert.strictEqual(updated.status, 200);
+
+			const first = await api('channels/search', { query: '', userId: carol.id, limit: 2 });
+			assert.strictEqual(first.status, 200);
+			assert.deepStrictEqual(first.body.map(channel => channel.id), [channelIds[2], channelIds[1]]);
+			const rest = await api('channels/search', { query: '', userId: carol.id, untilId: first.body[1].id, limit: 2 });
+			assert.strictEqual(rest.status, 200);
+			assert.deepStrictEqual(rest.body.map(channel => channel.id), [channelIds[0]]);
 		});
 	});
 

@@ -124,6 +124,34 @@ export async function common(createVue: () => Promise<App<Element>>) {
 		miLocalStorage.setItem('v', instance.version);
 	});
 
+	if (!isSafeMode && 'fonts' in window.document && typeof FontFace !== 'undefined') {
+		watch(
+			[() => instance.webFontRegularUrl, () => instance.webFontBoldUrl],
+			([regularUrl, boldUrl], _, onCleanup) => {
+				const fonts: FontFace[] = [];
+				const sources = [[regularUrl, '400'], [boldUrl, '700']] as const;
+
+				for (const [source, weight] of sources) {
+					if (!source) continue;
+					try {
+						const url = new URL(source);
+						if (url.protocol !== 'https:') continue;
+						const font = new FontFace('Instance Web Font', `url(${CSS.escape(url.href)})`, { weight, display: 'swap' });
+						window.document.fonts.add(font);
+						fonts.push(font);
+					} catch {
+						// Invalid cached URLs fall back to the default font stack.
+					}
+				}
+
+				onCleanup(() => {
+					for (const font of fonts) window.document.fonts.delete(font);
+				});
+			},
+			{ immediate: true },
+		);
+	}
+
 	//#region loginId
 	const params = new URLSearchParams(window.location.search);
 	const loginId = params.get('loginId');

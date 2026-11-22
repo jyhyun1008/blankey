@@ -14,6 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			v-adaptive-border
 			:class="$style.inputCore"
 			:type="type"
+			:aria-label="ariaLabel"
 			:disabled="disabled"
 			:required="required"
 			:readonly="readonly"
@@ -69,6 +70,7 @@ const props = defineProps<{
 	disabled?: boolean;
 	pattern?: string;
 	placeholder?: string;
+	ariaLabel?: string;
 	autofocus?: boolean;
 	autocomplete?: string;
 	mfmAutocomplete?: boolean | SuggestionType[],
@@ -211,7 +213,8 @@ defineExpose({
 <style lang="scss" module>
 .label {
 	font-size: 0.85em;
-	padding: 0 0 8px 0;
+	font-weight: bold;
+	padding: 0 0 6px 2px;
 	user-select: none;
 
 	&:empty {
@@ -221,8 +224,8 @@ defineExpose({
 
 .caption {
 	font-size: 0.85em;
-	padding: 8px 0 0 0;
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	padding: 6px 0 0 2px;
+	color: var(--MI-c-fgMuted);
 
 	&:empty {
 		display: none;
@@ -240,7 +243,7 @@ defineExpose({
 	&.focused {
 		> .inputCore {
 			border-color: var(--MI_THEME-accent) !important;
-			//box-shadow: 0 0 0 4px var(--MI_THEME-focus);
+			box-shadow: var(--MI-focusRing);
 		}
 	}
 
@@ -267,15 +270,17 @@ defineExpose({
 	font-size: 1em;
 	color: var(--MI_THEME-fg);
 	background: var(--MI_THEME-panel);
-	border: solid 1px var(--MI_THEME-panel);
-	border-radius: 6px;
+	border: solid 1px var(--MI-c-border);
+	border-radius: var(--MI-radius-md);
 	outline: none;
 	box-shadow: none;
 	box-sizing: border-box;
-	transition: border-color 0.1s ease-out;
+	transition:
+		border-color var(--MI-duration-fast) var(--MI-ease),
+		box-shadow var(--MI-duration) var(--MI-ease);
 
 	&:hover {
-		border-color: var(--MI_THEME-inputBorderHover) !important;
+		border-color: var(--MI-c-borderStrong) !important;
 	}
 }
 

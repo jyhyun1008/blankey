@@ -64,7 +64,7 @@ function showMenu(ev: PointerEvent, contextmenu?: boolean) {
 			left: -8px;
 			width: calc(100% + 16px);
 			height: calc(100% + 16px);
-			border-radius: 8px;
+			border-radius: var(--MI-radius-sm);
 			background: light-dark(rgba(0, 0, 0, 0.02), rgba(255, 255, 255, 0.02));
 			pointer-events: none;
 		}

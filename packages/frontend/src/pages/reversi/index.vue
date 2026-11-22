@@ -299,7 +299,7 @@ definePage(() => ({
 
 .gamePreview {
 	font-size: 90%;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 }
 
@@ -339,7 +339,7 @@ definePage(() => ({
 }
 
 .gamePreviewStatusActive {
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	font-weight: bold;
 	animation: blink 2s infinite;
 }

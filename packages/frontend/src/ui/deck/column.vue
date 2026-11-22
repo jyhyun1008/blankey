@@ -322,7 +322,7 @@ function onDrop(ev: DragEvent) {
 	height: 100%;
 	overflow: clip;
 	contain: strict;
-	border-radius: 10px;
+	border-radius: var(--MI-radius-sm);
 
 	&.draghover {
 		&::after {
@@ -433,7 +433,7 @@ function onDrop(ev: DragEvent) {
 	width: 3px;
 	height: calc(100% - 24px);
 	background: var(--MI_THEME-accent);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 
 .tabShape {

@@ -671,6 +671,11 @@ export class ChatService {
 			throw new Error('already member');
 		}
 
+		// 招待される側もチャットを使える (Blankey では配信者) 必要がある
+		if (!(await this.getChatAvailability(inviteeId)).write) {
+			throw new Error('invitee cannot chat');
+		}
+
 		const existingInvitation = await this.chatRoomInvitationsRepository.findOneBy({ roomId, userId: inviteeId });
 		if (existingInvitation) {
 			throw new Error('already invited');

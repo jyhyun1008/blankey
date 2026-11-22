@@ -45,6 +45,7 @@ import type { ApNoteService } from './ApNoteService.js';
 import type { ApMfmService } from '../ApMfmService.js';
 import type { ApResolverService, Resolver } from '../ApResolverService.js';
 import type { ApLoggerService } from '../ApLoggerService.js';
+import type { RemoteAvatarDecorationService } from '@/core/RemoteAvatarDecorationService.js';
 
 import type { ApImageService } from './ApImageService.js';
 import type { IActor, ICollection, IObject, IOrderedCollection } from '../type.js';
@@ -73,6 +74,7 @@ export class ApPersonService implements OnModuleInit {
 	private usersChart: UsersChart;
 	private instanceChart: InstanceChart;
 	private apLoggerService: ApLoggerService;
+	private remoteAvatarDecorationService: RemoteAvatarDecorationService;
 	private accountMoveService: AccountMoveService;
 	private logger: Logger;
 
@@ -125,6 +127,7 @@ export class ApPersonService implements OnModuleInit {
 		this.usersChart = this.moduleRef.get('UsersChart');
 		this.instanceChart = this.moduleRef.get('InstanceChart');
 		this.apLoggerService = this.moduleRef.get('ApLoggerService');
+		this.remoteAvatarDecorationService = this.moduleRef.get('RemoteAvatarDecorationService');
 		this.accountMoveService = this.moduleRef.get('AccountMoveService');
 		this.logger = this.apLoggerService.logger;
 	}
@@ -474,6 +477,9 @@ export class ApPersonService implements OnModuleInit {
 
 		await this.updateFeatured(user.id, resolver).catch(err => this.logger.error(err));
 
+		// アバターデコレーションは相手の Misskey API から補助的に取り込む (待たない)
+		this.remoteAvatarDecorationService.sync(user).catch(err => this.logger.warn('failed to sync avatar decorations', { stack: err }));
+
 		return user;
 	}
 
@@ -640,6 +646,8 @@ export class ApPersonService implements OnModuleInit {
 		const updated = { ...exist, ...updates };
 
 		this.cacheService.uriPersonCache.set(uri, updated);
+
+		this.remoteAvatarDecorationService.sync(updated).catch(err => this.logger.warn('failed to sync avatar decorations', { stack: err }));
 
 		// 移行処理を行う
 		if (updated.movedAt && (

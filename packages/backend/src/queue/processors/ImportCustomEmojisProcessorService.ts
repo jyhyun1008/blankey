@@ -204,7 +204,7 @@ export class ImportCustomEmojisProcessorService {
 				name: record.fileName,
 				force: true,
 			});
-			await this.customEmojiService.add({
+			const added = await this.customEmojiService.add({
 				originalUrl: driveFile.url,
 				publicUrl: driveFile.webpublicUrl ?? driveFile.url,
 				fileType: driveFile.webpublicType ?? driveFile.type,
@@ -217,6 +217,7 @@ export class ImportCustomEmojisProcessorService {
 				localOnly: emojiInfo.localOnly,
 				roleIdsThatCanBeUsedThisEmojiAsReaction: [],
 			});
+			if (!added) throw new Error('Duplicate emoji name.');
 		} catch (e) {
 			if (e instanceof Error || typeof e === 'string') {
 				this.logger.error(`couldn't import ${emojiPath} for ${emojiInfo.name}: ${e}`);

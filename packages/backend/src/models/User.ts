@@ -147,6 +147,8 @@ export class MiUser {
 	})
 	public avatarDecorations: {
 		id: string;
+		/** リモートユーザーのみ: 相手サーバーが返したデコレーション画像の URL (RemoteAvatarDecorationService) */
+		url?: string;
 		angle?: number;
 		flipH?: boolean;
 		offsetX?: number;
@@ -187,6 +189,11 @@ export class MiUser {
 		comment: 'Whether the User is a cat.',
 	})
 	public isCat: boolean;
+
+	@Column('boolean', {
+		default: false,
+	})
+	public isStreamer: boolean;
 
 	@Index()
 	@Column('boolean', {

@@ -68,54 +68,66 @@ async function onClick() {
 	position: relative;
 	display: inline-block;
 	font-weight: bold;
-	color: var(--MI_THEME-accent);
-	background: transparent;
-	border: solid 1px var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
+	background: var(--MI_THEME-panel);
+	border: solid 1px color(from var(--MI_THEME-accent) srgb r g b / 0.5);
 	padding: 0;
-	height: 31px;
+	height: var(--MI-controlHeightSm);
 	font-size: 16px;
-	border-radius: 32px;
-	background: #fff;
+	border-radius: var(--MI-radius-full);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		border-color var(--MI-duration-fast) var(--MI-ease),
+		transform var(--MI-duration) var(--MI-easeSpring);
 
 	&.full {
-		padding: 0 8px 0 12px;
+		padding: 0 10px 0 14px;
 		font-size: 14px;
 	}
 
 	&:not(.full) {
-		width: 31px;
+		width: var(--MI-controlHeightSm);
 	}
 
 	&:focus-visible {
 		outline-offset: 2px;
 	}
 
-	&:hover {
-		//background: mix($primary, #fff, 20);
+	&:not(:disabled):hover {
+		background: var(--MI-c-accentSoft);
+		border-color: var(--MI_THEME-accent);
 	}
 
-	&:active {
-		//background: mix($primary, #fff, 40);
+	&:not(:disabled):active {
+		background: var(--MI-c-accentSoftHover);
+		transform: scale(0.97);
 	}
 
 	&.active {
-		color: var(--MI_THEME-fgOnAccent);
+		color: var(--MI-c-fgOnAccent);
 		background: var(--MI_THEME-accent);
+		border-color: var(--MI_THEME-accent);
 
-		&:hover {
-			background: hsl(from var(--MI_THEME-accent) h s calc(l + 10));
-			border-color: hsl(from var(--MI_THEME-accent) h s calc(l + 10));
+		&:not(:disabled):hover {
+			background: var(--MI-c-accentHover);
+			border-color: var(--MI-c-accentHover);
 		}
 
-		&:active {
-			background: hsl(from var(--MI_THEME-accent) h s calc(l - 10));
-			border-color: hsl(from var(--MI_THEME-accent) h s calc(l - 10));
+		&:not(:disabled):active {
+			background: var(--MI-c-accentPressed);
+			border-color: var(--MI-c-accentPressed);
 		}
 	}
 
 	&.wait {
 		cursor: wait !important;
 		opacity: 0.7;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.root:not(:disabled):active {
+		transform: none;
 	}
 }
 

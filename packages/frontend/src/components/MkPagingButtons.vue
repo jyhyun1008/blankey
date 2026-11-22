@@ -95,7 +95,7 @@ function onToTailButtonClicked() {
 	gap: 24px;
 
 	button {
-		border-radius: 9999px;
+		border-radius: var(--MI-radius-full);
 		min-width: 2.5em;
 		min-height: 2.5em;
 		max-width: 2.5em;

@@ -533,7 +533,7 @@ definePage(() => ({
 				display: block;
 				width: 80px;
 				margin: 0 auto;
-				border-radius: 16px;
+				border-radius: var(--MI-radius-lg);
 				position: relative;
 				z-index: 1;
 			}
@@ -587,7 +587,7 @@ definePage(() => ({
 	align-items: center;
 	padding: 12px;
 	background: var(--MI_THEME-buttonBg);
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	&:hover {
 		text-decoration: none;
@@ -595,7 +595,7 @@ definePage(() => ({
 	}
 
 	&.active {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		background: var(--MI_THEME-buttonHoverBg);
 	}
 }
@@ -620,7 +620,7 @@ definePage(() => ({
 	align-items: center;
 	padding: 12px;
 	background: var(--MI_THEME-buttonBg);
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .patronIcon {

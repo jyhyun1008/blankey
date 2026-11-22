@@ -198,6 +198,8 @@ export const packedPageSchema = {
 				ref: 'DriveFile',
 			},
 		},
+		supportersOnly: { type: 'boolean', optional: true, nullable: false },
+		supportersOnlyLocked: { type: 'boolean', optional: true, nullable: false },
 		likedCount: {
 			type: 'number',
 			optional: false, nullable: false,

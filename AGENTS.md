@@ -61,6 +61,8 @@
 
 ## 変更を出す前の最低チェック
 
+AI が開発中に残すロードマップ、設計メモ、調査記録、作業計画、引き継ぎなどのローカル文書は、リポジトリ直下の `.ai-notes/` に保存する。このディレクトリは Git の追跡対象外とする。
+
 各エージェントは [shipping-misskey-change スキル](.claude/skills/shipping-misskey-change/SKILL.md) を参照すること。スキルが利用できない環境でも、以下のチェックは必ず実施すること:
 
 1. **lint / test**: ESLint 対象の変更ファイルへ package root から `eslint --quiet` を最後に 1 回実行し、実装変更には最も近い test を選んで実行する。

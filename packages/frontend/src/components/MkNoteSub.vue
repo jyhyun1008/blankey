@@ -102,7 +102,7 @@ if (props.detail && props.note) {
 	left: 8px;
 	width: 5px;
 	height: calc(100% - 8px);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	pointer-events: none;
 }
 
@@ -112,7 +112,7 @@ if (props.detail && props.note) {
 	margin: 0 8px 0 0;
 	width: 38px;
 	height: 38px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 
 .body {
@@ -161,16 +161,16 @@ if (props.detail && props.note) {
 	padding: 8px !important;
 	border: 1px solid var(--MI_THEME-divider);
 	margin: 8px 8px 0 8px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 
 .deleted {
 	text-align: center;
 	padding: 8px !important;
 	margin: 8px 8px 0 8px;
-	--color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+	--color: var(--MI-c-hover);
 	background-size: auto auto;
 	background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--color) 4px, var(--color) 14px);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 </style>

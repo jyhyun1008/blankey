@@ -188,17 +188,12 @@ export const PREF_DEF = definePreferences({
 	menu: {
 		default: [
 			'notifications',
-			'clips',
-			'drive',
-			'followRequests',
-			'chat',
+			// メッセージは配信者だけが使えるので、既定では「もっと」に入れる
 			'-',
+			// ログアウト時のサイドバー (visitor.vue) と同じ並び: 探す → コンテンツ → お知らせ
 			'explore',
+			'contents',
 			'announcements',
-			'channels',
-			'search',
-			'-',
-			'ui',
 		],
 	},
 	statusbars: {
@@ -226,7 +221,8 @@ export const PREF_DEF = definePreferences({
 		default: false,
 	},
 	enableQuickAddMfmFunction: {
-		default: false,
+		// Blankey: ノート作成フォームに MFM 関数の挿入ボタンを最初から出す
+		default: true,
 	},
 	loadRawImages: {
 		default: false,

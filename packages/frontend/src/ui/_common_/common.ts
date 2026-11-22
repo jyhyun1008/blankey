@@ -11,6 +11,22 @@ import { instance } from '@/instance.js';
 import { i18n } from '@/i18n.js';
 import { $i } from '@/i.js';
 
+export async function openSigninDialog() {
+	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkSigninDialog.vue').then((x) => x.default), {
+		autoSet: true,
+	}, {
+		closed: () => dispose(),
+	});
+}
+
+export async function openSignupDialog() {
+	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkSignupDialog.vue').then((x) => x.default), {
+		autoSet: true,
+	}, {
+		closed: () => dispose(),
+	});
+}
+
 function toolsMenuItems(): MenuItem[] {
 	const items: MenuItem[] = [{
 		type: 'link',

@@ -134,6 +134,6 @@ onMounted(() => {
 .searchResultItem {
 	padding: 12px;
 	border: solid 1px var(--MI_THEME-divider);
-	border-radius: 12px;
+	border-radius: var(--MI-radius-md);
 }
 </style>

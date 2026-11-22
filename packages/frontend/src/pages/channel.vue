@@ -7,23 +7,32 @@ SPDX-License-Identifier: AGPL-3.0-only
 <PageWithHeader v-model:tab="tab" :actions="headerActions" :tabs="headerTabs" :swipable="true">
 	<div class="_spacer" style="--MI_SPACER-w: 700px;">
 		<div v-if="channel && tab === 'overview'" class="_gaps">
-			<div class="_panel" :class="$style.bannerContainer">
-				<XChannelFollowButton :channel="channel" :full="true" :class="$style.subscribe"/>
-				<MkButton v-if="favorited" v-tooltip="i18n.ts.unfavorite" asLike class="button" rounded primary :class="$style.favorite" @click="unfavorite()"><i class="ti ti-star"></i></MkButton>
-				<MkButton v-else v-tooltip="i18n.ts.favorite" asLike class="button" rounded :class="$style.favorite" @click="favorite()"><i class="ti ti-star"></i></MkButton>
-				<div :style="{ backgroundImage: channel.bannerUrl ? `url(${channel.bannerUrl})` : undefined }" :class="$style.banner">
-					<div :class="$style.bannerStatus">
-						<div><i class="ti ti-users ti-fw"></i><I18n :src="i18n.ts._channel.usersCount" tag="span" style="margin-left: 4px;"><template #n><b>{{ channel.usersCount }}</b></template></I18n></div>
-						<div><i class="ti ti-pencil ti-fw"></i><I18n :src="i18n.ts._channel.notesCount" tag="span" style="margin-left: 4px;"><template #n><b>{{ channel.notesCount }}</b></template></I18n></div>
-						<div v-if="$i != null && channel != null && $i.id === channel.userId" style="color: var(--MI_THEME-warn)"><i class="ti ti-user-star ti-fw"></i><span style="margin-left: 4px;">{{ i18n.ts.youAreAdmin }}</span></div>
+			<div :class="[$style.banner, { [$style.noBanner]: !channel.bannerUrl }]">
+				<img v-if="channel.bannerUrl" :src="channel.bannerUrl" alt="" :class="$style.bannerImage"/>
+				<i v-else class="ti ti-device-tv" :class="$style.bannerIcon" aria-hidden="true"></i>
+				<span v-if="channel.isSensitive" :class="$style.sensitiveIndicator"><i class="ti ti-eye-exclamation" aria-hidden="true"></i> {{ i18n.ts.sensitive }}</span>
+			</div>
+
+			<section class="_panel" :class="$style.info" :style="channel.color ? { '--channelColor': channel.color } : undefined">
+				<div :class="$style.infoHead">
+					<div :class="$style.infoTitle">
+						<h1 :class="$style.name">{{ channel.name }}</h1>
+						<div :class="$style.stats">
+							<span><i class="ti ti-users" aria-hidden="true"></i> <I18n :src="i18n.ts._channel.usersCount" tag="span"><template #n><b>{{ channel.usersCount }}</b></template></I18n></span>
+							<span><i class="ti ti-pencil" aria-hidden="true"></i> <I18n :src="i18n.ts._channel.notesCount" tag="span"><template #n><b>{{ channel.notesCount }}</b></template></I18n></span>
+							<span v-if="$i != null && $i.id === channel.userId" :class="$style.adminBadge"><i class="ti ti-user-star" aria-hidden="true"></i> {{ i18n.ts.youAreAdmin }}</span>
+						</div>
 					</div>
-					<div v-if="channel.isSensitive" :class="$style.sensitiveIndicator">{{ i18n.ts.sensitive }}</div>
-					<div :class="$style.bannerFade"></div>
+					<div :class="$style.infoActions">
+						<MkButton v-if="favorited" v-tooltip="i18n.ts.unfavorite" :aria-label="i18n.ts.unfavorite" asLike rounded primary @click="unfavorite()"><i class="ti ti-star-filled"></i></MkButton>
+						<MkButton v-else v-tooltip="i18n.ts.favorite" :aria-label="i18n.ts.favorite" asLike rounded @click="favorite()"><i class="ti ti-star"></i></MkButton>
+						<XChannelFollowButton :channel="channel" :full="true"/>
+					</div>
 				</div>
 				<div v-if="channel.description" :class="$style.description">
 					<Mfm :text="channel.description" :isNote="false"/>
 				</div>
-			</div>
+			</section>
 
 			<MkFoldableSection>
 				<template #header><i class="ti ti-pin ti-fw" style="margin-right: 0.5em;"></i>{{ i18n.ts.pinnedNotes }}</template>
@@ -355,66 +364,118 @@ definePage(() => ({
 	border-top: solid 0.5px var(--MI_THEME-divider);
 }
 
-.bannerContainer {
-	position: relative;
-}
-
-.subscribe {
-	position: absolute;
-	z-index: 1;
-	top: 16px;
-	left: 16px;
-}
-
-.favorite {
-	position: absolute;
-	z-index: 1;
-	top: 16px;
-	right: 16px;
-}
-
 .banner {
 	position: relative;
-	height: 200px;
-	background-position: center;
-	background-size: cover;
-}
-
-.bannerFade {
-	position: absolute;
-	bottom: 0;
-	left: 0;
+	display: grid;
+	place-items: center;
+	aspect-ratio: 3 / 1;
+	max-height: 240px;
 	width: 100%;
-	height: 64px;
-	background: linear-gradient(0deg, var(--MI_THEME-panel), color(from var(--MI_THEME-panel) srgb r g b / 0));
+	overflow: hidden;
+	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 }
 
-.bannerStatus {
+.noBanner {
+	aspect-ratio: 5 / 1;
+	background:
+		radial-gradient(120% 140% at 0% 0%, var(--MI-c-accentSoft), transparent 60%),
+		radial-gradient(90% 120% at 100% 100%, color-mix(in oklab, var(--MI-c-accentSoft) 60%, transparent), transparent 70%),
+		var(--MI-c-inset);
+}
+
+.bannerImage {
 	position: absolute;
-	z-index: 1;
-	bottom: 16px;
-	right: 16px;
-	padding: 8px 12px;
-	font-size: 80%;
-	background: rgba(0, 0, 0, 0.7);
-	border-radius: 6px;
-	color: #fff;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
-.description {
-	padding: 16px;
+.bannerIcon {
+	font-size: 2.2em;
+	color: var(--MI-c-accentInk);
+	opacity: .6;
 }
 
 .sensitiveIndicator {
 	position: absolute;
-	z-index: 1;
-	bottom: 16px;
-	left: 16px;
-	background: rgba(0, 0, 0, 0.7);
+	left: 12px;
+	bottom: 12px;
+	padding: 3px 10px;
+	border-radius: var(--MI-radius-full);
+	background: rgb(0 0 0 / 0.65);
 	color: var(--MI_THEME-warn);
-	border-radius: 6px;
+	font-size: 0.85em;
 	font-weight: bold;
-	font-size: 1em;
-	padding: 4px 7px;
+}
+
+.info {
+	position: relative;
+	padding: 18px 20px;
+
+	// チャンネルの色を上辺のアクセントに
+	&::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 20px;
+		right: 20px;
+		height: 3px;
+		border-radius: 0 0 var(--MI-radius-full) var(--MI-radius-full);
+		background: var(--channelColor, var(--MI_THEME-accent));
+	}
+}
+
+.infoHead {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 16px;
+}
+
+.infoTitle {
+	min-width: 0;
+	flex: 1 1 240px;
+}
+
+.name {
+	margin: 0;
+	font-size: 1.35em;
+	line-height: 1.3;
+	overflow-wrap: anywhere;
+}
+
+.stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	margin-top: 6px;
+	color: var(--MI-c-fgMuted);
+	font-size: 0.85em;
+
+	b {
+		color: var(--MI_THEME-fg);
+	}
+}
+
+.adminBadge {
+	color: var(--MI_THEME-warn);
+}
+
+.infoActions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: none;
+}
+
+.description {
+	margin-top: 14px;
+	padding-top: 14px;
+	border-top: 1px solid var(--MI-c-border);
+	line-height: 1.7;
+	overflow-wrap: anywhere;
 }
 </style>

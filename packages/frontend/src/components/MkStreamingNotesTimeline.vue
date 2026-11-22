@@ -529,11 +529,11 @@ defineExpose({
 	position: relative;
 	display: block;
 	padding: 6px 12px;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	width: max-content;
 	margin: auto;
 	background: var(--MI_THEME-accent);
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	font-size: 90%;
 
 	&:hover {

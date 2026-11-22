@@ -226,6 +226,19 @@ describe('RoleService', () => {
 	});
 
 	describe('getUserPolicies', () => {
+		test('chat is available only to local streamers', async () => {
+			meta.policies = {
+				chatAvailability: 'available',
+			};
+			const streamer = await createUser({ isStreamer: true });
+			const viewer = await createUser();
+			const remoteStreamer = await createUser({ isStreamer: true, host: 'example.com' });
+
+			expect((await roleService.getUserPolicies(streamer.id)).chatAvailability).toBe('available');
+			expect((await roleService.getUserPolicies(viewer.id)).chatAvailability).toBe('unavailable');
+			expect((await roleService.getUserPolicies(remoteStreamer.id)).chatAvailability).toBe('unavailable');
+		});
+
 		test('instance default policies', async () => {
 			const user = await createUser();
 			meta.policies = {

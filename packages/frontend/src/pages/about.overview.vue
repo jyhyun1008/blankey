@@ -145,7 +145,7 @@ const initStats = () => misskeyApi('stats', {});
 <style lang="scss" module>
 .banner {
 	text-align: center;
-	border-radius: 10px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 	background-color: var(--MI_THEME-panel);
 	background-size: cover;
@@ -156,7 +156,7 @@ const initStats = () => misskeyApi('stats', {});
 	display: block;
 	margin: 16px auto 0 auto;
 	height: 64px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 
 .bannerName {
@@ -190,12 +190,12 @@ const initStats = () => misskeyApi('stats', {});
 		height: 32px;
 		line-height: 32px;
 		background-color: var(--MI_THEME-accentedBg);
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		font-size: 13px;
 		font-weight: bold;
 		align-items: center;
 		justify-content: center;
-		border-radius: 999px;
+		border-radius: var(--MI-radius-full);
 	}
 }
 

@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <button class="_button" :class="$style.root" @click="menu">
-	<img :src="emoji.url" :class="$style.img" loading="lazy"/>
+	<img :src="emoji.url" :alt="`:${emoji.name}:`" :class="$style.img" loading="lazy"/>
 	<div :class="$style.body">
 		<div :class="$style.name" class="_monospace">{{ emoji.name }}</div>
 		<div :class="$style.info">{{ emoji.aliases.join(' ') }}</div>
@@ -77,15 +77,26 @@ function menu(ev: PointerEvent) {
 .root {
 	display: flex;
 	align-items: center;
+	min-width: 0;
 	padding: 12px;
 	text-align: left;
 	background: var(--MI_THEME-panel);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-md);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	content-visibility: auto;
 	contain-intrinsic-size: auto 66px;
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		box-shadow var(--MI-duration-fast) var(--MI-ease);
 
 	&:hover {
-		border-color: var(--MI_THEME-accent);
+		background: var(--MI-c-hover);
+		box-shadow: 0 0 0 1px var(--MI-c-borderStrong);
+	}
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: var(--MI-focusRing);
 	}
 }
 

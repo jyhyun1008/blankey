@@ -101,7 +101,7 @@ const exampleCWNote = reactive<Misskey.entities.Note>({
 	display: block;
 	width: 100%;
 	height: 40px;
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	font-weight: bold;
 	text-align: left;
 
@@ -116,7 +116,7 @@ const exampleCWNote = reactive<Misskey.entities.Note>({
 		left: 0;
 		right: 0;
 		bottom: 0;
-		border-radius: 999px;
+		border-radius: var(--MI-radius-full);
 		background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 	}
 

@@ -327,7 +327,7 @@ defineExpose({
 .iconFallback {
 	border-radius: 50%;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	text-align: center;
 	line-height: 54px;
 	font-size: 18px;
@@ -435,7 +435,7 @@ defineExpose({
 
 .accountSelectorAddAccountAvatar {
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	font-size: 16px;
 	line-height: 45px;
 	text-align: center;

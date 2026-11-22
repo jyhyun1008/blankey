@@ -403,6 +403,14 @@ export class RoleService implements OnApplicationShutdown, OnModuleInit {
 
 		const serverMaxFileSizeMb = Math.floor(this.config.maxFileSize / (1024 * 1024));
 
+		// Blankey: チャット (メッセージ) はローカルの配信者アカウント同士だけが使える。
+		// ロールで許可されていても、配信者でなければ unavailable にする。
+		let chatAvailability = calc('chatAvailability', aggregateChatAvailability);
+		if (chatAvailability !== 'unavailable') {
+			const user = await this.cacheService.findUserById(userId).catch(() => null);
+			if (user == null || user.host != null || !user.isStreamer) chatAvailability = 'unavailable';
+		}
+
 		return {
 			gtlAvailable: calc('gtlAvailable', vs => vs.some(v => v === true)),
 			ltlAvailable: calc('ltlAvailable', vs => vs.some(v => v === true)),
@@ -438,7 +446,7 @@ export class RoleService implements OnApplicationShutdown, OnModuleInit {
 			canImportFollowing: calc('canImportFollowing', vs => vs.some(v => v === true)),
 			canImportMuting: calc('canImportMuting', vs => vs.some(v => v === true)),
 			canImportUserLists: calc('canImportUserLists', vs => vs.some(v => v === true)),
-			chatAvailability: calc('chatAvailability', aggregateChatAvailability),
+			chatAvailability,
 			uploadableFileTypes: calc('uploadableFileTypes', vs => {
 				const set = new Set<string>();
 				for (const v of vs) {

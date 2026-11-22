@@ -98,6 +98,9 @@ export class MiPage {
 	@Column('enum', { enum: ['public', 'followers', 'specified'] })
 	public visibility: 'public' | 'followers' | 'specified';
 
+	@Column('boolean', { default: false })
+	public supportersOnly: boolean;
+
 	@Index()
 	@Column({
 		...id(),

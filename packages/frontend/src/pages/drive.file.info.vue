@@ -254,12 +254,12 @@ onMounted(async () => {
 
 	.fileQuickActionsOthersButton {
 		padding: .5rem;
-		border-radius: 99rem;
+		border-radius: var(--MI-radius-full);
 
 		&:hover,
 		&:focus-visible {
 			background-color: var(--MI_THEME-accentedBg);
-			color: var(--MI_THEME-accent);
+			color: var(--MI-c-accentInk);
 			text-decoration: none;
 			outline: none;
 		}
@@ -300,7 +300,7 @@ onMounted(async () => {
 		>.fileName,
 		>.fileNameEditIcon {
 			visibility: visible;
-			color: var(--MI_THEME-accent);
+			color: var(--MI-c-accentInk);
 		}
 	}
 }
@@ -328,11 +328,11 @@ onMounted(async () => {
 	}
 
 	&:hover {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		background-color: var(--MI_THEME-accentedBg);
 
 		.kvEditIcon {
-			color: var(--MI_THEME-accent);
+			color: var(--MI-c-accentInk);
 			visibility: visible;
 		}
 	}

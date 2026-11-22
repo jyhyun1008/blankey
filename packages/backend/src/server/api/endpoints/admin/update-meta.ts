@@ -66,7 +66,9 @@ export const paramDef = {
 		name: { type: 'string', nullable: true },
 		shortName: { type: 'string', nullable: true },
 		description: { type: 'string', nullable: true },
-		defaultLightTheme: { type: 'string', nullable: true },
+		webFontRegularUrl: { type: 'string', nullable: true, pattern: '^https://[^/\\s?#]+(?:[/?#]\\S*)?$', maxLength: 2048 },
+	webFontBoldUrl: { type: 'string', nullable: true, pattern: '^https://[^/\\s?#]+(?:[/?#]\\S*)?$', maxLength: 2048 },
+	defaultLightTheme: { type: 'string', nullable: true },
 		defaultDarkTheme: { type: 'string', nullable: true },
 		clientOptions: {
 			type: 'object', nullable: false,
@@ -339,6 +341,14 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 			if (ps.description !== undefined) {
 				set.description = ps.description;
+			}
+
+			if (ps.webFontRegularUrl !== undefined) {
+				set.webFontRegularUrl = ps.webFontRegularUrl;
+			}
+
+			if (ps.webFontBoldUrl !== undefined) {
+				set.webFontBoldUrl = ps.webFontBoldUrl;
 			}
 
 			if (ps.defaultLightTheme !== undefined) {

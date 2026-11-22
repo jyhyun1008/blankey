@@ -80,14 +80,14 @@ defineExpose({
 		background: var(--MI_THEME-panel);
 
 		.note {
-			border-bottom: solid 0.5px var(--MI_THEME-divider);
+			border-bottom: solid 1px var(--MI-c-border);
 		}
 
 		.ad {
 			padding: 8px;
 			background-size: auto auto;
 			background-image: repeating-linear-gradient(45deg, transparent, transparent 8px, var(--MI_THEME-bg) 8px, var(--MI_THEME-bg) 14px);
-			border-bottom: solid 0.5px var(--MI_THEME-divider);
+			border-bottom: solid 1px var(--MI-c-border);
 		}
 	}
 
@@ -97,6 +97,7 @@ defineExpose({
 		.note {
 			background: var(--MI_THEME-panel);
 			border-radius: var(--MI-radius);
+			box-shadow: 0 0 0 1px var(--MI-c-border);
 		}
 	}
 }
@@ -107,12 +108,12 @@ defineExpose({
 	align-items: center;
 	justify-content: center;
 	gap: 1em;
-	opacity: 0.75;
+	color: var(--MI-c-fgMuted);
 	padding: 8px 8px;
 	margin: 0 auto;
 
 	&.noGap {
-		border-bottom: solid 0.5px var(--MI_THEME-divider);
+		border-bottom: solid 1px var(--MI-c-border);
 	}
 }
 

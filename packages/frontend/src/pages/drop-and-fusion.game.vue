@@ -1464,7 +1464,7 @@ definePage(() => ({
 	padding: 16px;
 	box-sizing: border-box;
 	background: #0007;
-	border-radius: 16px;
+	border-radius: var(--MI-radius-lg);
 	color: #fff;
 	text-align: center;
 	font-weight: bold;
@@ -1485,7 +1485,7 @@ definePage(() => ({
 	color: #f00;
 	font-weight: bold;
 	background: #0008;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	pointer-events: none;
 }
 

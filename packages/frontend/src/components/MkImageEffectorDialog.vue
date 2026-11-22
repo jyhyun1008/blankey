@@ -377,7 +377,7 @@ function onImagePointerdown(ev: PointerEvent) {
 	top: 8px;
 	left: 8px;
 	padding: 6px 10px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	font-size: 85%;
 }
 
@@ -390,7 +390,7 @@ function onImagePointerdown(ev: PointerEvent) {
 	align-items: center;
 	gap: 8px;
 	padding: 6px 10px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .previewControls {
@@ -402,12 +402,12 @@ function onImagePointerdown(ev: PointerEvent) {
 	align-items: center;
 	gap: 8px;
 	padding: 6px 10px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .previewControlsButton {
 	&.active {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 

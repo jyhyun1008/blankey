@@ -136,7 +136,7 @@ onUnmounted(() => {
 .transition_toggle_enterActive,
 .transition_toggle_leaveActive {
 	overflow-y: clip;
-	transition: opacity 0.5s, height 0.5s !important;
+	transition: opacity var(--MI-duration-slow) var(--MI-ease), height var(--MI-duration-slow) var(--MI-ease) !important;
 }
 .transition_toggle_enterFrom,
 .transition_toggle_leaveTo {
@@ -188,13 +188,13 @@ onUnmounted(() => {
 
 @container style(--MI_THEME-panelHeaderBg: var(--MI_THEME-panel)) {
 	.header {
-		box-shadow: 0 0.5px 0 0 light-dark(#0002, #fff2);
+		box-shadow: 0 1px 0 0 var(--MI-c-border);
 	}
 }
 
 .title {
 	margin: 0;
-	padding: 12px 16px;
+	padding: 14px 18px;
 
 	&:empty {
 		display: none;
@@ -202,7 +202,8 @@ onUnmounted(() => {
 }
 
 .titleIcon {
-	margin-right: 6px;
+	margin-right: 8px;
+	color: var(--MI-c-accentInk);
 }
 
 .headerSub {
@@ -249,8 +250,8 @@ onUnmounted(() => {
 				background: var(--MI_THEME-panel);
 				padding: 6px 10px;
 				font-size: 0.8em;
-				border-radius: 999px;
-				box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
+				border-radius: var(--MI-radius-full);
+				box-shadow: 0 0 0 1px var(--MI-c-border);
 			}
 
 			&:hover {

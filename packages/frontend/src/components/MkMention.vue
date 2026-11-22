@@ -46,7 +46,7 @@ const avatarUrl = computed(() => prefer.s.disableShowingAnimatedImages || prefer
 .root {
 	display: inline-block;
 	padding: 4px 8px 4px 4px;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	color: var(--MI_THEME-mention);
 	background: color(from var(--MI_THEME-mention) srgb r g b / 0.1);
 

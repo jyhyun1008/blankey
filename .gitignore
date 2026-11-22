@@ -83,3 +83,6 @@ vite.config.local-dev.ts.timestamp-*
 
 # Affinity
 *.af~lock~
+
+# Local AI development documents
+/.ai-notes/

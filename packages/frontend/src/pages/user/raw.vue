@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div class="_spacer" style="--MI_SPACER-w: 600px; --MI_SPACER-min: 16px; --MI_SPACER-max: 32px;">
+<div class="_spacer _profileContent">
 	<div class="_gaps_m">
 		<div :class="$style.userMInfoRoot">
 			<MkAvatar :class="$style.userMInfoAvatar" :user="user" indicator link preview/>
@@ -107,7 +107,7 @@ const suspended = computed(() => props.user.isSuspended ?? false);
 	> .moderator {
 		display: inline-block;
 		border: solid 1px;
-		border-radius: 6px;
+		border-radius: var(--MI-radius-xs);
 		padding: 2px 6px;
 		font-size: 85%;
 	}

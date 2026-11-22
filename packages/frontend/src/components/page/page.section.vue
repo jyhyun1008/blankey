@@ -6,12 +6,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <section>
 	<component
-		:is="'h' + h"
-		:class="{
-			'h2': h === 2,
-			'h3': h === 3,
-			'h4': h === 4,
-		}"
+		:is="'h' + Math.min(h, 6)"
+		:id="`page-section-${block.id}`"
+		:class="[$style.heading, {
+			[$style.h2]: h === 2,
+			[$style.h3]: h === 3,
+		}]"
 	>
 		{{ block.title }}
 	</component>
@@ -36,18 +36,23 @@ defineProps<{
 </script>
 
 <style lang="scss" module>
+.heading {
+	margin: 0.6em 0 0.2em;
+	font-size: 1em;
+	line-height: 1.35;
+	scroll-margin-top: calc(var(--MI-stickyTop, 0px) + 16px);
+	overflow-wrap: anywhere;
+}
+
 .h2 {
-	font-size: 1.35em;
-	margin: 0 0 0.5em 0;
+	margin-top: 1.4em;
+	padding-bottom: 0.3em;
+	border-bottom: 1px solid var(--MI-c-border);
+	font-size: 1.5em;
 }
 
 .h3 {
-	font-size: 1em;
-	margin: 0 0 0.5em 0;
-}
-
-.h4 {
-	font-size: 1em;
-	margin: 0 0 0.5em 0;
+	font-size: 1.2em;
+	margin-top: 0.9em;
 }
 </style>

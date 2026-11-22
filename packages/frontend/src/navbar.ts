@@ -15,6 +15,19 @@ import * as os from '@/os.js';
 import { i18n } from '@/i18n.js';
 import { unisonReload } from '@/utility/unison-reload.js';
 
+export const fixedSidebarItems = ['drive', 'followRequests'];
+
+/**
+ * メニューにある項目が既にカバーしている項目 (「もっと」に重ねて出さない)。
+ * 「コンテンツ」ハブはブログ・ギャラリー・チャンネルを、「探す」は検索を含む。
+ */
+export function getCoveredMenuItems(menu: readonly string[]): string[] {
+	return [
+		...(menu.includes('contents') ? ['pages', 'gallery', 'channels'] : []),
+		...(menu.includes('explore') ? ['search'] : []),
+	];
+}
+
 export const navbarItemDef = reactive<{
 	[key: string]: {
 		title: string;
@@ -51,6 +64,8 @@ export const navbarItemDef = reactive<{
 	followRequests: {
 		title: i18n.ts.followRequests,
 		icon: 'ti ti-user-plus',
+		// 「フォローを承認制にする」が有効なとき、または承認待ちのリクエストが残っているときだけ出す
+		show: computed(() => $i != null && ($i.isLocked || $i.hasPendingReceivedFollowRequest)),
 		indicated: computed(() => $i != null && $i.hasPendingReceivedFollowRequest),
 		to: '/my/follow-requests',
 	},
@@ -100,6 +115,11 @@ export const navbarItemDef = reactive<{
 		icon: 'ti ti-star',
 		show: computed(() => $i != null),
 		to: '/my/favorites',
+	},
+	contents: {
+		title: i18n.ts.contentHub,
+		icon: 'ti ti-layout-grid',
+		to: '/pages',
 	},
 	pages: {
 		title: i18n.ts.pages,

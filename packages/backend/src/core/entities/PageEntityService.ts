@@ -13,6 +13,7 @@ import type { MiUser } from '@/models/User.js';
 import type { MiPage } from '@/models/Page.js';
 import type { MiDriveFile } from '@/models/DriveFile.js';
 import { bindThis } from '@/decorators.js';
+import { BuyMeACoffeeService } from '@/core/BuyMeACoffeeService.js';
 import { IdService } from '@/core/IdService.js';
 import { UserEntityService } from './UserEntityService.js';
 import { DriveFileEntityService } from './DriveFileEntityService.js';
@@ -31,6 +32,7 @@ export class PageEntityService {
 
 		private userEntityService: UserEntityService,
 		private driveFileEntityService: DriveFileEntityService,
+		private buyMeACoffeeService: BuyMeACoffeeService,
 		private idService: IdService,
 	) {
 	}
@@ -46,6 +48,7 @@ export class PageEntityService {
 		const meId = me ? me.id : null;
 		const page = typeof src === 'object' ? src : await this.pagesRepository.findOneByOrFail({ id: src });
 
+		const locked = page.supportersOnly && !await this.buyMeACoffeeService.canAccess(page.userId, me?.id);
 		const attachedFiles: Promise<MiDriveFile | null>[] = [];
 		const collectFile = (xs: any[]) => {
 			for (const x of xs) {
@@ -60,7 +63,7 @@ export class PageEntityService {
 				}
 			}
 		};
-		collectFile(page.content);
+		if (!locked) collectFile(page.content);
 
 		// 後方互換性のため
 		let migrated = false;
@@ -81,7 +84,7 @@ export class PageEntityService {
 				}
 			}
 		};
-		migrate(page.content);
+		if (!locked) migrate(page.content);
 		if (migrated) {
 			this.pagesRepository.update(page.id, {
 				content: page.content,
@@ -94,18 +97,20 @@ export class PageEntityService {
 			updatedAt: page.updatedAt.toISOString(),
 			userId: page.userId,
 			user: hint?.packedUser ?? this.userEntityService.pack(page.user ?? page.userId, me), // { schema: 'UserDetailed' } すると無限ループするので注意
-			content: page.content,
-			variables: page.variables,
+			content: locked ? [] : page.content,
+			variables: locked ? [] : page.variables,
 			title: page.title,
 			name: page.name,
-			summary: page.summary,
+			summary: locked ? null : page.summary,
 			hideTitleWhenPinned: page.hideTitleWhenPinned,
 			alignCenter: page.alignCenter,
 			font: page.font,
-			script: page.script,
-			eyeCatchingImageId: page.eyeCatchingImageId,
-			eyeCatchingImage: page.eyeCatchingImageId ? await this.driveFileEntityService.pack(page.eyeCatchingImageId) : null,
+			script: locked ? '' : page.script,
+			eyeCatchingImageId: locked ? null : page.eyeCatchingImageId,
+			eyeCatchingImage: !locked && page.eyeCatchingImageId ? await this.driveFileEntityService.pack(page.eyeCatchingImageId) : null,
 			attachedFiles: this.driveFileEntityService.packMany((await Promise.all(attachedFiles)).filter(x => x != null)),
+			supportersOnly: page.supportersOnly || undefined,
+			supportersOnlyLocked: locked || undefined,
 			likedCount: page.likedCount,
 			isLiked: meId ? await this.pageLikesRepository.exists({ where: { pageId: page.id, userId: meId } }) : undefined,
 		});

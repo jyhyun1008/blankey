@@ -98,7 +98,7 @@ onBeforeUnmount(dispose);
 		left: -8px;
 		width: calc(100% + 16px);
 		height: calc(100% + 16px);
-		border-radius: 6px;
+		border-radius: var(--MI-radius-xs);
 		animation: blink 1s 3.5;
 		pointer-events: none;
 	}

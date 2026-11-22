@@ -4,7 +4,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="src" :actions="headerActions" :tabs="$i ? headerTabs : headerTabsWhenNotLogin" :swipable="true" :displayMyAvatar="true" :canOmitTitle="true">
+<PageWithHeader v-model:tab="src" :actions="headerActions" :tabs="$i ? headerTabs : headerTabsWhenNotLogin" :swipable="true" :displayMyAvatar="true">
 	<div class="_spacer" style="--MI_SPACER-w: 800px;">
 		<MkTip v-if="isBasicTimeline(src)" :k="`tl.${src}`" style="margin-bottom: var(--MI-margin);">
 			{{ i18n.ts._timelineDescription[src] }}
@@ -205,7 +205,25 @@ onActivated(() => {
 });
 
 const headerActions = computed<PageHeaderItem[]>(() => {
-	const items: PageHeaderItem[] = [{
+	const items: PageHeaderItem[] = [];
+
+	if ($i) {
+		items.push({
+			icon: 'ti ti-list',
+			text: i18n.ts.lists,
+			handler: chooseList,
+		}, {
+			icon: 'ti ti-antenna',
+			text: i18n.ts.antennas,
+			handler: chooseAntenna,
+		}, {
+			icon: 'ti ti-device-tv',
+			text: i18n.ts.channel,
+			handler: chooseChannel,
+		});
+	}
+
+	items.push({
 		icon: 'ti ti-dots',
 		text: i18n.ts.options,
 		handler: (ev) => {
@@ -249,7 +267,7 @@ const headerActions = computed<PageHeaderItem[]>(() => {
 
 			os.popupMenu(menuItems, ev.currentTarget ?? ev.target);
 		},
-	}];
+	});
 
 	if (deviceKind === 'desktop') {
 		items.unshift({
@@ -268,39 +286,21 @@ const headerTabs = computed(() => [...(prefer.r.pinnedUserLists.value.map(l => (
 	key: 'list:' + l.id,
 	title: l.name,
 	icon: 'ti ti-star',
-	iconOnly: true,
 }))), ...availableBasicTimelines().map(tl => ({
 	key: tl,
 	title: i18n.ts._timelines[tl],
 	icon: basicTimelineIconClass(tl),
-	iconOnly: true,
-})), {
-	icon: 'ti ti-list',
-	title: i18n.ts.lists,
-	iconOnly: true,
-	onClick: chooseList,
-}, {
-	icon: 'ti ti-antenna',
-	title: i18n.ts.antennas,
-	iconOnly: true,
-	onClick: chooseAntenna,
-}, {
-	icon: 'ti ti-device-tv',
-	title: i18n.ts.channel,
-	iconOnly: true,
-	onClick: chooseChannel,
-}] as Tab[]);
+}))] as Tab[]);
 
 const headerTabsWhenNotLogin = computed(() => [...availableBasicTimelines().map(tl => ({
 	key: tl,
 	title: i18n.ts._timelines[tl],
 	icon: basicTimelineIconClass(tl),
-	iconOnly: true,
 }))] as Tab[]);
 
 definePage(() => ({
 	title: i18n.ts.timeline,
-	icon: isBasicTimeline(src.value) ? basicTimelineIconClass(src.value) : 'ti ti-home',
+	icon: 'ti ti-home',
 }));
 </script>
 
@@ -321,7 +321,7 @@ definePage(() => ({
 	display: block;
 	margin: var(--MI-margin) auto 0 auto;
 	padding: 8px 16px;
-	border-radius: 32px;
+	border-radius: var(--MI-radius-full);
 }
 
 .postForm {
@@ -331,6 +331,10 @@ definePage(() => ({
 .tl {
 	background: var(--MI_THEME-bg);
 	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
+	--MI-paginationControl-margin: 0;
+	--MI-paginationControl-padding: 10px 12px;
+	--MI-paginationControl-border: solid 1px var(--MI-c-border);
 }
 </style>

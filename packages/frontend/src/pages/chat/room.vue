@@ -538,7 +538,7 @@ definePage(computed(() => {
 	padding: 0 12px;
 	line-height: 32px;
 	font-size: 12px;
-	border-radius: 16px;
+	border-radius: var(--MI-radius-lg);
 }
 
 .newIcon {
@@ -573,7 +573,7 @@ definePage(computed(() => {
 	gap: 0.5em;
 	opacity: 0.75;
 	border: solid 0.5px var(--MI_THEME-divider);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	width: fit-content;
 	padding: 0.5em 1em;
 	margin: 0 auto;

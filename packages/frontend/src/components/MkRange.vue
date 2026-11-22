@@ -292,7 +292,7 @@ function onMousedown(ev: MouseEvent | TouchEvent) {
 		padding: 0px 4px;
 		background: var(--MI_THEME-panel);
 		border: solid 1px var(--MI_THEME-panel);
-		border-radius: 6px;
+		border-radius: var(--MI-radius-xs);
 
 		&.disabled {
 			pointer-events: none;
@@ -314,7 +314,7 @@ function onMousedown(ev: MouseEvent | TouchEvent) {
 				width: calc(100% - #{$thumbWidth});
 				height: 3px;
 				background: rgba(0, 0, 0, 0.1);
-				border-radius: 999px;
+				border-radius: var(--MI-radius-full);
 				overflow: clip;
 
 				> .highlight {
@@ -365,7 +365,7 @@ function onMousedown(ev: MouseEvent | TouchEvent) {
 					height: 3px;
 					margin-left: - math.div($tickWidth, 2);
 					background: var(--MI_THEME-divider);
-					border-radius: 999px;
+					border-radius: var(--MI-radius-full);
 				}
 			}
 
@@ -391,7 +391,7 @@ function onMousedown(ev: MouseEvent | TouchEvent) {
 					width: $thumbInnerWidth;
 					height: $thumbInnerHeight;
 					background: var(--MI_THEME-accent);
-					border-radius: 999px;
+					border-radius: var(--MI-radius-full);
 					pointer-events: none;
 				}
 			}

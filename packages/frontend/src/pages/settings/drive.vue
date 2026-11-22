@@ -410,12 +410,12 @@ definePage(() => ({
 .meter {
 	height: 10px;
 	background: rgba(0, 0, 0, 0.1);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	overflow: clip;
 }
 
 .meterValue {
 	height: 100%;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 </style>

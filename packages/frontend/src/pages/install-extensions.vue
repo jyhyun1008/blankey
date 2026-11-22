@@ -260,7 +260,7 @@ definePage(() => ({
 	margin-right: auto;
 
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .error .extInstallerIconWrapper {

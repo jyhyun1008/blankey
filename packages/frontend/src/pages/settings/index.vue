@@ -53,7 +53,22 @@ import { signout } from '@/signout.js';
 import { genSearchIndexes } from '@/utility/inapp-search.js';
 import { enableStoragePersistence, getStoragePersistenceStatusRef, storagePersistenceSupported, skipStoragePersistence } from '@/utility/storage.js';
 
-const searchIndex = await import('search-index:settings').then(({ searchIndexes }) => genSearchIndexes(searchIndexes));
+const allSearchIndex = await import('search-index:settings').then(({ searchIndexes }) => genSearchIndexes(searchIndexes));
+
+// 配信者専用の設定は配信者アカウントのときだけメニュー・検索に出す
+const streamerRouteNames = ['streamer', 'streamer-emojis', 'live'];
+const streamerSettingsPaths = ['/settings/streamer', '/settings/streamer-emojis', '/settings/live'];
+const searchIndex = computed(() => {
+	if ($i?.isStreamer) return allSearchIndex;
+	const byId = new Map(allSearchIndex.map(item => [item.id, item]));
+	const isStreamerOnly = (item: typeof allSearchIndex[number]): boolean => {
+		for (let current: typeof item | undefined = item; current != null; current = byId.get(current.parentId ?? '')) {
+			if (current.path != null) return streamerSettingsPaths.includes(current.path);
+		}
+		return false;
+	};
+	return allSearchIndex.filter(item => !isStreamerOnly(item));
+});
 
 const storagePersisted = await getStoragePersistenceStatusRef();
 
@@ -88,7 +103,12 @@ const menuDef = computed<SuperMenuDef[]>(() => [{
 		text: i18n.ts.profile,
 		to: '/settings/profile',
 		active: currentPage.value?.route.name === 'profile',
-	}, {
+	}, ...($i?.isStreamer ? [{
+		icon: 'ti ti-headset',
+		text: i18n.ts._profile.streamerSettings,
+		to: '/settings/streamer',
+		active: streamerRouteNames.includes(currentPage.value?.route.name ?? ''),
+	}] : []), {
 		icon: 'ti ti-lock-open',
 		text: i18n.ts.privacy,
 		to: '/settings/privacy',

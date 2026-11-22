@@ -77,7 +77,7 @@ function close() {
 	text-align: center;
 	padding-top: 25px;
 	width: 100px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 @media (max-width: 500px) {
 	.icon {

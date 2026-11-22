@@ -175,7 +175,7 @@ definePage(() => ({
 		margin-left: auto;
 		line-height: inherit;
 		font-size: 90%;
-		border-radius: 9999px;
+		border-radius: var(--MI-radius-full);
 	}
 }
 

@@ -266,13 +266,14 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 		& + .group {
 			margin-top: 16px;
 			padding-top: 16px;
-			border-top: solid 0.5px var(--MI_THEME-divider);
+			border-top: solid 1px var(--MI-c-border);
 		}
 
 		> .title {
-			opacity: 0.7;
-			margin: 0 0 8px 0;
-			font-size: 0.9em;
+			color: var(--MI-c-fgMuted);
+			margin: 0 0 6px 8px;
+			font-size: 0.85em;
+			font-weight: bold;
 		}
 
 		> .items {
@@ -281,13 +282,16 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 				align-items: center;
 				width: 100%;
 				box-sizing: border-box;
-				padding: 9px 16px 9px 8px;
-				border-radius: 9px;
-				font-size: 0.9em;
+				min-height: 40px;
+				margin: 2px 0;
+				padding: 8px 16px 8px 8px;
+				border-radius: var(--MI-radius-md);
+				font-size: 0.95em;
+				transition: background var(--MI-duration-fast) var(--MI-ease);
 
 				&:hover {
 					text-decoration: none;
-					background: var(--MI_THEME-panelHighlight);
+					background: var(--MI-c-hover);
 				}
 
 				&:focus-visible {
@@ -295,8 +299,13 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 				}
 
 				&.active {
-					color: var(--MI_THEME-accent);
-					background: var(--MI_THEME-accentedBg);
+					font-weight: bold;
+					color: var(--MI-c-accentInk);
+					background: var(--MI-c-accentSoft);
+
+					> .icon {
+						opacity: 1;
+					}
 				}
 
 				&.danger {
@@ -351,10 +360,11 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 					&:hover {
 						text-decoration: none;
 						background: none;
-						color: var(--MI_THEME-accent);
+						color: var(--MI_THEME-fgHighlighted);
 
 						> .icon {
-							background: var(--MI_THEME-accentedBg);
+							transform: translateY(-2px);
+							background: var(--MI-c-accentSoftHover);
 						}
 					}
 
@@ -364,11 +374,16 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 						margin-right: 0;
 						margin-bottom: 6px;
 						font-size: 1.5em;
-						width: 60px;
-						height: 60px;
+						width: 56px;
+						height: 56px;
 						aspect-ratio: 1;
-						background: var(--MI_THEME-panel);
-						border-radius: 100%;
+						color: var(--MI-c-accentInk);
+						background: var(--MI-c-accentSoft);
+						border-radius: var(--MI-radius-lg);
+						opacity: 1;
+						transition:
+							transform var(--MI-duration) var(--MI-easeSpring),
+							background var(--MI-duration-fast) var(--MI-ease);
 					}
 
 					> .text {
@@ -386,13 +401,14 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 		align-items: center;
 		width: 100%;
 		box-sizing: border-box;
-		padding: 9px 16px 9px 8px;
-		border-radius: 9px;
-		font-size: 0.9em;
+		min-height: 40px;
+		padding: 8px 16px 8px 8px;
+		border-radius: var(--MI-radius-md);
+		font-size: 0.95em;
 
 		&:hover {
 			text-decoration: none;
-			background: var(--MI_THEME-panelHighlight);
+			background: var(--MI-c-hover);
 		}
 
 		&.selected {
@@ -405,8 +421,8 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 		}
 
 		&.active {
-			color: var(--MI_THEME-accent);
-			background: var(--MI_THEME-accentedBg);
+			color: var(--MI-c-accentInk);
+			background: var(--MI-c-accentSoft);
 		}
 
 		&.danger {
@@ -426,6 +442,12 @@ function searchOnKeyDown(ev: KeyboardEvent) {
 			padding-right: 12px;
 			flex-shrink: 1;
 		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rrevdjwu.grid > .group > .items > .item:hover > .icon {
+		transform: none;
 	}
 }
 </style>

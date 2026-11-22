@@ -286,6 +286,8 @@ export function userDetailed(id = 'someuserid', username = 'miskist', host: enti
 		isBlocking: false,
 		isBot: false,
 		isCat: false,
+		isStreamer: false,
+		streamingSchedule: [],
 		isFollowed: false,
 		isFollowing: false,
 		isLocked: false,

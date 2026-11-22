@@ -1,0 +1,38 @@
+# Add this file after your Blankey Compose file.
+# See mediamtx.example.yml for setup and OBS settings.
+services:
+  web:
+    environment:
+      BLANKEY_PRIVATE_LIVE_ORIGIN: http://172.30.254.3:8888
+      BLANKEY_PRIVATE_LIVE_PUBLISH_URL: ${BLANKEY_PRIVATE_LIVE_PUBLISH_URL:-}
+      BLANKEY_PRIVATE_LIVE_ORIGIN_SECRET: ${BLANKEY_PRIVATE_LIVE_ORIGIN_SECRET:?Set a random HLS origin secret}
+    networks:
+      private_live:
+        ipv4_address: 172.30.254.2
+
+  mediamtx:
+    image: bluenviron/mediamtx:1.21.4
+    restart: unless-stopped
+    environment:
+      MTX_HLSCDNSECRET: ${BLANKEY_PRIVATE_LIVE_ORIGIN_SECRET:?Set a random HLS origin secret}
+    ports:
+      - "1936:1936/tcp"
+    networks:
+      external_network:
+      private_live:
+        ipv4_address: 172.30.254.3
+    volumes:
+      - type: bind
+        source: ./.config/private-live
+        target: /private-live
+        read_only: true
+        bind:
+          create_host_path: false
+    command: ["/private-live/mediamtx.yml"]
+
+networks:
+  private_live:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.254.0/29

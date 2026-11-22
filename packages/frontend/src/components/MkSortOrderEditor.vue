@@ -107,7 +107,7 @@ function emitOrder(sortOrders: SortOrder<T>[]) {
 	max-height: 2.0em;
 	padding: 8px;
 	margin-left: auto;
-	border-radius: 9999px;
+	border-radius: var(--MI-radius-full);
 	background-color: var(--MI_THEME-buttonBg);
 }
 

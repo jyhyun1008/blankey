@@ -271,15 +271,22 @@ if (!mock) {
 	height: 42px;
 	padding: 0 6px;
 	font-size: 1.5em;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-full);
 	align-items: center;
 	justify-content: center;
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		transform var(--MI-duration) var(--MI-easeSpring);
 
 	&.canToggle {
 		background: var(--MI_THEME-buttonBg);
 
 		&:hover {
-			background: rgba(0, 0, 0, 0.1);
+			background: var(--MI_THEME-buttonHoverBg);
+		}
+
+		&:active {
+			transform: scale(0.94);
 		}
 	}
 
@@ -289,8 +296,8 @@ if (!mock) {
 
 	&.small {
 		height: 32px;
+		padding: 0 8px;
 		font-size: 1em;
-		border-radius: 4px;
 
 		> .count {
 			font-size: 0.9em;
@@ -301,7 +308,6 @@ if (!mock) {
 	&.large {
 		height: 52px;
 		font-size: 2em;
-		border-radius: 8px;
 
 		> .count {
 			font-size: 0.6em;
@@ -310,16 +316,16 @@ if (!mock) {
 	}
 
 	&.reacted, &.reacted:hover {
-		background: var(--MI_THEME-accentedBg);
-		color: var(--MI_THEME-accent);
-		box-shadow: 0 0 0 1px var(--MI_THEME-accent) inset;
+		background: var(--MI-c-accentSoft);
+		color: var(--MI-c-accentInk);
+		box-shadow: 0 0 0 1px color(from var(--MI_THEME-accent) srgb r g b / 0.5) inset;
 
 		> .count {
-			color: var(--MI_THEME-accent);
+			color: var(--MI-c-accentInk);
 		}
 
 		> .icon {
-			filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+			filter: drop-shadow(0 0 2px var(--MI_THEME-shadow));
 		}
 	}
 }
@@ -333,5 +339,11 @@ if (!mock) {
 	font-size: 0.7em;
 	line-height: 42px;
 	margin: 0 0 0 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.root.canToggle:active {
+		transform: none;
+	}
 }
 </style>

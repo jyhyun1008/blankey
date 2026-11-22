@@ -125,7 +125,7 @@ function changeSyncEnabled(value: boolean) {
 	height: 42px;
 	padding: 0 6px;
 	font-size: 1.5em;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	align-items: center;
 	justify-content: center;
 	background: var(--MI_THEME-buttonBg);

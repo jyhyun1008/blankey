@@ -300,7 +300,7 @@ onMounted(async () => {
 		margin-left: auto;
 		line-height: normal;
 		font-size: 90%;
-		border-radius: 9999px;
+		border-radius: var(--MI-radius-full);
 	}
 }
 

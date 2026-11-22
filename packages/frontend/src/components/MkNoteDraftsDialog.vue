@@ -245,7 +245,7 @@ async function cancelSchedule(draft: Misskey.entities.NoteDraft) {
 .draft {
 	padding: 16px;
 	gap: 16px;
-	border-radius: 10px;
+	border-radius: var(--MI-radius-sm);
 }
 
 .draftBody {

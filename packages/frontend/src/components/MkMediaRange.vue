@@ -45,7 +45,7 @@ const modelValue = computed({
 	background: transparent;
 	border: 0;
 	border-radius: 26px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	display: block;
 	height: 24px;
 	margin: 0;
@@ -58,7 +58,7 @@ const modelValue = computed({
 		background-color: var(--sliderBg);
 		background-image: linear-gradient(to right,currentColor var(--value,0),transparent var(--value,0));
 		border: 0;
-		border-radius: 99rem;
+		border-radius: var(--MI-radius-full);
 		height: 5px;
 		transition: box-shadow .3s ease;
 		user-select: none;
@@ -67,7 +67,7 @@ const modelValue = computed({
 	&::-moz-range-track {
 		background: transparent;
 		border: 0;
-		border-radius: 99rem;
+		border-radius: var(--MI-radius-full);
 		height: 5px;
 		transition: box-shadow .3s ease;
 		user-select: none;
@@ -109,7 +109,7 @@ const modelValue = computed({
 
 	&::-moz-range-progress {
 		background: currentColor;
-		border-radius: 99rem;
+		border-radius: var(--MI-radius-full);
 		height: 5px;
 	}
 }
@@ -119,7 +119,7 @@ const modelValue = computed({
 	background: transparent;
 	color: color(from var(--MI_THEME-accent) srgb r g b / 0.25);
 	border: 0;
-	border-radius: 99rem;
+	border-radius: var(--MI-radius-full);
 	height: 5px;
 	left: 0;
 	margin-top: -2.5px;
@@ -134,14 +134,14 @@ const modelValue = computed({
 
 	&::-webkit-progress-value {
 		background: currentColor;
-		border-radius: 100px;
+		border-radius: var(--MI-radius-full);
 		min-width: 5px;
 		transition: width .2s ease;
 	}
 
 	&::-moz-progress-bar {
 		background: currentColor;
-		border-radius: 100px;
+		border-radius: var(--MI-radius-full);
 		min-width: 5px;
 		transition: width .2s ease;
 	}

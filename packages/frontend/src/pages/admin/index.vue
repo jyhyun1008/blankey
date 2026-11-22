@@ -363,7 +363,7 @@ definePage(() => INFO.value);
 					display: block;
 					margin: auto;
 					height: 42px;
-					border-radius: 8px;
+					border-radius: var(--MI-radius-sm);
 				}
 			}
 		}

@@ -54,7 +54,7 @@ const showContent = ref(false);
 	margin: 0 10px 0 0;
 	width: 34px;
 	height: 34px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 
 	&.useSticky {
 		position: sticky !important;
@@ -115,6 +115,6 @@ const showContent = ref(false);
 	--color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
 	background-size: auto auto;
 	background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--color) 4px, var(--color) 14px);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 </style>

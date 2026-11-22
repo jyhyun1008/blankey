@@ -237,20 +237,22 @@ export class ClientServerService {
 			this.clientLoggerService.logger.info('[ClientServerService] Proxying to Vite dev server.');
 			const fastifyProxy = import('@fastify/http-proxy');
 
-			const urlOriginWithoutPort = configUrl.origin.replace(/:\d+$/, '');
+			const viteOrigin = process.env.VITE_DEV_ORIGIN ?? 'http://127.0.0.1';
 
 			const port = (process.env.VITE_PORT ?? '5173');
 			fastify.register(fastifyProxy, {
-				upstream: urlOriginWithoutPort + ':' + port,
+				upstream: viteOrigin + ':' + port,
 				prefix: '/vite',
 				rewritePrefix: '/vite',
+				websocket: true,
 			});
 
 			const embedPort = (process.env.EMBED_VITE_PORT ?? '5174');
 			fastify.register(fastifyProxy, {
-				upstream: urlOriginWithoutPort + ':' + embedPort,
+				upstream: viteOrigin + ':' + embedPort,
 				prefix: '/embed_vite',
 				rewritePrefix: '/embed_vite',
+				websocket: true,
 			});
 		}
 		//#endregion
@@ -635,6 +637,8 @@ export class ClientServerService {
 				name: request.params.page,
 				userId: user.id,
 			});
+
+			if (page?.supportersOnly) return await renderBase(reply);
 
 			if (page) {
 				const _page = await this.pageEntityService.pack(page);

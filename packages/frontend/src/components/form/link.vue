@@ -60,10 +60,11 @@ defineProps<{
 	align-items: center;
 	width: 100%;
 	box-sizing: border-box;
-	padding: 10px 14px;
+	min-height: 44px;
+	padding: 9px 14px;
 	background: var(--MI_THEME-folderHeaderBg);
-	border-radius: 6px;
-	font-size: 0.9em;
+	border-radius: var(--MI-radius-md);
+	transition: background var(--MI-duration-fast) var(--MI-ease);
 
 	&:hover {
 		text-decoration: none;
@@ -71,7 +72,7 @@ defineProps<{
 	}
 
 	&.active {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		background: var(--MI_THEME-folderHeaderHoverBg);
 	}
 }
@@ -80,7 +81,7 @@ defineProps<{
 	margin-right: 0.75em;
 	flex-shrink: 0;
 	text-align: center;
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	color: var(--MI-c-accentInk);
 
 	&:empty {
 		display: none;
@@ -101,7 +102,7 @@ defineProps<{
 
 .suffix {
 	margin-left: auto;
-	opacity: 0.7;
+	color: var(--MI-c-fgMuted);
 	white-space: nowrap;
 
 	> .suffixText:not(:empty) {

@@ -1,0 +1,48 @@
+# Copy to .config/private-live/mediamtx.yml. Put the TLS full chain and private
+# key for the ingest hostname in the same directory as fullchain.pem and privkey.pem.
+# Put BLANKEY_PRIVATE_LIVE_ORIGIN_SECRET=<openssl rand -hex 32 output> in a
+# private env file.
+# To enable the Blankey OBS settings page, also set
+# BLANKEY_PRIVATE_LIVE_PUBLISH_URL=rtmps://live.example.com:1936
+# Start with:
+# docker compose --env-file .config/private-live/origin.env -f compose_example.yml -f compose.private-live.yml up -d
+#
+# Add one publisher entry per creator. Use their Blankey user ID for the path
+# and a different random password (e.g. openssl rand -hex 32) for each publisher.
+# Use URL-safe characters in usernames and passwords shown in the settings page.
+# OBS Custom server: rtmps://live.example.com:1936
+# OBS stream key: CREATOR_ID?user=USERNAME&pass=PASSWORD
+# Use H.264 video and AAC audio.
+rtsp: false
+rtmp: true
+rtmpEncryption: strict
+rtmpsAddress: :1936
+rtmpServerCert: /private-live/fullchain.pem
+rtmpServerKey: /private-live/privkey.pem
+hls: true
+hlsAddress: 172.30.254.3:8888
+hlsVariant: fmp4
+webrtc: false
+srt: false
+moq: false
+
+authMethod: internal
+authInternalUsers:
+  # Only the Blankey web container may read streams. Keep this address in sync
+  # with compose.private-live.yml if the private subnet needs to change.
+  - user: any
+    ips: [172.30.254.2]
+    permissions:
+      - action: read
+  # Uncomment and replace all three values before granting publish access:
+  # - user: USERNAME
+  #   pass: PASSWORD
+  #   permissions:
+  #     - action: publish
+  #       path: CREATOR_ID
+
+pathDefaults:
+  overridePublisher: false
+
+paths:
+  all_others:

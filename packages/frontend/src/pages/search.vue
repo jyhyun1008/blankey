@@ -4,34 +4,26 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="tab" :actions="headerActions" :tabs="headerTabs" :swipable="true">
-	<div v-if="tab === 'note'" class="_spacer" style="--MI_SPACER-w: 800px;">
-		<div v-if="notesSearchAvailable || ignoreNotesSearchAvailable">
-			<XNote v-bind="props"/>
-		</div>
-		<div v-else>
-			<MkInfo warn>{{ i18n.ts.notesSearchNotAvailable }}</MkInfo>
-		</div>
-	</div>
-
-	<div v-else-if="tab === 'user'" class="_spacer" style="--MI_SPACER-w: 800px;">
-		<div v-if="usersSearchAvailable">
-			<XUser v-bind="props"/>
-		</div>
-		<div v-else>
-			<MkInfo warn>{{ i18n.ts.usersSearchNotAvailable }}</MkInfo>
-		</div>
-	</div>
-</PageWithHeader>
+<div class="_spacer" style="--MI_SPACER-w: 800px;">
+	<MkTab v-model="tab" :tabs="searchTabs" :class="$style.tabs"/>
+	<template v-if="tab === 'note'">
+		<XNote v-if="notesSearchAvailable || ignoreNotesSearchAvailable" v-bind="props"/>
+		<MkInfo v-else warn>{{ i18n.ts.notesSearchNotAvailable }}</MkInfo>
+	</template>
+	<template v-else-if="tab === 'user'">
+		<XUser v-if="usersSearchAvailable" v-bind="props"/>
+		<MkInfo v-else warn>{{ i18n.ts.usersSearchNotAvailable }}</MkInfo>
+	</template>
+</div>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, ref, toRef } from 'vue';
-import { $i } from '@/i.js';
+import { defineAsyncComponent, ref, toRef } from 'vue';
 import { i18n } from '@/i18n.js';
-import { definePage } from '@/page.js';
 import { notesSearchAvailable, usersSearchAvailable } from '@/utility/check-permissions.js';
 import MkInfo from '@/components/MkInfo.vue';
+import MkTab from '@/components/MkTab.vue';
+import type { Tab } from '@/components/MkTab.vue';
 
 const props = withDefaults(defineProps<{
 	query?: string,
@@ -57,20 +49,20 @@ const XUser = defineAsyncComponent(() => import('./search.user.vue'));
 
 const tab = ref(toRef(props, 'type').value);
 
-const headerActions = computed(() => []);
-
-const headerTabs = computed(() => [{
+// explore ページの検索タブ本文。ノート / ユーザー検索を切り替える
+const searchTabs: Tab<'note' | 'user'>[] = [{
 	key: 'note',
-	title: i18n.ts.notes,
+	label: i18n.ts.notes,
 	icon: 'ti ti-pencil',
 }, {
 	key: 'user',
-	title: i18n.ts.users,
+	label: i18n.ts.users,
 	icon: 'ti ti-users',
-}]);
-
-definePage(() => ({
-	title: i18n.ts.search,
-	icon: 'ti ti-search',
-}));
+}];
 </script>
+
+<style lang="scss" module>
+.tabs {
+	margin-bottom: var(--MI-margin);
+}
+</style>

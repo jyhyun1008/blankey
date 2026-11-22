@@ -94,7 +94,8 @@ function toggle(o: MkRadiosOption): void {
 <style lang="scss" module>
 .label {
 	font-size: 0.85em;
-	padding: 0 0 8px 0;
+	font-weight: bold;
+	padding: 0 0 6px 2px;
 	user-select: none;
 
 	&:empty {
@@ -110,8 +111,8 @@ function toggle(o: MkRadiosOption): void {
 
 .caption {
 	font-size: 0.85em;
-	padding: 8px 0 0 0;
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	padding: 6px 0 0 2px;
+	color: var(--MI-c-fgMuted);
 
 	&:empty {
 		display: none;
@@ -128,14 +129,19 @@ function toggle(o: MkRadiosOption): void {
 	align-items: center;
 	text-align: left;
 	cursor: pointer;
-	padding: 8px 10px;
+	padding: 8px 12px;
 	min-width: 60px;
+	min-height: 36px;
+	box-sizing: border-box;
 	background-color: var(--MI_THEME-panel);
 	background-clip: padding-box !important;
-	border: solid 1px var(--MI_THEME-panel);
-	border-radius: 6px;
+	border: solid 1px var(--MI-c-border);
+	border-radius: var(--MI-radius-md);
 	font-size: 90%;
-	transition: all 0.2s;
+	transition:
+		background-color var(--MI-duration-fast) var(--MI-ease),
+		border-color var(--MI-duration-fast) var(--MI-ease),
+		box-shadow var(--MI-duration) var(--MI-ease);
 	user-select: none;
 
 	&.disabled {
@@ -144,18 +150,18 @@ function toggle(o: MkRadiosOption): void {
 	}
 
 	&:hover {
-		border-color: var(--MI_THEME-inputBorderHover) !important;
+		border-color: var(--MI-c-borderStrong) !important;
 	}
 
 	&:focus-within {
 		outline: none;
-		box-shadow: 0 0 0 2px var(--MI_THEME-focus);
+		box-shadow: var(--MI-focusRing);
 	}
 
 	&.checked {
-		background-color: var(--MI_THEME-accentedBg) !important;
-		border-color: var(--MI_THEME-accentedBg) !important;
-		color: var(--MI_THEME-accent);
+		background-color: var(--MI-c-accentSoft) !important;
+		border-color: color(from var(--MI_THEME-accent) srgb r g b / 0.4) !important;
+		color: var(--MI-c-accentInk);
 		cursor: default !important;
 
 		.optionButton {

@@ -35,7 +35,7 @@ export class StreamingApiServerService {
 	}
 
 	@bindThis
-	public attach(server: http.Server): void {
+	public attach(server: http.Server, proxyVite: boolean): void {
 		this.#wss = new WebSocket.WebSocketServer({
 			noServer: true,
 			maxPayload: 1024 * 1024, // 1MiB
@@ -49,7 +49,9 @@ export class StreamingApiServerService {
 				return;
 			}
 
-			const q = new URL(request.url, `http://${request.headers.host}`).searchParams;
+			const url = new URL(request.url, `http://${request.headers.host}`);
+			if (proxyVite && (url.pathname.startsWith('/vite/') || url.pathname.startsWith('/embed_vite/'))) return;
+			const q = url.searchParams;
 
 			let user: MiLocalUser | null = null;
 			let app: MiAccessToken | null = null;

@@ -4,9 +4,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="tab" :actions="headerActions" :tabs="headerTabs" :swipable="true">
-	<div class="_spacer" style="--MI_SPACER-w: 1200px;">
-		<div v-if="tab === 'search'" :class="$style.searchRoot">
+<PageWithHeader :tab="hub.tab" :actions="headerActions" :tabs="hub.tabs.value" :swipable="false">
+	<div class="_spacer _profileContent">
+		<MkTab v-model="tab" :tabs="subTabs" :class="$style.subTabs"/>
+		<div v-if="tab === 'search'" class="_gaps">
 			<div class="_gaps">
 				<MkInput v-model="searchQuery" :large="true" :autofocus="true" type="search" @enter="search">
 					<template #prefix><i class="ti ti-search"></i></template>
@@ -25,26 +26,41 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 			<MkFoldableSection v-if="channelPaginator">
 				<template #header>{{ i18n.ts.searchResult }}</template>
-				<MkChannelList :key="key" :paginator="channelPaginator"/>
+				<MkPagination v-slot="{items}" :key="key" :paginator="channelPaginator">
+					<div class="_cardGrid">
+						<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
+					</div>
+				</MkPagination>
 			</MkFoldableSection>
 		</div>
-		<div v-if="tab === 'featured'">
-			<MkPagination v-slot="{items}" :paginator="featuredPaginator">
-				<div :class="$style.root">
-					<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
-				</div>
-			</MkPagination>
+		<div v-else-if="tab === 'featured'" class="_gaps">
+			<MkFoldableSection>
+				<template #header><i class="ti ti-clock"></i>{{ i18n.ts._channel.recentlyUpdated }}</template>
+				<MkPagination v-slot="{items}" :paginator="recentPaginator">
+					<div class="_cardGrid">
+						<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
+					</div>
+				</MkPagination>
+			</MkFoldableSection>
+			<MkFoldableSection>
+				<template #header><i class="ti ti-comet"></i>{{ i18n.ts._channel.popular }}</template>
+				<MkPagination v-slot="{items}" :paginator="popularPaginator">
+					<div class="_cardGrid">
+						<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
+					</div>
+				</MkPagination>
+			</MkFoldableSection>
 		</div>
 		<div v-else-if="tab === 'favorites'">
 			<MkPagination v-slot="{items}" :paginator="favoritesPaginator">
-				<div :class="$style.root">
+				<div class="_cardGrid">
 					<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
 				</div>
 			</MkPagination>
 		</div>
 		<div v-else-if="tab === 'following'">
 			<MkPagination v-slot="{items}" :paginator="followingPaginator">
-				<div :class="$style.root">
+				<div class="_cardGrid">
 					<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
 				</div>
 			</MkPagination>
@@ -52,7 +68,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<div v-else-if="tab === 'owned'" class="_gaps">
 			<MkButton v-if="$i?.policies.canCreateChannel" type="routerLink" primary rounded to="/channels/new"><i class="ti ti-plus"></i> {{ i18n.ts.createNew }}</MkButton>
 			<MkPagination v-slot="{items}" :paginator="ownedPaginator">
-				<div :class="$style.root">
+				<div class="_cardGrid">
 					<MkChannelPreview v-for="channel in items" :key="channel.id" :channel="channel"/>
 				</div>
 			</MkPagination>
@@ -64,12 +80,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { computed, markRaw, onMounted, ref, shallowRef } from 'vue';
 import MkChannelPreview from '@/components/MkChannelPreview.vue';
-import MkChannelList from '@/components/MkChannelList.vue';
 import MkPagination from '@/components/MkPagination.vue';
 import MkInput from '@/components/MkInput.vue';
 import MkRadios from '@/components/MkRadios.vue';
 import MkButton from '@/components/MkButton.vue';
 import MkFoldableSection from '@/components/MkFoldableSection.vue';
+import MkTab from '@/components/MkTab.vue';
+import type { Tab } from '@/components/MkTab.vue';
+import { useContentHub } from '@/utility/content-hub.js';
 import { definePage } from '@/page.js';
 import { i18n } from '@/i18n.js';
 import { useRouter } from '@/router.js';
@@ -86,18 +104,22 @@ const props = defineProps<{
 }>();
 
 const key = ref('');
-const tab = ref('featured');
+const hub = useContentHub('channels');
+const tab = ref<'search' | 'featured' | 'favorites' | 'following' | 'owned'>('featured');
 const searchQuery = ref('');
 const searchType = ref<SearchType>('nameAndDescription');
-const channelPaginator = shallowRef();
+const channelPaginator = shallowRef<Paginator<'channels/search'>>();
 
 onMounted(() => {
 	searchQuery.value = props.query ?? '';
 	searchType.value = props.type ?? 'nameAndDescription';
 });
 
-const featuredPaginator = markRaw(new Paginator('channels/featured', {
-	limit: 10,
+const recentPaginator = markRaw(new Paginator('channels/featured', {
+	noPaging: true,
+}));
+const popularPaginator = markRaw(new Paginator('channels/featured', {
+	params: { sort: 'popular' },
 	noPaging: true,
 }));
 const favoritesPaginator = markRaw(new Paginator('channels/my-favorites', {
@@ -134,46 +156,34 @@ async function search() {
 	key.value = query + type;
 }
 
-const headerActions = computed(() => []);
+const headerActions = computed(() => $i?.policies.canCreateChannel ? [{
+	icon: 'ti ti-plus',
+	text: i18n.ts.createNew,
+	handler: () => router.push('/channels/new'),
+}] : []);
 
-const headerTabs = computed(() => [{
-	key: 'search',
-	title: i18n.ts.search,
-	icon: 'ti ti-search',
-}, {
-	key: 'featured',
-	title: i18n.ts._channel.featured,
-	icon: 'ti ti-comet',
-}, {
-	key: 'favorites',
-	title: i18n.ts.favorites,
-	icon: 'ti ti-star',
-}, {
-	key: 'following',
-	title: i18n.ts._channel.following,
-	icon: 'ti ti-eye',
-}, {
-	key: 'owned',
-	title: i18n.ts._channel.owned,
-	icon: 'ti ti-edit',
-}]);
+type ChannelTab = Tab<'search' | 'featured' | 'favorites' | 'following' | 'owned'>;
 
-definePage(() => ({
-	title: i18n.ts.channel,
-	icon: 'ti ti-device-tv',
-}));
+const subTabs = computed<ChannelTab[]>(() => {
+	const tabs: ChannelTab[] = [
+		{ key: 'featured', label: i18n.ts._channel.featured, icon: 'ti ti-comet' },
+		{ key: 'search', label: i18n.ts.search, icon: 'ti ti-search' },
+	];
+	if ($i) {
+		tabs.push(
+			{ key: 'favorites', label: i18n.ts.favorites, icon: 'ti ti-star' },
+			{ key: 'following', label: i18n.ts._channel.following, icon: 'ti ti-eye' },
+			{ key: 'owned', label: i18n.ts._channel.owned, icon: 'ti ti-edit' },
+		);
+	}
+	return tabs;
+});
+
+definePage(() => hub.metadata);
 </script>
 
 <style lang="scss" module>
-.searchRoot {
-	width: 100%;
-	max-width: 700px;
-	margin: 0 auto;
-}
-
-.root {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-	gap: var(--MI-margin);
+.subTabs {
+	margin-bottom: var(--MI-margin);
 }
 </style>

@@ -4,53 +4,68 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="tab" :actions="headerActions" :tabs="headerTabs">
-	<div class="_spacer" style="--MI_SPACER-w: 700px;">
-		<div class="jqqmcavi">
-			<MkButton v-if="pageId && author != null" class="button" inline type="routerLink" :to="`/@${ author.username }/pages/${ currentName }`"><i class="ti ti-external-link"></i> {{ i18n.ts._pages.viewPage }}</MkButton>
-			<MkButton v-if="!readonly" inline primary class="button" @click="save"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
-			<MkButton v-if="pageId" inline class="button" @click="duplicate"><i class="ti ti-copy"></i> {{ i18n.ts.duplicate }}</MkButton>
-			<MkButton v-if="pageId && !readonly" inline class="button" danger @click="del"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
-		</div>
-
-		<div v-if="tab === 'settings'">
-			<div class="_gaps_m">
-				<MkInput v-model="title">
-					<template #label>{{ i18n.ts._pages.title }}</template>
-				</MkInput>
-
-				<MkInput v-model="summary">
-					<template #label>{{ i18n.ts._pages.summary }}</template>
-				</MkInput>
-
-				<MkInput v-model="name">
-					<template #prefix>{{ url }}/@{{ author?.username ?? '???' }}/pages/</template>
-					<template #label>{{ i18n.ts._pages.url }}</template>
-				</MkInput>
-
-				<MkSwitch v-model="alignCenter">{{ i18n.ts._pages.alignCenter }}</MkSwitch>
-
-				<MkSelect v-model="font" :items="fontDef">
-					<template #label>{{ i18n.ts._pages.font }}</template>
-				</MkSelect>
-
-				<MkSwitch v-model="hideTitleWhenPinned">{{ i18n.ts._pages.hideTitleWhenPinned }}</MkSwitch>
-
-				<div class="eyeCatch">
-					<MkButton v-if="eyeCatchingImageId == null && !readonly" @click="setEyeCatchingImage"><i class="ti ti-plus"></i> {{ i18n.ts._pages.eyeCatchingImageSet }}</MkButton>
-					<div v-else-if="eyeCatchingImage">
-						<img :src="eyeCatchingImage.url" :alt="eyeCatchingImage.name" style="max-width: 100%;"/>
-						<MkButton v-if="!readonly" @click="removeEyeCatchingImage()"><i class="ti ti-trash"></i> {{ i18n.ts._pages.eyeCatchingImageRemove }}</MkButton>
+<PageWithHeader>
+	<div class="_spacer" :style="{ '--MI_SPACER-w': readonly ? '800px' : '1240px' }">
+		<MkError v-if="loadError" @retry="init()"/>
+		<MkLoading v-else-if="!ready"/>
+		<div v-else class="_gaps_m" :class="$style.editorPanel">
+			<div v-if="!readonly || eyeCatchingImage" :class="$style.cover">
+				<img v-if="eyeCatchingImage" :src="eyeCatchingImage.url" :alt="eyeCatchingImage.name" :class="$style.coverImage"/>
+				<div :class="$style.coverBar">
+					<span><i class="ti ti-photo" aria-hidden="true"></i> {{ i18n.ts._pages.eyeCatchingImageSet }}</span>
+					<div v-if="!readonly" :class="$style.coverActions">
+						<MkButton small inline @click="setCover('upload')">{{ i18n.ts.upload }}</MkButton>
+						<MkButton small inline @click="setCover('drive')">{{ i18n.ts.fromDrive }}</MkButton>
+						<MkButton v-if="eyeCatchingImage" small inline @click="removeCover">{{ i18n.ts.remove }}</MkButton>
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<div v-else-if="tab === 'contents'">
-			<div :class="$style.contents">
-				<XBlocks v-model="content" class="content"/>
+			<div :class="$style.articleMetadata">
+				<input v-model="title" type="text" :readonly="readonly" :class="$style.title" :aria-label="i18n.ts._pages.title" :placeholder="i18n.ts._pages.title"/>
+				<input v-model="summary" type="text" :readonly="readonly" :class="$style.summary" :aria-label="i18n.ts._pages.summary" :placeholder="`${i18n.ts._pages.summary} (${i18n.ts.optional})`"/>
+			</div>
 
-				<MkButton v-if="!readonly" rounded class="add" @click="add()"><i class="ti ti-plus"></i></MkButton>
+			<div :class="$style.document">
+				<PageEditorMarkdown
+					v-model="markdown"
+					:blocks="previewBlocks"
+					:images="images"
+					:readonly="readonly"
+					:alignCenter="alignCenter"
+					:font="font"
+					@attachImage="file => images.set(file.id, file)"
+				/>
+			</div>
+
+			<details :class="$style.settings">
+				<summary>{{ i18n.ts.advancedSettings }}</summary>
+				<div class="_gaps_m" :class="$style.settingsFields">
+					<MkInput v-model="name" :readonly="readonly">
+						<template #prefix>{{ url }}/@{{ author?.username ?? '???' }}/pages/</template>
+						<template #label>{{ i18n.ts._pages.url }}</template>
+					</MkInput>
+
+					<MkSwitch v-model="supportersOnly" :disabled="readonly">
+						{{ i18n.ts._pages.supportersOnly }}
+						<template #caption>{{ i18n.ts._pages.supportersOnlyHelp }}</template>
+					</MkSwitch>
+
+					<MkSwitch v-model="alignCenter" :disabled="readonly">{{ i18n.ts._pages.alignCenter }}</MkSwitch>
+
+					<MkSelect v-model="font" :items="fontDef" :readonly="readonly">
+						<template #label>{{ i18n.ts._pages.font }}</template>
+					</MkSelect>
+
+					<MkSwitch v-model="hideTitleWhenPinned" :disabled="readonly">{{ i18n.ts._pages.hideTitleWhenPinned }}</MkSwitch>
+				</div>
+			</details>
+
+			<div :class="$style.actions">
+				<MkButton v-if="pageId && author != null" inline type="routerLink" :to="`/@${ author.username }/pages/${ currentName }`"><i class="ti ti-external-link"></i> {{ i18n.ts._pages.viewPage }}</MkButton>
+				<MkButton v-if="!readonly" inline primary @click="save"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
+				<MkButton v-if="pageId" inline @click="duplicate"><i class="ti ti-copy"></i> {{ i18n.ts.duplicate }}</MkButton>
+				<MkButton v-if="pageId && !readonly" inline danger @click="del"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
 			</div>
 		</div>
 	</div>
@@ -58,24 +73,24 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { computed, provide, watch, ref } from 'vue';
+import { computed, onBeforeUnmount, ref, shallowReactive, watch } from 'vue';
 import * as Misskey from 'misskey-js';
 import { url } from '@@/js/config.js';
-import XBlocks from './page-editor.blocks.vue';
-import { genId } from '@/utility/id.js';
+import PageEditorMarkdown from './PageEditorMarkdown.vue';
+import { blocksToMarkdown, markdownToBlocks } from './page-editor.markdown.js';
 import MkButton from '@/components/MkButton.vue';
 import MkSelect from '@/components/MkSelect.vue';
 import MkSwitch from '@/components/MkSwitch.vue';
 import MkInput from '@/components/MkInput.vue';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
-import { selectFile } from '@/utility/drive.js';
+import { chooseDriveFile, chooseFileFromPcAndUpload } from '@/utility/drive.js';
 import { i18n } from '@/i18n.js';
 import { definePage } from '@/page.js';
 import { $i } from '@/i.js';
 import { mainRouter } from '@/router.js';
 import { useMkSelect } from '@/composables/use-mkselect.js';
-import { getPageBlockList } from '@/pages/page-editor/common.js';
+import { genId } from '@/utility/id.js';
 
 const props = defineProps<{
 	initPageId?: string;
@@ -83,17 +98,18 @@ const props = defineProps<{
 	initUser?: string;
 }>();
 
-const tab = ref('settings');
 const author = ref<Misskey.entities.User | null>($i);
-const readonly = ref(false);
-const page = ref<Misskey.entities.Page | null>(null);
+const readonly = computed(() => !props.initPageId && !!(props.initPageName && props.initUser));
+const ready = ref(false);
+const loadError = ref(false);
 const pageId = ref<string | null>(null);
 const currentName = ref<string | null>(null);
 const title = ref('');
 const summary = ref<string | null>(null);
 const name = ref(Date.now().toString());
 const eyeCatchingImage = ref<Misskey.entities.DriveFile | null>(null);
-const eyeCatchingImageId = ref<string | null>(null);
+let coverRequest: symbol | undefined;
+
 const {
 	model: font,
 	def: fontDef,
@@ -104,21 +120,30 @@ const {
 	],
 	initialValue: 'sans-serif',
 });
-const content = ref<Misskey.entities.Page['content']>([]);
-const alignCenter = ref(false);
-const hideTitleWhenPinned = ref(false);
+const markdown = ref('');
+// プレビューと保存に使うブロック列。ID を引き継ぐため直前の変換結果を previous として渡す
+const previewBlocks = ref<Misskey.entities.PageBlock[]>([]);
+let parseTimer: number | undefined;
 
-provide('readonly', readonly.value);
+function parseMarkdown() {
+	window.clearTimeout(parseTimer);
+	parseTimer = undefined;
+	previewBlocks.value = markdownToBlocks(markdown.value, { origin: url, previous: previewBlocks.value, genId });
+	return previewBlocks.value;
+}
 
-watch(eyeCatchingImageId, async () => {
-	if (eyeCatchingImageId.value == null) {
-		eyeCatchingImage.value = null;
-	} else {
-		eyeCatchingImage.value = await misskeyApi('drive/files/show', {
-			fileId: eyeCatchingImageId.value,
-		});
-	}
+watch(markdown, () => {
+	window.clearTimeout(parseTimer);
+	parseTimer = window.setTimeout(parseMarkdown, 200);
 });
+
+onBeforeUnmount(() => {
+	window.clearTimeout(parseTimer);
+});
+const images = shallowReactive(new Map<string, Misskey.entities.DriveFile>());
+const alignCenter = ref(false);
+const supportersOnly = ref(false);
+const hideTitleWhenPinned = ref(false);
 
 function getSaveOptions(): Misskey.entities.PagesCreateRequest {
 	return {
@@ -129,9 +154,10 @@ function getSaveOptions(): Misskey.entities.PagesCreateRequest {
 		script: '',
 		hideTitleWhenPinned: hideTitleWhenPinned.value,
 		alignCenter: alignCenter.value,
-		content: content.value,
+		supportersOnly: supportersOnly.value,
+		content: parseMarkdown(),
 		variables: [],
-		eyeCatchingImageId: eyeCatchingImageId.value,
+		eyeCatchingImageId: eyeCatchingImage.value?.id ?? null,
 	};
 }
 
@@ -208,106 +234,66 @@ async function duplicate() {
 	});
 }
 
-async function add() {
-	const { canceled, result: type } = await os.select({
-		title: i18n.ts._pages.chooseBlock,
-		items: getPageBlockList(),
-	});
-	if (canceled || type == null) return;
-
-	const id = genId();
-
-	// TODO: page-editor.el.section.vueのと共通化
-	if (type === 'text') {
-		content.value.push({
-			id,
-			type,
-			text: '',
-		});
-	} else if (type === 'section') {
-		content.value.push({
-			id,
-			type,
-			title: '',
-			children: [],
-		});
-	} else if (type === 'image') {
-		content.value.push({
-			id,
-			type,
-			fileId: null,
-		});
-	} else if (type === 'note') {
-		content.value.push({
-			id,
-			type,
-			detailed: false,
-			note: null,
-		});
+async function setCover(source: 'upload' | 'drive') {
+	const request = Symbol();
+	coverRequest = request;
+	try {
+		const [file] = source === 'upload' ? await chooseFileFromPcAndUpload() : await chooseDriveFile();
+		if (!file || coverRequest !== request) return;
+		if (!file.type.startsWith('image/')) {
+			void os.alert({ type: 'error', text: i18n.ts.invalidValue });
+			return;
+		}
+		eyeCatchingImage.value = file;
+	} catch {
+		if (coverRequest === request) void os.alert({ type: 'error', text: i18n.ts.somethingHappened });
 	}
 }
 
-function setEyeCatchingImage(ev: PointerEvent) {
-	selectFile({
-		anchorElement: ev.currentTarget ?? ev.target,
-		multiple: false,
-	}).then(file => {
-		eyeCatchingImageId.value = file.id;
-	});
-}
-
-function removeEyeCatchingImage() {
-	eyeCatchingImageId.value = null;
+function removeCover() {
+	coverRequest = undefined;
+	eyeCatchingImage.value = null;
 }
 
 async function init() {
-	if (props.initPageId) {
-		page.value = await misskeyApi('pages/show', {
-			pageId: props.initPageId,
-		});
-	} else if (props.initPageName && props.initUser) {
-		page.value = await misskeyApi('pages/show', {
-			name: props.initPageName,
-			username: props.initUser,
-		});
-		readonly.value = true;
+	loadError.value = false;
+	let page: Misskey.entities.Page | null = null;
+	try {
+		if (props.initPageId) {
+			page = await misskeyApi('pages/show', {
+				pageId: props.initPageId,
+			});
+		} else if (props.initPageName && props.initUser) {
+			page = await misskeyApi('pages/show', {
+				name: props.initPageName,
+				username: props.initUser,
+			});
+		}
+	} catch {
+		loadError.value = true;
+		return;
 	}
 
-	if (page.value) {
-		author.value = page.value.user;
-		pageId.value = page.value.id;
-		title.value = page.value.title;
-		name.value = page.value.name;
-		currentName.value = page.value.name;
-		summary.value = page.value.summary;
-		font.value = page.value.font;
-		hideTitleWhenPinned.value = page.value.hideTitleWhenPinned;
-		alignCenter.value = page.value.alignCenter;
-		content.value = page.value.content;
-		eyeCatchingImageId.value = page.value.eyeCatchingImageId;
-	} else {
-		const id = genId();
-		content.value = [{
-			id,
-			type: 'text',
-			text: 'Hello World!',
-		}];
+	if (page) {
+		author.value = page.user;
+		pageId.value = page.id;
+		title.value = page.title;
+		name.value = page.name;
+		currentName.value = page.name;
+		summary.value = page.summary;
+		font.value = page.font;
+		hideTitleWhenPinned.value = page.hideTitleWhenPinned;
+		alignCenter.value = page.alignCenter;
+		supportersOnly.value = page.supportersOnly ?? false;
+		for (const file of page.attachedFiles) images.set(file.id, file);
+		previewBlocks.value = page.content;
+		markdown.value = blocksToMarkdown(page.content, { origin: url, fileName: id => images.get(id)?.name });
+		eyeCatchingImage.value = page.eyeCatchingImage;
 	}
+	ready.value = true;
 }
 
 init();
-
-const headerActions = computed(() => []);
-
-const headerTabs = computed(() => [{
-	key: 'settings',
-	title: i18n.ts._pages.pageSetting,
-	icon: 'ti ti-settings',
-}, {
-	key: 'contents',
-	title: i18n.ts._pages.contents,
-	icon: 'ti ti-note',
-}]);
 
 definePage(() => ({
 	title: props.initPageId ? i18n.ts._pages.editPage
@@ -318,101 +304,92 @@ definePage(() => ({
 </script>
 
 <style lang="scss" module>
-.contents {
-	&:global {
-		> .add {
-			margin: 16px auto 0 auto;
-		}
-	}
-}
-</style>
-
-<style lang="scss" scoped>
-.jqqmcavi {
-	margin-bottom: 16px;
-
-	> .button {
-		& + .button {
-			margin-left: 8px;
-		}
-	}
+.editorPanel {
+	padding: clamp(16px, 4vw, 32px);
+	border-radius: var(--MI-radius);
+	background: var(--MI_THEME-panel);
 }
 
-.gwbmwxkm {
-	position: relative;
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
 
-	> header {
-		> .title {
-			z-index: 1;
-			margin: 0;
-			padding: 0 16px;
-			line-height: 42px;
-			font-size: 0.9em;
-			font-weight: bold;
-			box-shadow: 0 1px rgba(#000, 0.07);
+.cover {
+	border: 1px solid var(--MI_THEME-divider);
+	border-radius: var(--MI-radius);
+	overflow: hidden;
+	color: var(--MI_THEME-fg);
+}
 
-			> i {
-				margin-right: 6px;
-			}
+.coverImage {
+	display: block;
+	width: 100%;
+	max-height: 260px;
+	object-fit: cover;
+}
 
-			&:empty {
-				display: none;
-			}
-		}
+.coverBar,
+.coverActions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
 
-		> .buttons {
-			position: absolute;
-			z-index: 2;
-			top: 0;
-			right: 0;
+.coverBar {
+	justify-content: space-between;
+	padding: 12px 16px;
+}
 
-			> button {
-				padding: 0;
-				width: 42px;
-				font-size: 0.9em;
-				line-height: 42px;
-			}
-		}
-	}
+.articleMetadata {
+	display: grid;
+	gap: 12px;
+}
 
-	> section {
-		padding: 0 32px 32px 32px;
+.title,
+.summary {
+	width: 100%;
+	box-sizing: border-box;
+	border: 0;
+	border-radius: var(--MI-radius-sm);
+	padding: 4px 0;
+	color: inherit;
+	background: transparent;
+	font: inherit;
 
-		@media (max-width: 500px) {
-			padding: 0 16px 16px 16px;
-		}
-
-		> .view {
-			display: inline-block;
-			margin: 16px 0 0 0;
-			font-size: 14px;
-		}
-
-		> .content {
-			margin-bottom: 16px;
-		}
-
-		> .eyeCatch {
-			margin-bottom: 16px;
-
-			> div {
-				> img {
-					max-width: 100%;
-				}
-			}
-		}
+	&::placeholder {
+		color: var(--MI_THEME-fg);
+		opacity: .6;
 	}
 }
 
-.qmuvgica {
-	padding: 16px;
+.title {
+	font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+	font-weight: 750;
+}
 
-	> .variables {
-		margin-bottom: 16px;
-	}
+.summary {
+	font-size: 1.125em;
+}
 
-	> .add {
-		margin-bottom: 16px;
+.document {
+	border-top: 1px solid var(--MI_THEME-divider);
+	padding-top: 8px;
+}
+
+.settings {
+	border-top: 1px solid var(--MI_THEME-divider);
+
+	> summary {
+		padding: 16px 0;
+		font-weight: bold;
+		cursor: pointer;
 	}
+}
+
+.settingsFields {
+	padding-bottom: 16px;
 }
 </style>

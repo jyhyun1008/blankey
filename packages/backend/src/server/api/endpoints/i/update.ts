@@ -172,6 +172,13 @@ export const paramDef = {
 			required: ['id'],
 		} },
 		bannerId: { type: 'string', format: 'misskey:id', nullable: true },
+		// Monday through Sunday, with an empty string for days without a stream.
+		streamingSchedule: {
+			type: 'array',
+			minItems: 7,
+			maxItems: 7,
+			items: { type: 'string', maxLength: 120 },
+		},
 		fields: {
 			type: 'array',
 			minItems: 0,
@@ -200,6 +207,7 @@ export const paramDef = {
 		makeNotesHiddenBefore: { type: 'integer', nullable: true },
 		isBot: { type: 'boolean' },
 		isCat: { type: 'boolean' },
+		isStreamer: { type: 'boolean' },
 		injectFeaturedNote: { type: 'boolean' },
 		receiveAnnouncementEmail: { type: 'boolean' },
 		alwaysMarkNsfw: { type: 'boolean' },
@@ -376,6 +384,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if ((typeof ps.makeNotesFollowersOnlyBefore === 'number') || (ps.makeNotesFollowersOnlyBefore === null)) updates.makeNotesFollowersOnlyBefore = ps.makeNotesFollowersOnlyBefore;
 			if ((typeof ps.makeNotesHiddenBefore === 'number') || (ps.makeNotesHiddenBefore === null)) updates.makeNotesHiddenBefore = ps.makeNotesHiddenBefore;
 			if (typeof ps.isCat === 'boolean') updates.isCat = ps.isCat;
+			if (typeof ps.isStreamer === 'boolean') updates.isStreamer = ps.isStreamer;
 			if (typeof ps.injectFeaturedNote === 'boolean') profileUpdates.injectFeaturedNote = ps.injectFeaturedNote;
 			if (typeof ps.receiveAnnouncementEmail === 'boolean') profileUpdates.receiveAnnouncementEmail = ps.receiveAnnouncementEmail;
 			if (typeof ps.alwaysMarkNsfw === 'boolean') {
@@ -452,6 +461,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				profileUpdates.pinnedPageId = page.id;
 			} else if (ps.pinnedPageId === null) {
 				profileUpdates.pinnedPageId = null;
+			}
+
+			if (ps.streamingSchedule !== undefined) {
+				profileUpdates.streamingSchedule = ps.streamingSchedule.map(entry => entry.trim());
 			}
 
 			if (ps.fields) {

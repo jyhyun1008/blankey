@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <PageWithHeader :actions="headerActions" :tabs="headerTabs">
-	<div class="_spacer" style="--MI_SPACER-w: 1000px;">
+	<div class="_spacer _profileContent">
 		<Transition name="fade" mode="out-in">
 			<div v-if="user">
 				<XFollowList :user="user" type="following"/>

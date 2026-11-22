@@ -692,7 +692,7 @@ defineExpose({
 
 			&.active {
 				border-top: solid 1px var(--MI_THEME-accent);
-				color: var(--MI_THEME-accent);
+				color: var(--MI-c-accentInk);
 			}
 		}
 	}
@@ -733,7 +733,7 @@ defineExpose({
 				cursor: pointer;
 
 				&:hover {
-					color: var(--MI_THEME-accent);
+					color: var(--MI-c-accentInk);
 				}
 			}
 
@@ -756,7 +756,7 @@ defineExpose({
 					width: var(--eachSize);
 					height: var(--eachSize);
 					contain: strict;
-					border-radius: 4px;
+					border-radius: var(--MI-radius-xs);
 					font-size: 24px;
 
 					&:hover {

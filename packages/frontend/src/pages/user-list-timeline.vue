@@ -67,6 +67,10 @@ definePage(() => ({
 .tl {
 	background: var(--MI_THEME-bg);
 	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
+	--MI-paginationControl-margin: 0;
+	--MI-paginationControl-padding: 10px 12px;
+	--MI-paginationControl-border: solid 1px var(--MI-c-border);
 }
 </style>

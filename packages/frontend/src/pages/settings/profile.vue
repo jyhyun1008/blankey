@@ -58,6 +58,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</MkSelect>
 		</SearchMarker>
 
+		<SearchMarker :keywords="['streamer', 'streaming']">
+			<MkSwitch v-model="profile.isStreamer">
+				<template #label><SearchLabel>{{ i18n.ts._profile.flagAsStreamer }}</SearchLabel></template>
+				<template #caption>{{ i18n.ts._profile.flagAsStreamerDescription }}</template>
+			</MkSwitch>
+		</SearchMarker>
+
+		<FormLink v-if="$i.isStreamer" to="/settings/streamer">
+			<template #icon><i class="ti ti-headset"></i></template>
+			{{ i18n.ts._profile.streamerSettings }}
+		</FormLink>
+
 		<SearchMarker :keywords="['metadata']">
 			<FormSlot>
 				<MkFolder>
@@ -65,8 +77,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #label><SearchLabel>{{ i18n.ts._profile.metadataEdit }}</SearchLabel></template>
 					<template #footer>
 						<div class="_buttons">
-							<MkButton primary @click="saveFields"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
-							<MkButton :disabled="fields.length >= 16" @click="addField"><i class="ti ti-plus"></i> {{ i18n.ts.add }}</MkButton>
+							<MkButton primary :disabled="savingFields" @click="saveMetadata"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+							<MkButton :disabled="fields.length >= maxFields" @click="addField"><i class="ti ti-plus"></i> {{ i18n.ts.add }}</MkButton>
 							<MkButton v-if="!fieldEditMode" :disabled="fields.length <= 1" danger @click="fieldEditMode = !fieldEditMode"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
 							<MkButton v-else @click="fieldEditMode = !fieldEditMode"><i class="ti ti-arrows-sort"></i> {{ i18n.ts.rearrange }}</MkButton>
 						</div>
@@ -184,6 +196,9 @@ import { store } from '@/store.js';
 import MkInfo from '@/components/MkInfo.vue';
 import MkTextarea from '@/components/MkTextarea.vue';
 import { genId } from '@/utility/id.js';
+import { streamingBannerFieldName } from '@/utility/streaming-banners.js';
+import { streamingChannelFieldName, streamingSupportFieldName } from '@/utility/streaming-platforms.js';
+import { streamingCommunityFieldName, streamingResourceFieldNames, streamingTagsFieldName } from '@/utility/streaming-overview.js';
 import { replaceCurrentAccountData, updateCurrentAccount } from '@/accounts.js';
 
 const $i = ensureSignin();
@@ -203,6 +218,7 @@ const profile = reactive({
 	lang: assertVaildLang($i.lang) ? $i.lang : null,
 	isBot: $i.isBot ?? false,
 	isCat: $i.isCat ?? false,
+	isStreamer: $i.isStreamer ?? false,
 });
 
 watch(() => profile, () => {
@@ -211,7 +227,15 @@ watch(() => profile, () => {
 	deep: true,
 });
 
-const fields = ref($i.fields.map(field => ({ id: genId(), name: field.name, value: field.value })) ?? []);
+const maxFields = 16;
+const savedFields = ref($i.fields);
+const savingFields = ref(false);
+
+function isStreamingField(field: { name: string }) {
+	return [streamingChannelFieldName, streamingSupportFieldName, streamingBannerFieldName, streamingTagsFieldName, streamingCommunityFieldName, ...streamingResourceFieldNames].includes(field.name);
+}
+
+const fields = ref(savedFields.value.filter(field => !isStreamingField(field)).map(field => ({ id: genId(), name: field.name, value: field.value })));
 const fieldEditMode = ref(false);
 
 function addField() {
@@ -230,10 +254,33 @@ function deleteField(itemId: string) {
 	fields.value = fields.value.filter(f => f.id !== itemId);
 }
 
-function saveFields() {
-	os.apiWithDialog('i/update', {
-		fields: fields.value.filter(field => field.name !== '' && field.value !== '').map(field => ({ name: field.name, value: field.value })),
-	});
+async function saveFields(nextFields: typeof $i.fields) {
+	if (savingFields.value) return;
+	if (nextFields.length > maxFields) {
+		await os.alert({ type: 'error', text: i18n.ts._profile.profileFieldsLimit });
+		return;
+	}
+
+	savingFields.value = true;
+	try {
+		const account = await os.apiWithDialog('i/update', { fields: nextFields });
+		savedFields.value = account.fields;
+		updateCurrentAccount({ fields: account.fields, verifiedLinks: account.verifiedLinks });
+	} catch {
+		// エラーダイアログは apiWithDialog 側で表示済み
+	} finally {
+		savingFields.value = false;
+	}
+}
+
+function saveMetadata() {
+	const metadata = fields.value
+		.map(({ name, value }) => ({ name: name.trim(), value: value.trim() }))
+		.filter(field => field.name !== '' && field.value !== '');
+	if (metadata.some(isStreamingField)) {
+		return os.alert({ type: 'error', text: i18n.ts._profile.editStreamingProfileSeparately });
+	}
+	return saveFields([...metadata, ...savedFields.value.filter(isStreamingField)]);
 }
 
 function save() {
@@ -253,6 +300,7 @@ function save() {
 		lang: profile.lang || null,
 		isBot: !!profile.isBot,
 		isCat: !!profile.isCat,
+		isStreamer: profile.isStreamer,
 	}, undefined, {
 		'0b3f9f6a-2f4d-4b1f-9fb4-49d3a2fd7191': {
 			title: i18n.ts.yourNameContainsProhibitedWords,
@@ -474,7 +522,7 @@ definePage(() => ({
 	display: flex;
 	padding: 10px;
 	align-items: flex-end;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	/* (drag button) 32px + (drag button margin) 8px + (input width) 200px * 2 + (input gap) 12px = 452px */
 	@container (max-width: 452px) {

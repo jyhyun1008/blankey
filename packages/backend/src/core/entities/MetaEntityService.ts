@@ -107,6 +107,8 @@ export class MetaEntityService {
 			backgroundImageUrl: instance.backgroundImageUrl,
 			logoImageUrl: instance.logoImageUrl,
 			maxNoteTextLength: MAX_NOTE_TEXT_LENGTH,
+			webFontRegularUrl: instance.webFontRegularUrl,
+			webFontBoldUrl: instance.webFontBoldUrl,
 			defaultLightTheme,
 			defaultDarkTheme,
 			clientOptions: instance.clientOptions,

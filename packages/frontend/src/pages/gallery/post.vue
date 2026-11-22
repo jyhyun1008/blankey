@@ -4,105 +4,188 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader :actions="headerActions" :tabs="headerTabs">
-	<div class="_spacer" style="--MI_SPACER-w: 1000px; --MI_SPACER-min: 16px; --MI_SPACER-max: 32px;">
-		<div class="_root">
-			<Transition :name="prefer.s.animation ? 'fade' : ''" mode="out-in">
-				<div v-if="post" class="rkxwuolj">
-					<div class="files">
-						<div v-for="file in post.files" :key="file.id" class="file">
-							<img :src="file.url"/>
+<PageWithHeader :overridePageMetadata="profileMetadata" :hideTitle="!profileMetadata" :tabs="profileTabs" tab="gallery" :swipable="false">
+	<div class="_spacer" style="--MI_SPACER-w: 1200px;">
+		<Transition
+			:enterActiveClass="prefer.s.animation ? articleStyle.fadeEnterActive : ''"
+			:leaveActiveClass="prefer.s.animation ? articleStyle.fadeLeaveActive : ''"
+			:enterFromClass="prefer.s.animation ? articleStyle.fadeEnterFrom : ''"
+			:leaveToClass="prefer.s.animation ? articleStyle.fadeLeaveTo : ''"
+			mode="out-in"
+		>
+			<div v-if="post" :key="post.id" class="_gaps" :class="$style.container">
+				<article :class="$style.root">
+					<div :class="$style.viewer">
+						<div :class="$style.stage">
+							<template v-if="current">
+								<div :class="$style.frame" :style="frameStyle">
+									<MkMediaVideo v-if="current.type.startsWith('video')" :key="`video:${current.id}`" :video="current" :class="$style.media"/>
+									<MkMediaImage
+										v-else-if="current.type.startsWith('image')"
+										:key="`image:${current.id}`"
+										:image="current"
+										:marker="`${markerId}:${current.id}`"
+										disableImageLink
+										:class="$style.media"
+										@mediaClick="openLightbox(current.id)"
+									/>
+								</div>
+								<template v-if="files.length > 1">
+									<button type="button" class="_button" :class="[$style.nav, $style.navPrev]" :aria-label="i18n.ts.goBack" :disabled="index === 0" @click="index--"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+									<button type="button" class="_button" :class="[$style.nav, $style.navNext]" :aria-label="i18n.ts.next" :disabled="index === files.length - 1" @click="index++"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+									<span :class="$style.counter">{{ index + 1 }} / {{ files.length }}</span>
+								</template>
+							</template>
+							<div v-else :class="$style.noMedia"><i class="ti ti-photo-off" aria-hidden="true"></i></div>
+						</div>
+						<div v-if="files.length > 1" :class="$style.thumbs" role="tablist">
+							<button
+								v-for="(file, i) in files"
+								:key="file.id"
+								type="button"
+								role="tab"
+								class="_button"
+								:class="[$style.thumb, { [$style.thumbActive]: i === index }]"
+								:aria-selected="i === index"
+								:aria-label="`${i + 1} / ${files.length}`"
+								@click="index = i"
+							>
+								<MkDriveFileThumbnail :file="file" fit="cover" :class="$style.thumbImage"/>
+							</button>
 						</div>
 					</div>
-					<div class="body">
-						<div class="title">{{ post.title }}</div>
-						<div class="description"><Mfm v-if="post.description != null" :text="post.description"/></div>
-						<div class="info">
-							<i class="ti ti-clock"></i> <MkTime :time="post.createdAt" mode="detail"/>
+
+					<aside :class="$style.info">
+						<div :class="$style.author">
+							<MkAvatar :user="post.user" :class="$style.avatar" indicator link preview/>
+							<MkA :to="userPage(post.user)" :class="$style.authorText">
+								<MkUserName :user="post.user" :nowrap="true" :class="$style.authorName"/>
+								<MkAcct :user="post.user" :class="$style.acct"/>
+							</MkA>
+							<MkFollowButton v-if="author && $i && $i.id !== author.id" :user="author" @update:user="u => author = u"/>
 						</div>
-						<div class="actions">
-							<div class="like">
-								<MkButton v-if="post.isLiked" v-tooltip="i18n.ts._gallery.unlike" class="button" primary @click="unlike()"><i class="ti ti-heart-off"></i><span v-if="post.likedCount > 0" class="count">{{ post.likedCount }}</span></MkButton>
-								<MkButton v-else v-tooltip="i18n.ts._gallery.like" class="button" @click="like()"><i class="ti ti-heart"></i><span v-if="post.likedCount > 0" class="count">{{ post.likedCount }}</span></MkButton>
-							</div>
-							<div class="other">
-								<button v-if="$i && $i.id === post.user.id" v-tooltip="i18n.ts.edit" v-click-anime class="_button" @click="edit"><i class="ti ti-pencil ti-fw"></i></button>
-								<button v-tooltip="i18n.ts.shareWithNote" v-click-anime class="_button" @click="shareWithNote"><i class="ti ti-repeat ti-fw"></i></button>
-								<button v-tooltip="i18n.ts.copyLink" v-click-anime class="_button" @click="copyLink"><i class="ti ti-link ti-fw"></i></button>
-								<button v-if="isSupportShare()" v-tooltip="i18n.ts.share" v-click-anime class="_button" @click="share"><i class="ti ti-share ti-fw"></i></button>
-								<button v-if="$i && $i.id !== post.user.id" v-click-anime class="_button" @click="showMenu"><i class="ti ti-dots ti-fw"></i></button>
+
+						<h1 :class="$style.title">{{ post.title }}</h1>
+						<div v-if="post.description" :class="$style.description">
+							<Mfm :text="post.description" :author="post.user"/>
+						</div>
+						<ul v-if="tags.length" :class="$style.tags" :aria-label="i18n.ts.hashtags">
+							<li v-for="tag in tags" :key="tag"><MkA :to="`/tags/${encodeURIComponent(tag)}`" :class="$style.tag">#{{ tag }}</MkA></li>
+						</ul>
+						<p :class="$style.date">
+							<MkTime :time="post.createdAt" mode="detail"/>
+							<span v-if="post.createdAt !== post.updatedAt"> · {{ i18n.ts.updatedAt }} <MkTime :time="post.updatedAt"/></span>
+						</p>
+
+						<div :class="$style.actions">
+							<MkButton v-if="post.isLiked" v-tooltip="i18n.ts._gallery.unlike" :aria-label="i18n.ts._gallery.unlike" rounded asLike primary @click="unlike"><i class="ti ti-heart-filled"></i><span v-if="post.likedCount > 0" :class="$style.count">{{ post.likedCount }}</span></MkButton>
+							<MkButton v-else v-tooltip="i18n.ts._gallery.like" :aria-label="i18n.ts._gallery.like" rounded asLike @click="like"><i class="ti ti-heart"></i><span v-if="post.likedCount > 0" :class="$style.count">{{ post.likedCount }}</span></MkButton>
+							<div :class="$style.actionIcons">
+								<MkA v-if="$i?.id === post.user.id" v-tooltip="i18n.ts.edit" :aria-label="i18n.ts.edit" :to="`/gallery/${post.id}/edit`" class="_button" :class="articleStyle.generalActionButton"><i class="ti ti-pencil ti-fw"></i></MkA>
+								<button v-tooltip="i18n.ts.shareWithNote" :aria-label="i18n.ts.shareWithNote" class="_button" :class="articleStyle.generalActionButton" @click="shareWithNote"><i class="ti ti-repeat ti-fw"></i></button>
+								<button v-tooltip="i18n.ts.copyLink" :aria-label="i18n.ts.copyLink" class="_button" :class="articleStyle.generalActionButton" @click="copyLink"><i class="ti ti-link ti-fw"></i></button>
+								<button v-if="isSupportShare()" v-tooltip="i18n.ts.share" :aria-label="i18n.ts.share" class="_button" :class="articleStyle.generalActionButton" @click="share"><i class="ti ti-share ti-fw"></i></button>
+								<button v-if="$i && $i.id !== post.user.id" v-tooltip="i18n.ts.more" :aria-label="i18n.ts.more" class="_button" :class="articleStyle.generalActionButton" @click="showMenu"><i class="ti ti-dots ti-fw"></i></button>
 							</div>
 						</div>
-						<div class="user">
-							<MkAvatar :user="post.user" class="avatar" link preview/>
-							<div class="name">
-								<MkUserName :user="post.user" style="display: block;"/>
-								<MkAcct :user="post.user"/>
-							</div>
-							<!--<MkFollowButton v-if="!$i || $i.id != post.user.id" v-model:user="post.user" :inline="true" :transparent="false" :full="true" large class="koudoku"/>-->
-						</div>
+					</aside>
+				</article>
+				<MkAd :preferForms="['horizontal', 'horizontal-big']"/>
+				<section v-if="otherPosts.length" :class="$style.more">
+					<h2 :class="$style.moreTitle">
+						<span>{{ i18n.tsx._pages.moreFromAuthor({ name: post.user.name ?? post.user.username }) }}</span>
+						<MkA :to="`${userPage(post.user)}/gallery`" :class="$style.moreLink">{{ i18n.ts.showMore }} <i class="ti ti-chevron-right" aria-hidden="true"></i></MkA>
+					</h2>
+					<div :class="$style.moreGrid">
+						<MkGalleryPostPreview v-for="item in otherPosts" :key="item.id" :post="item"/>
 					</div>
-					<MkAd :preferForms="['horizontal', 'horizontal-big']"/>
-					<MkContainer :max-height="300" :foldable="true" class="other">
-						<template #icon><i class="ti ti-clock"></i></template>
-						<template #header>{{ i18n.ts.recentPosts }}</template>
-						<MkPagination v-slot="{items}" :paginator="otherPostsPaginator">
-							<div class="sdrarzaf">
-								<MkGalleryPostPreview v-for="post in items" :key="post.id" :post="post" class="post"/>
-							</div>
-						</MkPagination>
-					</MkContainer>
-				</div>
-				<MkError v-else-if="error" @retry="fetchPost()"/>
-				<MkLoading v-else/>
-			</Transition>
-		</div>
+				</section>
+			</div>
+			<MkError v-else-if="error" @retry="fetchPost()"/>
+			<MkLoading v-else/>
+		</Transition>
 	</div>
 </PageWithHeader>
 </template>
 
 <script lang="ts" setup>
-import { computed, watch, ref, defineAsyncComponent, markRaw } from 'vue';
+import { computed, watch, ref } from 'vue';
 import * as Misskey from 'misskey-js';
+import articleStyle from '../post-detail.module.scss';
+import { userPage } from '@@/js/user.js';
 import { url } from '@@/js/config.js';
 import type { MenuItem } from '@/types/menu.js';
 import MkButton from '@/components/MkButton.vue';
+import MkFollowButton from '@/components/MkFollowButton.vue';
+import MkMediaImage from '@/components/MkMediaImage.vue';
+import MkMediaVideo from '@/components/MkMediaVideo.vue';
+import MkDriveFileThumbnail from '@/components/MkDriveFileThumbnail.vue';
+import { getGalleryPostHashtags } from '@/utility/post-hashtags.js';
 import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
-import MkContainer from '@/components/MkContainer.vue';
-import MkPagination from '@/components/MkPagination.vue';
 import MkGalleryPostPreview from '@/components/MkGalleryPostPreview.vue';
-import MkFollowButton from '@/components/MkFollowButton.vue';
+import { useUserProfileLinks } from '@/composables/use-user-profile-links.js';
 import { i18n } from '@/i18n.js';
 import { definePage } from '@/page.js';
 import { prefer } from '@/preferences.js';
 import { $i } from '@/i.js';
 import { isSupportShare } from '@/utility/navigator.js';
 import { copyToClipboard } from '@/utility/copy-to-clipboard.js';
-import { useRouter } from '@/router.js';
-import { Paginator } from '@/utility/paginator.js';
-
-const router = useRouter();
+import { genId } from '@/utility/id.js';
+import { isPreviewable } from '@/utility/lightbox.js';
+import { openMediaLightbox } from '@/utility/open-media-lightbox.js';
 
 const props = defineProps<{
 	postId: string;
 }>();
 
 const post = ref<Misskey.entities.GalleryPost | null>(null);
+// 説明文中のハッシュタグは本文でリンクになるので、チップには説明文にないタグだけを出す
+const tags = computed(() => {
+	if (!post.value) return [];
+	const inDescription = new Set(getGalleryPostHashtags({ tags: [], description: post.value.description }));
+	return getGalleryPostHashtags(post.value).filter(tag => !inDescription.has(tag));
+});
 const error = ref<any>(null);
-const otherPostsPaginator = markRaw(new Paginator('users/gallery/posts', {
-	limit: 6,
-	computedParams: computed(() => ({
-		userId: post.value!.user.id,
-	})),
-}));
+const author = ref<Misskey.entities.UserDetailed | null>(null);
+const otherPosts = ref<Misskey.entities.GalleryPost[]>([]);
+const index = ref(0);
+const markerId = genId();
+const files = computed(() => (post.value?.files ?? []).filter(file => isPreviewable(file.type)));
+const current = computed(() => files.value[index.value] ?? null);
+
+// 画像の縦横比どおりの枠を、ステージの高さ (最大 72vh) に収まる幅で置く
+const frameStyle = computed(() => {
+	const { width, height } = current.value?.properties ?? {};
+	if (!width || !height) return { aspectRatio: '4 / 3', width: '100%' };
+	const ratio = width / height;
+	return { aspectRatio: `${width} / ${height}`, width: `min(100%, calc(var(--stageHeight) * ${ratio}))` };
+});
+
+function openLightbox(id: string) {
+	void openMediaLightbox(files.value, id, { user: post.value?.user, sourceMarker: `${markerId}:${id}` });
+}
+
+async function fetchRelated(target: Misskey.entities.GalleryPost) {
+	author.value = null;
+	otherPosts.value = [];
+	const [user, posts] = await Promise.all([
+		$i ? misskeyApi('users/show', { userId: target.userId }).catch(() => null) : Promise.resolve(null),
+		misskeyApi('users/gallery/posts', { userId: target.userId, limit: 5 }).catch(() => []),
+	]);
+	if (post.value?.id !== target.id) return;
+	author.value = user;
+	otherPosts.value = posts.filter(item => item.id !== target.id).slice(0, 4);
+}
 
 function fetchPost() {
 	post.value = null;
 	misskeyApi('gallery/posts/show', {
 		postId: props.postId,
 	}).then(_post => {
+		index.value = 0;
 		post.value = _post;
+		void fetchRelated(_post);
 	}).catch(_error => {
 		error.value = _error;
 	});
@@ -155,14 +238,6 @@ async function unlike() {
 	});
 }
 
-function edit() {
-	router.push('/gallery/:postId/edit', {
-		params: {
-			postId: props.postId,
-		},
-	});
-}
-
 async function reportAbuse() {
 	if (!post.value) return;
 
@@ -212,9 +287,7 @@ function showMenu(ev: PointerEvent) {
 
 watch(() => props.postId, fetchPost, { immediate: true });
 
-const headerActions = computed(() => []);
-
-const headerTabs = computed(() => []);
+const { profileMetadata, profileTabs } = useUserProfileLinks(() => post.value?.user);
 
 definePage(() => ({
 	title: post.value ? post.value.title : i18n.ts.gallery,
@@ -224,115 +297,293 @@ definePage(() => ({
 }));
 </script>
 
-<style lang="scss" scoped>
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.125s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
-
-.rkxwuolj {
-	> .files {
-		> .file {
-			> img {
-				display: block;
-				max-width: 100%;
-				max-height: 500px;
-				margin: 0 auto;
-			}
-
-			& + .file {
-				margin-top: 16px;
-			}
-		}
-	}
-
-	> .body {
-		padding: 32px;
-
-		> .title {
-			font-weight: bold;
-			font-size: 1.2em;
-			margin-bottom: 16px;
-		}
-
-		> .info {
-			margin-top: 16px;
-			font-size: 90%;
-			opacity: 0.7;
-		}
-
-		> .actions {
-			display: flex;
-			align-items: center;
-			margin-top: 16px;
-			padding: 16px 0 0 0;
-			border-top: solid 0.5px var(--MI_THEME-divider);
-
-			> .like {
-				> .button {
-					--MI_THEME-accent: rgb(241 97 132);
-					--MI_THEME-X8: rgb(241 92 128);
-					--MI_THEME-buttonBg: rgb(216 71 106 / 5%);
-					--MI_THEME-buttonHoverBg: rgb(216 71 106 / 10%);
-					color: #ff002f;
-
-					::v-deep(.count) {
-						margin-left: 0.5em;
-					}
-				}
-			}
-
-			> .other {
-				margin-left: auto;
-
-				> button {
-					padding: 8px;
-					margin: 0 8px;
-
-					&:hover {
-						color: var(--MI_THEME-fgHighlighted);
-					}
-				}
-			}
-		}
-
-		> .user {
-			margin-top: 16px;
-			padding: 16px 0 0 0;
-			border-top: solid 0.5px var(--MI_THEME-divider);
-			display: flex;
-			align-items: center;
-			flex-wrap: wrap;
-
-			> .avatar {
-				width: 52px;
-				height: 52px;
-			}
-
-			> .name {
-				margin: 0 0 0 12px;
-				font-size: 90%;
-			}
-
-			> .koudoku {
-				margin-left: auto;
-			}
-		}
-	}
-}
-
-.sdrarzaf {
+<style lang="scss" module>
+.root {
+	--stageHeight: min(72vh, 760px);
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-	grid-gap: 12px;
-	margin: var(--MI-margin);
+	grid-template-columns: minmax(0, 1fr);
+	gap: 16px;
+}
 
-	> .post {
+.container {
+	container-type: inline-size;
+}
 
+@container (min-width: 860px) {
+	.root {
+		grid-template-columns: minmax(0, 1fr) 340px;
+		align-items: start;
 	}
+
+	.info {
+		position: sticky;
+		top: calc(var(--MI-stickyTop, 0px) + 12px);
+	}
+}
+
+/* ---- ビューア ---- */
+.viewer {
+	display: grid;
+	gap: 10px;
+	min-width: 0;
+}
+
+.stage {
+	position: relative;
+	display: grid;
+	place-items: center;
+	min-height: 240px;
+	padding: clamp(12px, 3cqi, 28px);
+	border-radius: var(--MI-radius);
+	background:
+		radial-gradient(100% 100% at 50% 0%, color-mix(in oklab, var(--MI-c-accentSoft) 70%, transparent), transparent 70%),
+		var(--MI-c-inset);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+}
+
+.frame {
+	max-width: 100%;
+	max-height: var(--stageHeight);
+	overflow: hidden;
+	border-radius: var(--MI-radius-md);
+	box-shadow: var(--MI-shadow-md);
+}
+
+.media {
+	width: 100%;
+	height: 100%;
+	background: transparent !important;
+}
+
+.nav {
+	position: absolute;
+	top: 50%;
+	display: grid;
+	place-items: center;
+	width: 40px;
+	height: 40px;
+	margin-top: -20px;
+	border-radius: var(--MI-radius-full);
+	background: color-mix(in srgb, var(--MI_THEME-panel) 85%, transparent);
+	color: var(--MI_THEME-fg);
+	box-shadow: var(--MI-shadow-sm), 0 0 0 1px var(--MI-c-border);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	transition: opacity var(--MI-duration-fast) var(--MI-ease);
+
+	&:disabled {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+.navPrev { left: 12px; }
+.navNext { right: 12px; }
+
+.counter {
+	position: absolute;
+	right: 14px;
+	bottom: 12px;
+	padding: 2px 10px;
+	border-radius: var(--MI-radius-full);
+	background: color-mix(in srgb, var(--MI_THEME-panel) 85%, transparent);
+	font-size: 0.8em;
+	font-weight: bold;
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+}
+
+.noMedia {
+	color: var(--MI-c-fgSubtle);
+	font-size: 2.5em;
+}
+
+.thumbs {
+	display: flex;
+	gap: 8px;
+	overflow-x: auto;
+	padding: 2px;
+	scrollbar-width: thin;
+}
+
+.thumb {
+	flex: none;
+	width: 64px;
+	height: 64px;
+	overflow: hidden;
+	border-radius: var(--MI-radius-sm);
+	opacity: .6;
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+	transition: opacity var(--MI-duration-fast) var(--MI-ease), box-shadow var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		opacity: .9;
+	}
+}
+
+.thumbActive {
+	opacity: 1;
+	box-shadow: 0 0 0 2px var(--MI_THEME-accent);
+}
+
+.thumbImage {
+	width: 100%;
+	height: 100%;
+}
+
+/* ---- 情報パネル ---- */
+.info {
+	display: grid;
+	gap: 14px;
+	align-content: start;
+	padding: 20px;
+	border-radius: var(--MI-radius);
+	background: var(--MI_THEME-panel);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+}
+
+.author {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+}
+
+.avatar {
+	flex: none;
+	width: 44px;
+	height: 44px;
+}
+
+.authorText {
+	flex: 1;
+	min-width: 0;
+	color: var(--MI_THEME-fg);
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.authorName {
+	display: block;
+	font-weight: bold;
+}
+
+.acct {
+	display: block;
+	overflow: hidden;
+	color: var(--MI-c-fgMuted);
+	font-size: 0.85em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.title {
+	margin: 4px 0 0;
+	font-size: 1.45em;
+	line-height: 1.3;
+	overflow-wrap: anywhere;
+}
+
+.description {
+	line-height: 1.75;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+}
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tag {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: var(--MI-radius-full);
+	background: var(--MI-c-accentSoft);
+	color: var(--MI-c-accentInk);
+	font-size: 0.8em;
+	font-weight: bold;
+
+	&:hover {
+		text-decoration: none;
+		background: var(--MI-c-accentHover);
+	}
+}
+
+.date {
+	margin: 0;
+	color: var(--MI-c-fgSubtle);
+	font-size: 0.8em;
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	padding-top: 14px;
+	border-top: 1px solid var(--MI-c-border);
+}
+
+.actionIcons {
+	display: flex;
+	gap: 2px;
+	margin-inline-start: auto;
+}
+
+.count {
+	margin-inline-start: 0.4em;
+}
+
+/* ---- ほかの投稿 ---- */
+.more {
+	display: grid;
+	gap: 12px;
+}
+
+.moreTitle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 8px 4px 0;
+	font-size: 1.05em;
+
+	> span::before {
+		content: "";
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		margin-right: 8px;
+		vertical-align: middle;
+		border-radius: var(--MI-radius-full);
+		background: var(--MI_THEME-accent);
+	}
+}
+
+.moreLink {
+	flex: none;
+	padding: 4px 12px;
+	border-radius: var(--MI-radius-full);
+	color: var(--MI-c-accentInk);
+	font-size: 0.8em;
+	font-weight: bold;
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+
+	&:hover {
+		text-decoration: none;
+		background: var(--MI-c-hover);
+	}
+}
+
+.moreGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+	gap: 12px;
 }
 </style>

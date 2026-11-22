@@ -36,7 +36,7 @@ const props = defineProps<{
 
 	&:hover {
 		text-decoration: none;
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 
 	&:focus-visible {

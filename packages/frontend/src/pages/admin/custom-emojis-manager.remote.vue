@@ -458,7 +458,7 @@ onMounted(async () => {
 
 	button {
 		background-color: var(--MI_THEME-buttonBg);
-		border-radius: 9999px;
+		border-radius: var(--MI-radius-full);
 		border: none;
 		margin: 0 4px;
 		padding: 8px;

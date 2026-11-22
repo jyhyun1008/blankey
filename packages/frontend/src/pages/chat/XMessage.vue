@@ -311,7 +311,7 @@ function showMenu(ev: PointerEvent, contextmenu = false) {
 	display: flex;
 	align-items: center;
 	border: solid 1px var(--MI_THEME-divider);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	padding: 8px;
 
 	&.reactionMy {

@@ -240,7 +240,7 @@ function showFileMenu(file: Misskey.entities.DriveFile, ev: PointerEvent | Keybo
 	position: relative;
 	width: 64px;
 	height: 64px;
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	overflow: hidden;
 	cursor: move;
 

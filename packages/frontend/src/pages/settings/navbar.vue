@@ -64,7 +64,7 @@ import MkSwitch from '@/components/MkSwitch.vue';
 import MkPreferenceContainer from '@/components/MkPreferenceContainer.vue';
 import MkDraggable from '@/components/MkDraggable.vue';
 import * as os from '@/os.js';
-import { navbarItemDef } from '@/navbar.js';
+import { fixedSidebarItems, navbarItemDef } from '@/navbar.js';
 import { store } from '@/store.js';
 import { i18n } from '@/i18n.js';
 import { definePage } from '@/page.js';
@@ -72,7 +72,7 @@ import { prefer } from '@/preferences.js';
 import { getInitialPrefValue } from '@/preferences/manager.js';
 import { genId } from '@/utility/id.js';
 
-const items = ref(prefer.s.menu.map(x => ({
+const items = ref(prefer.s.menu.filter(x => !fixedSidebarItems.includes(x)).map(x => ({
 	id: genId(),
 	type: x,
 })));
@@ -82,7 +82,7 @@ const menuDisplay = store.model('menuDisplay');
 const showNavbarSubButtons = prefer.model('showNavbarSubButtons');
 
 async function addItem() {
-	const menu = Object.keys(navbarItemDef).filter(k => !itemTypeValues.value.includes(k));
+	const menu = Object.keys(navbarItemDef).filter(k => !fixedSidebarItems.includes(k) && !itemTypeValues.value.includes(k));
 	const { canceled, result: item } = await os.select({
 		title: i18n.ts.addItem,
 		items: [...menu.map(k => ({

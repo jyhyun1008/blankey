@@ -1,0 +1,129 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and misskey-project
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+.fadeEnterActive,
+.fadeLeaveActive {
+	transition: opacity 0.125s ease;
+}
+.fadeEnterFrom,
+.fadeLeaveTo {
+	opacity: 0;
+}
+
+.generalActionButton {
+	height: 2.5rem;
+	width: 2.5rem;
+	text-align: center;
+	border-radius: var(--MI-radius-full);
+
+	& :global(.ti) {
+		line-height: 2.5rem;
+	}
+
+	&:hover,
+	&:focus-visible {
+		background-color: var(--MI_THEME-accentedBg);
+		color: var(--MI-c-accentInk);
+		text-decoration: none;
+		outline: none;
+	}
+}
+
+.article {
+	--reading-inset: clamp(20px, 7%, 56px);
+	border-radius: var(--MI-radius);
+	background: var(--MI_THEME-panel);
+}
+
+.articleHeader,
+.content,
+.actions {
+	margin-inline: var(--reading-inset);
+}
+
+.articleHeader {
+	padding-block: clamp(24px, 6vw, 44px) 24px;
+
+	> h1 {
+		margin: 0;
+		font-size: clamp(1.85rem, 5vw, 3rem);
+		font-weight: 750;
+		line-height: 1.18;
+		overflow-wrap: anywhere;
+		text-wrap: balance;
+	}
+}
+
+.summary {
+	margin: 12px 0 0;
+	font-size: clamp(1.03rem, 2vw, 1.25rem);
+	line-height: 1.55;
+	opacity: .78;
+	overflow-wrap: anywhere;
+}
+
+.tags {
+	--hashtag-pills-margin-start: 12px;
+}
+
+.byline {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px 20px;
+	margin-top: 22px;
+}
+
+.author {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+	font-weight: bold;
+	overflow-wrap: anywhere;
+}
+
+.avatar {
+	width: 36px;
+	height: 36px;
+	flex: none;
+}
+
+.account {
+	display: block;
+	opacity: .7;
+	font-size: 0.8em;
+	font-weight: normal;
+}
+
+.dates {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	opacity: .75;
+	font-size: 0.8em;
+}
+
+.content {
+	padding-block: 12px 32px;
+	line-height: 1.75;
+	overflow-wrap: anywhere;
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	border-top: 1px solid var(--MI_THEME-divider);
+	padding-block: 14px 20px;
+
+	> .other {
+		margin-inline-start: auto;
+		display: flex;
+		gap: var(--MI-marginHalf);
+	}
+}

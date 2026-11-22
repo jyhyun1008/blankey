@@ -67,6 +67,14 @@ export const packedMetaLiteSchema = {
 			type: 'string',
 			optional: false, nullable: true,
 		},
+		webFontRegularUrl: {
+			type: 'string',
+			optional: false, nullable: true,
+		},
+		webFontBoldUrl: {
+			type: 'string',
+			optional: false, nullable: true,
+		},
 		defaultLightTheme: {
 			type: 'string',
 			optional: false, nullable: true,

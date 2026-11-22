@@ -65,7 +65,7 @@ watch(() => props.showing, () => {
 	font-size: 32px;
 
 	&.success {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 
 	&.waiting {

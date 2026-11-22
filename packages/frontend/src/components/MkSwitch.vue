@@ -58,12 +58,12 @@ const toggle = () => {
 .root {
 	position: relative;
 	display: flex;
-	transition: all 0.2s ease;
+	transition: opacity var(--MI-duration) var(--MI-ease);
 	user-select: none;
 
 	&:hover {
 		> .button {
-			border-color: var(--MI_THEME-inputBorderHover) !important;
+			border-color: var(--MI-c-borderStrong) !important;
 		}
 	}
 
@@ -102,8 +102,8 @@ const toggle = () => {
 }
 
 .caption {
-	margin: 8px 0 0 0;
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	margin: 6px 0 0 0;
+	color: var(--MI-c-fgMuted);
 	font-size: 0.85em;
 
 	&:empty {

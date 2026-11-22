@@ -200,6 +200,7 @@ test.describe('After user setup', () => {
 	});
 
 	test('note', async ({ page }) => {
+		await page.goto(`${BASE_URL}/timeline`);
 		await postNote(page, 'Hello, Misskey!');
 	});
 

@@ -46,7 +46,7 @@ const locked = computed(() => props.decoration.roleIdsThatCanBeUsedThisDecoratio
 	cursor: pointer;
 	padding: 16px 16px 28px 16px;
 	border: solid 2px var(--MI_THEME-divider);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	text-align: center;
 	font-size: 90%;
 	overflow: clip;

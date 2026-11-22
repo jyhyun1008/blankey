@@ -598,7 +598,7 @@ function guardMouseMove(ev: MouseEvent) {
 		> .menu {
 			padding: 12px 0 max(env(safe-area-inset-bottom, 0px), 12px) 0;
 			width: 100%;
-			border-radius: 24px;
+			border-radius: var(--MI-radius-xl);
 			border-bottom-right-radius: 0;
 			border-bottom-left-radius: 0;
 
@@ -608,7 +608,7 @@ function guardMouseMove(ev: MouseEvent) {
 
 				&::before {
 					width: calc(100% - 24px);
-					border-radius: 12px;
+					border-radius: var(--MI-radius-md);
 				}
 
 				> .icon {
@@ -625,7 +625,7 @@ function guardMouseMove(ev: MouseEvent) {
 }
 
 .menu {
-	padding: 8px 0;
+	padding: 6px 0;
 	box-sizing: border-box;
 	max-width: 100vw;
 	min-width: 200px;
@@ -641,7 +641,8 @@ function guardMouseMove(ev: MouseEvent) {
 	display: flex;
 	align-items: center;
 	position: relative;
-	padding: 5px 16px;
+	min-height: 36px;
+	padding: 8px 18px;
 	width: 100%;
 	box-sizing: border-box;
 	white-space: nowrap;
@@ -662,9 +663,10 @@ function guardMouseMove(ev: MouseEvent) {
 		left: 0;
 		right: 0;
 		margin: auto;
-		width: calc(100% - 16px);
+		width: calc(100% - 12px);
 		height: 100%;
-		border-radius: 6px;
+		border-radius: var(--MI-radius-sm);
+		transition: background-color var(--MI-duration-fast) var(--MI-ease);
 	}
 
 	&:focus-visible {
@@ -691,7 +693,7 @@ function guardMouseMove(ev: MouseEvent) {
 
 		&:not(:focus-visible):active,
 		&:not(:focus-visible).active {
-			color: var(--menuActiveFg, var(--MI_THEME-fgOnAccent));
+			color: var(--menuActiveFg, var(--MI-c-fgOnAccent));
 
 			&::before {
 				background-color: var(--menuActiveBg, var(--MI_THEME-accent));
@@ -705,10 +707,10 @@ function guardMouseMove(ev: MouseEvent) {
 
 	&.danger {
 		--menuFg: var(--MI_THEME-error);
-		--menuHoverFg: #fff;
-		--menuHoverBg: var(--MI_THEME-error);
-		--menuActiveFg: #fff;
-		--menuActiveBg: hsl(from var(--MI_THEME-error) h s calc(l - 10));
+		--menuHoverFg: var(--MI_THEME-error);
+		--menuHoverBg: color(from var(--MI_THEME-error) srgb r g b / 0.12);
+		--menuActiveFg: var(--MI-c-fgOnError);
+		--menuActiveBg: var(--MI_THEME-error);
 	}
 
 	&.radio {

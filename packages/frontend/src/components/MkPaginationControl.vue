@@ -94,7 +94,10 @@ watch(q, () => {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	margin-bottom: 10px;
+	// カード内に置くときは親が変数でヘッダー風にする
+	margin-bottom: var(--MI-paginationControl-margin, 10px);
+	padding: var(--MI-paginationControl-padding, 0);
+	border-bottom: var(--MI-paginationControl-border, none);
 }
 
 .control {

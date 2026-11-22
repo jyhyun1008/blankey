@@ -14,15 +14,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<i v-if="store.r.realtimeMode.value" class="ti ti-bolt ti-fw"></i>
 				<i v-else class="ti ti-bolt-off ti-fw"></i>
 			</button>
-			<button v-if="!iconOnly && showWidgetButton" v-tooltip.noDelay.right="i18n.ts.widgets" class="_button" :class="[$style.widget]" @click="() => emit('widgetButtonClick')">
-				<i class="ti ti-apps ti-fw"></i>
-			</button>
 		</div>
 		<div :class="$style.middle">
-			<MkA v-tooltip.noDelay.right="i18n.ts.timeline" :class="$style.item" :activeClass="$style.active" to="/" exact>
-				<i :class="$style.itemIcon" class="ti ti-home ti-fw" style="view-transition-name: navbar-homeIcon;"></i><span :class="$style.itemText">{{ i18n.ts.timeline }}</span>
+			<MkA v-tooltip.noDelay.right="i18n.ts.home" :class="$style.item" :activeClass="$style.active" to="/" exact>
+				<i :class="$style.itemIcon" class="ti ti-home ti-fw" style="view-transition-name: navbar-homeIcon;"></i><span :class="$style.itemText">{{ i18n.ts.home }}</span>
 			</MkA>
-			<template v-for="item in prefer.r.menu.value">
+			<MkA v-tooltip.noDelay.right="i18n.ts.timeline" :class="$style.item" :activeClass="$style.active" to="/timeline" exact>
+				<i :class="$style.itemIcon" class="ti ti-message-circle ti-fw"></i><span :class="$style.itemText">{{ i18n.ts.timeline }}</span>
+			</MkA>
+			<template v-for="item in menu" :key="item === '-' ? undefined : item">
 				<div v-if="item === '-'" :class="$style.divider"></div>
 				<component
 					:is="navbarItemDef[item].to ? 'MkA' : 'button'"
@@ -49,14 +49,28 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<i :class="$style.itemIcon" class="ti ti-grid-dots ti-fw" style="view-transition-name: navbar-more;"></i><span :class="$style.itemText">{{ i18n.ts.more }}</span>
 				<span v-if="otherMenuItemIndicated" :class="$style.itemIndicator" class="_blink"><i class="_indicatorCircle"></i></span>
 			</button>
+			<template v-if="$i">
+				<MkA
+					v-for="item in visibleFixedSidebarItems"
+					:key="item"
+					v-tooltip.noDelay.right="navbarItemDef[item].title"
+					:class="$style.item"
+					:activeClass="$style.active"
+					:to="navbarItemDef[item].to!"
+				>
+					<i class="ti-fw" :class="[$style.itemIcon, navbarItemDef[item].icon]" :style="{ viewTransitionName: 'navbar-item-' + item }"></i><span :class="$style.itemText">{{ navbarItemDef[item].title }}</span>
+					<span v-if="navbarItemDef[item].indicated" :class="$style.itemIndicator" class="_blink"><i class="_indicatorCircle"></i></span>
+				</MkA>
+			</template>
 			<MkA v-tooltip.noDelay.right="i18n.ts.settings" :class="$style.item" :activeClass="$style.active" to="/settings">
 				<i :class="$style.itemIcon" class="ti ti-settings ti-fw" style="view-transition-name: navbar-settings;"></i><span :class="$style.itemText">{{ i18n.ts.settings }}</span>
 			</MkA>
 		</div>
 		<div :class="$style.bottom">
-			<button v-if="iconOnly && showWidgetButton" v-tooltip.noDelay.right="i18n.ts.widgets" class="_button" :class="[$style.widget]" @click="() => emit('widgetButtonClick')">
-				<i class="ti ti-apps ti-fw"></i>
-			</button>
+			<div v-if="!forceIconOnly && prefer.r.showNavbarSubButtons.value" :class="$style.subButtons">
+				<button v-tooltip.noDelay.right="i18n.ts.navbar" class="_button" :class="$style.subButton" :aria-label="i18n.ts.navbar" @click="menuEdit"><i class="ti ti-settings-2"></i></button>
+				<button v-if="!props.asDrawer" v-tooltip.noDelay.right="iconOnly ? i18n.ts._menuDisplay.sideFull : i18n.ts._menuDisplay.sideIcon" class="_button" :class="$style.subButton" :aria-label="iconOnly ? i18n.ts._menuDisplay.sideFull : i18n.ts._menuDisplay.sideIcon" @click="toggleIconOnly"><i v-if="iconOnly" class="ti ti-layout-sidebar-left-expand"></i><i v-else class="ti ti-layout-sidebar-left-collapse"></i></button>
+			</div>
 			<button v-if="iconOnly" v-tooltip.noDelay.right="i18n.ts.realtimeMode" class="_button" :class="[$style.realtimeMode, store.r.realtimeMode.value ? $style.on : null]" @click="toggleRealtimeMode">
 				<i v-if="store.r.realtimeMode.value" class="ti ti-bolt ti-fw"></i>
 				<i v-else class="ti ti-bolt-off ti-fw"></i>
@@ -69,37 +83,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</button>
 		</div>
 	</div>
-
-	<!--
-	<svg viewBox="0 0 16 48" :class="$style.subButtonShape">
-		<g transform="matrix(0.333333,0,0,0.222222,0.000895785,13.3333)">
-			<path d="M23.935,-24C37.223,-24 47.995,-7.842 47.995,12.09C47.995,34.077 47.995,62.07 47.995,84.034C47.995,93.573 45.469,102.721 40.972,109.466C36.475,116.211 30.377,120 24.018,120L23.997,120C10.743,120 -0.003,136.118 -0.003,156C-0.003,156 -0.003,156 -0.003,156L-0.003,-60L-0.003,-59.901C-0.003,-50.379 2.519,-41.248 7.007,-34.515C11.496,-27.782 17.584,-24 23.931,-24C23.932,-24 23.934,-24 23.935,-24Z" style="fill:var(--MI_THEME-navBg);"/>
-		</g>
-	</svg>
-	-->
-
-	<div v-if="!forceIconOnly && prefer.r.showNavbarSubButtons.value" :class="$style.subButtons">
-		<div :class="$style.subButton">
-			<svg viewBox="0 0 16 64" :class="$style.subButtonShape">
-				<g transform="matrix(0.333333,0,0,0.222222,0.000895785,21.3333)">
-					<path d="M47.488,7.995C47.79,10.11 47.943,12.266 47.943,14.429C47.997,26.989 47.997,84 47.997,84C47.997,84 44.018,118.246 23.997,133.5C-0.374,152.07 -0.003,192 -0.003,192L-0.003,-96C-0.003,-96 0.151,-56.216 23.997,-37.5C40.861,-24.265 46.043,-1.243 47.488,7.995Z" style="fill:var(--MI_THEME-navBg);"/>
-				</g>
-			</svg>
-			<button class="_button" :class="$style.subButtonClickable" @click="menuEdit"><i :class="$style.subButtonIcon" class="ti ti-settings-2"></i></button>
-		</div>
-		<template v-if="!props.asDrawer">
-			<div :class="$style.subButtonGapFill"></div>
-			<div :class="$style.subButtonGapFillDivider"></div>
-			<div :class="$style.subButton">
-				<svg viewBox="0 0 16 64" :class="$style.subButtonShape">
-					<g transform="matrix(0.333333,0,0,0.222222,0.000895785,21.3333)">
-						<path d="M47.488,7.995C47.79,10.11 47.943,12.266 47.943,14.429C47.997,26.989 47.997,84 47.997,84C47.997,84 44.018,118.246 23.997,133.5C-0.374,152.07 -0.003,192 -0.003,192L-0.003,-96C-0.003,-96 0.151,-56.216 23.997,-37.5C40.861,-24.265 46.043,-1.243 47.488,7.995Z" style="fill:var(--MI_THEME-navBg);"/>
-					</g>
-				</svg>
-				<button class="_button" :class="$style.subButtonClickable" @click="toggleIconOnly"><i v-if="iconOnly" class="ti ti-chevron-right" :class="$style.subButtonIcon"></i><i v-else class="ti ti-chevron-left" :class="$style.subButtonIcon"></i></button>
-			</div>
-		</template>
-	</div>
 </div>
 </template>
 
@@ -107,7 +90,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { computed, defineAsyncComponent, ref, watch } from 'vue';
 import { openInstanceMenu } from './common.js';
 import * as os from '@/os.js';
-import { navbarItemDef } from '@/navbar.js';
+import { fixedSidebarItems, getCoveredMenuItems, navbarItemDef } from '@/navbar.js';
 import { store } from '@/store.js';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';
@@ -120,22 +103,20 @@ import { $i } from '@/i.js';
 const router = useRouter();
 
 const props = defineProps<{
-	showWidgetButton?: boolean;
 	asDrawer?: boolean;
-}>();
-
-const emit = defineEmits<{
-	(ev: 'widgetButtonClick'): void;
 }>();
 
 const forceIconOnly = ref(!props.asDrawer && window.innerWidth <= 1279);
 const iconOnly = computed(() => {
 	return !props.asDrawer && (forceIconOnly.value || (store.r.menuDisplay.value === 'sideIcon'));
 });
+const menu = computed(() => prefer.r.menu.value.filter(item => !fixedSidebarItems.includes(item)));
+const visibleFixedSidebarItems = computed(() => fixedSidebarItems.filter(item => navbarItemDef[item].show?.value !== false));
 
 const otherMenuItemIndicated = computed(() => {
+	const covered = getCoveredMenuItems(prefer.r.menu.value);
 	for (const def in navbarItemDef) {
-		if (prefer.r.menu.value.includes(def)) continue;
+		if (prefer.r.menu.value.includes(def) || fixedSidebarItems.includes(def) || covered.includes(def)) continue;
 		if (navbarItemDef[def].indicated) return true;
 	}
 	return false;
@@ -188,6 +169,7 @@ async function more(ev: PointerEvent) {
 	if (!target) return;
 	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkLaunchPad.vue').then(x => x.default), {
 		anchorElement: target,
+		excludeItems: [...fixedSidebarItems, ...getCoveredMenuItems(prefer.s.menu)],
 	}, {
 		closed: () => dispose(),
 	});
@@ -202,9 +184,7 @@ function menuEdit() {
 .root {
 	--nav-width: 250px;
 	--nav-icon-only-width: 80px;
-	--nav-bg-transparent: color(from var(--MI_THEME-navBg) srgb r g b / 0.5);
-
-	--subButtonWidth: 20px;
+	--nav-bg-transparent: color(from var(--MI-c-shell) srgb r g b / 0.5);
 
 	flex: 0 0 var(--nav-width);
 	width: var(--nav-width);
@@ -219,7 +199,7 @@ function menuEdit() {
 	overflow: auto;
 	overflow-x: clip;
 	overscroll-behavior: contain;
-	background: var(--MI_THEME-navBg);
+	background: var(--MI-c-shell);
 	contain: strict;
 
 	/* 画面が縦に長い、設置している項目数が少ないなどの環境においても確実にbottomを最下部に表示するため */
@@ -326,79 +306,151 @@ function menuEdit() {
 }
 
 .subButtons {
-	position: fixed;
-	left: var(--nav-width);
-	bottom: 80px;
-	z-index: 1001;
-	box-sizing: border-box;
+	display: flex;
+	justify-content: flex-end;
+	gap: 4px;
 }
 
 .subButton {
-	display: block;
-	position: relative;
-	z-index: 1002;
-	width: var(--subButtonWidth);
-	height: 50px;
-	box-sizing: border-box;
-	align-content: center;
-}
-
-.subButtonShape {
-	position: absolute;
-	z-index: -1;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	margin: auto;
-	width: var(--subButtonWidth);
-	height: calc(var(--subButtonWidth) * 4);
-}
-
-.subButtonClickable {
-	position: absolute;
-	display: block;
-	max-width: unset;
-	width: 24px;
-	height: 42px;
-	top: 0;
-	bottom: 0;
-	left: -4px;
-	margin: auto;
-	font-size: 10px;
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--MI-radius-md);
+	color: var(--MI-c-fgSubtle);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		color var(--MI-duration-fast) var(--MI-ease);
 
 	&:hover {
 		color: var(--MI_THEME-fgHighlighted);
+		background: var(--MI-c-hover);
+	}
+}
 
-		.subButtonIcon {
-			opacity: 1;
+.realtimeMode {
+	border-radius: var(--MI-radius-md);
+	color: var(--MI-c-fgSubtle);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		color var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		color: var(--MI_THEME-fgHighlighted);
+		background: var(--MI-c-hover);
+	}
+
+	&.on {
+		color: var(--MI-c-accentInk);
+	}
+}
+
+.item {
+	position: relative;
+	box-sizing: border-box;
+	color: var(--MI_THEME-navFg);
+	border-radius: var(--MI-radius-md);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		color var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		text-decoration: none;
+		color: var(--MI_THEME-fgHighlighted);
+		background: var(--MI-c-hover);
+
+		.itemIcon {
+			transform: translateY(-1px) rotate(-8deg) scale(1.1);
+		}
+	}
+
+	&.active {
+		font-weight: bold;
+		color: var(--MI-c-accentInk);
+		background: var(--MI-c-accentSoft);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--MI_THEME-focus);
+		outline-offset: -2px;
+	}
+}
+
+.itemIcon {
+	position: relative;
+	transition: transform var(--MI-duration-slow) var(--MI-easeSpring);
+}
+
+.itemIndicator {
+	position: absolute;
+	color: var(--MI_THEME-navIndicator);
+	font-size: 8px;
+}
+
+.post {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	box-sizing: border-box;
+	color: var(--MI-c-fgOnAccent);
+	font-weight: bold;
+	border-radius: var(--MI-radius-full);
+	background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
+	box-shadow: 0 6px 16px -6px color(from var(--MI_THEME-accent) srgb r g b / 0.6);
+	transition:
+		transform var(--MI-duration) var(--MI-easeSpring),
+		box-shadow var(--MI-duration) var(--MI-ease),
+		filter var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		transform: translateY(-1px);
+		filter: brightness(1.05);
+		box-shadow: 0 10px 22px -8px color(from var(--MI_THEME-accent) srgb r g b / 0.7);
+
+		.postIcon {
+			transform: rotate(-12deg);
+		}
+	}
+
+	&:active {
+		transform: scale(0.97);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--MI_THEME-focus);
+		outline-offset: 2px;
+	}
+}
+
+.postIcon {
+	position: relative;
+	transition: transform var(--MI-duration-slow) var(--MI-easeSpring);
+}
+
+.account {
+	position: relative;
+	box-sizing: border-box;
+	border-radius: var(--MI-radius-md);
+	overflow: clip;
+	transition: background var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		background: var(--MI-c-hover);
+	}
+
+	&:focus-visible {
+		outline: none;
+
+		> .avatar {
+			box-shadow: var(--MI-focusRing);
 		}
 	}
 }
 
-.subButtonIcon {
-	margin-left: -4px;
-	opacity: 0.7;
-}
-
-.subButtonGapFill {
-	position: relative;
-	z-index: 1001;
-	width: var(--subButtonWidth);
-	height: 64px;
-	margin-top: -32px;
-	margin-bottom: -32px;
-	pointer-events: none;
-	background: var(--MI_THEME-navBg);
-}
-
-.subButtonGapFillDivider {
-	position: relative;
-	z-index: 1010;
-	margin-left: -2px;
-	width: 14px;
-	height: 1px;
-	background: var(--MI_THEME-divider);
-	pointer-events: none;
+.divider {
+	border-top: solid 1px var(--MI-c-border);
 }
 
 .root:not(.iconOnly) {
@@ -407,118 +459,74 @@ function menuEdit() {
 	}
 
 	.top {
-		--top-height: 80px;
+		--top-height: 72px;
 
 		position: sticky;
 		top: 0;
 		z-index: 1;
 		display: flex;
+		align-items: center;
 		height: var(--top-height);
-		padding-left: 6px;
+		padding: 0 14px 0 20px;
+		box-sizing: border-box;
 	}
 
+	// ログアウト時のサイドバー (visitor.vue) と同じ: サーバーアイコンだけ、押すとサーバーメニュー
 	.instance {
 		position: relative;
-		width: var(--top-height);
 	}
 
 	.instanceIcon {
-		display: inline-block;
-		width: 38px;
+		display: block;
+		flex-shrink: 0;
+		width: 36px;
 		aspect-ratio: 1;
-		border-radius: 8px;
+		border-radius: var(--MI-radius-sm);
 	}
 
 	.realtimeMode {
-		display: inline-block;
-		width: var(--top-height);
+		display: grid;
+		place-items: center;
+		width: 36px;
+		height: 36px;
 		margin-left: auto;
-
-		&.on {
-			color: var(--MI_THEME-accent);
-		}
 	}
 
-	.widget {
-		display: inline-block;
-		width: var(--top-height);
-		margin-left: auto;
+	.middle {
+		padding: 0 12px;
 	}
 
 	.bottom {
 		position: sticky;
 		bottom: 0;
-		padding-top: 20px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 16px 12px 12px;
 	}
 
+	// アイコンと文字の位置をメニュー項目 (.item) に揃える
 	.post {
-		position: relative;
-		display: block;
+		justify-content: flex-start;
+		gap: 12px;
+		padding: 0 12px;
 		width: 100%;
-		height: 40px;
-		color: var(--MI_THEME-fgOnAccent);
-		font-weight: bold;
-		text-align: left;
-
-		&::before {
-			content: "";
-			display: block;
-			width: calc(100% - 38px);
-			height: 100%;
-			margin: auto;
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			border-radius: 999px;
-			background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
-		}
-
-		&:focus-visible {
-			outline: none;
-
-			&::before {
-				outline: 2px solid var(--MI_THEME-fgOnAccent);
-				outline-offset: -4px;
-			}
-		}
-
-		&:hover, &.active {
-			&::before {
-				background: hsl(from var(--MI_THEME-accent) h s calc(l + 10));
-			}
-		}
+		height: 44px;
 	}
 
 	.postIcon {
-		position: relative;
-		margin-left: 30px;
-		margin-right: 8px;
-		width: 32px;
-	}
-
-	.postText {
-		position: relative;
+		flex-shrink: 0;
+		width: 20px;
+		font-size: 1.1em;
 	}
 
 	.account {
-		position: relative;
 		display: flex;
 		align-items: center;
-		padding: 20px 0 20px 30px;
+		gap: 10px;
+		padding: 8px 10px;
 		width: 100%;
 		text-align: left;
-		box-sizing: border-box;
-		overflow: clip;
-
-		&:focus-visible {
-			outline: none;
-
-			> .avatar {
-				box-shadow: 0 0 0 4px var(--MI_THEME-focus);
-			}
-		}
 	}
 
 	.avatar {
@@ -527,99 +535,55 @@ function menuEdit() {
 		position: relative;
 		width: 32px;
 		aspect-ratio: 1;
-		margin-right: 8px;
 	}
 
 	.acct {
 		display: block;
 		flex-shrink: 1;
-		padding-right: 8px;
+		min-width: 0;
 	}
 
 	.divider {
-		margin: 16px 16px;
-		border-top: solid 0.5px var(--MI_THEME-divider);
+		margin: 10px 12px;
 	}
 
 	.item {
-		position: relative;
-		display: block;
-		padding-left: 30px;
-		line-height: 2.85rem;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		white-space: nowrap;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		margin: 2px 0;
+		padding: 0 12px;
+		height: 40px;
 		width: 100%;
 		text-align: left;
-		box-sizing: border-box;
-		color: var(--MI_THEME-navFg);
-
-		&:hover {
-			text-decoration: none;
-			color: light-dark(hsl(from var(--MI_THEME-navFg) h s calc(l - 17)), hsl(from var(--MI_THEME-navFg) h s calc(l + 17)));
-		}
-
-		&.active {
-			color: var(--MI_THEME-navActive);
-		}
-
-		&:focus-visible {
-			outline: none;
-
-			&::before {
-				outline: 2px solid var(--MI_THEME-focus);
-				outline-offset: -2px;
-			}
-		}
-
-		&:hover, &.active, &:focus {
-			color: var(--MI_THEME-accent);
-
-			&::before {
-				content: "";
-				display: block;
-				width: calc(100% - 34px);
-				height: 100%;
-				margin: auto;
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				border-radius: 999px;
-				background: var(--MI_THEME-accentedBg);
-			}
-		}
+		white-space: nowrap;
+		overflow: hidden;
 	}
 
 	.itemIcon {
-		position: relative;
-		width: 32px;
-		margin-right: 8px;
+		flex-shrink: 0;
+		width: 20px;
+		font-size: 1.1em;
 	}
 
 	.itemIndicator {
-		position: absolute;
-		top: 0;
-		left: 20px;
-		color: var(--MI_THEME-navIndicator);
-		font-size: 8px;
+		top: 6px;
+		left: 26px;
 
 		&:has(.itemIndicateValueIcon) {
 			animation: none;
+			top: auto;
 			left: auto;
-			right: 40px;
+			right: 10px;
 			font-size: 10px;
 		}
 	}
 
 	.itemText {
 		position: relative;
-		font-size: 0.9em;
-	}
-
-	.subButtons {
-		left: var(--nav-width);
+		font-size: 0.95em;
+		text-overflow: ellipsis;
+		overflow: hidden;
 	}
 }
 
@@ -635,7 +599,7 @@ function menuEdit() {
 		position: sticky;
 		top: 0;
 		z-index: 1;
-		padding: 20px 0;
+		padding: 20px 0 12px;
 	}
 
 	.instance {
@@ -655,78 +619,36 @@ function menuEdit() {
 
 	.instanceIcon {
 		display: inline-block;
-		width: 30px;
+		width: 36px;
 		aspect-ratio: 1;
-		border-radius: 8px;
+		border-radius: var(--MI-radius-sm);
 	}
 
 	.bottom {
 		position: sticky;
 		bottom: 0;
-		padding-top: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		padding: 16px 0 12px;
 	}
 
-	.widget {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 52px;
-		text-align: center;
+	.subButtons {
+		flex-direction: column;
+		align-items: center;
 	}
 
 	.realtimeMode {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 52px;
-		text-align: center;
-
-		&.on {
-			color: var(--MI_THEME-accent);
-		}
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
 	}
 
 	.post {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 52px;
-		text-align: center;
-
-		&::before {
-			content: "";
-			display: block;
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			margin: auto;
-			width: 52px;
-			aspect-ratio: 1/1;
-			border-radius: 100%;
-			background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
-		}
-
-		&:focus-visible {
-			outline: none;
-
-			&::before {
-				outline: 2px solid var(--MI_THEME-fgOnAccent);
-				outline-offset: -4px;
-			}
-		}
-
-		&:hover, &.active {
-			&::before {
-				background: hsl(from var(--MI_THEME-accent) h s calc(l + 10));
-			}
-		}
-	}
-
-	.postIcon {
-		position: relative;
-		color: var(--MI_THEME-fgOnAccent);
+		width: 48px;
+		height: 48px;
 	}
 
 	.postText {
@@ -734,24 +656,14 @@ function menuEdit() {
 	}
 
 	.account {
-		display: block;
-		text-align: center;
-		padding: 20px 0;
-		width: 100%;
-		overflow: clip;
-
-		&:focus-visible {
-			outline: none;
-
-			> .avatar {
-				box-shadow: 0 0 0 4px var(--MI_THEME-focus);
-			}
-		}
+		display: grid;
+		place-items: center;
+		padding: 6px;
 	}
 
 	.avatar {
-		display: inline-block;
-		width: 38px;
+		display: block;
+		width: 36px;
 		aspect-ratio: 1;
 	}
 
@@ -761,56 +673,19 @@ function menuEdit() {
 
 	.divider {
 		margin: 8px auto;
-		width: calc(100% - 32px);
-		border-top: solid 0.5px var(--MI_THEME-divider);
+		width: 32px;
 	}
 
 	.item {
-		display: block;
-		position: relative;
-		padding: 16px 0;
-		width: 100%;
-		text-align: center;
-
-		&:focus-visible {
-			outline: none;
-
-			&::before {
-				outline: 2px solid var(--MI_THEME-focus);
-				outline-offset: -2px;
-			}
-		}
-
-		&:hover, &.active, &:focus {
-			text-decoration: none;
-			color: var(--MI_THEME-accent);
-
-			&::before {
-				content: "";
-				display: block;
-				height: 100%;
-				aspect-ratio: 1;
-				margin: auto;
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				border-radius: 999px;
-				background: var(--MI_THEME-accentedBg);
-			}
-
-			> .icon,
-			> .text {
-				opacity: 1;
-			}
-		}
+		display: grid;
+		place-items: center;
+		margin: 4px auto;
+		width: 48px;
+		height: 44px;
 	}
 
 	.itemIcon {
-		display: block;
-		margin: 0 auto;
-		opacity: 0.7;
+		font-size: 1.15em;
 	}
 
 	.itemText {
@@ -818,23 +693,27 @@ function menuEdit() {
 	}
 
 	.itemIndicator {
-		position: absolute;
-		top: 6px;
-		left: 24px;
-		color: var(--MI_THEME-navIndicator);
-		font-size: 8px;
+		top: 4px;
+		left: 28px;
 
 		&:has(.itemIndicateValueIcon) {
 			animation: none;
-			top: 4px;
 			left: auto;
-			right: 4px;
+			right: 2px;
 			font-size: 10px;
 		}
 	}
+}
 
-	.subButtons {
-		left: var(--nav-icon-only-width);
+@media (prefers-reduced-motion: reduce) {
+	.item:hover .itemIcon,
+	.post:hover .postIcon {
+		transform: none;
+	}
+
+	.post:hover,
+	.post:active {
+		transform: none;
 	}
 }
 </style>

@@ -425,7 +425,7 @@ definePage(() => ({
 
 <style lang="scss" scoped>
 .rfqxtzch {
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	> .toggle {
 		position: relative;
@@ -467,7 +467,7 @@ definePage(() => ({
 
 			> .before {
 				left: -70px;
-				color: var(--MI_THEME-accent);
+				color: var(--MI-c-accentInk);
 			}
 
 			> .after {
@@ -483,7 +483,7 @@ definePage(() => ({
 				}
 
 				> .after {
-					color: var(--MI_THEME-accent);
+					color: var(--MI-c-accentInk);
 				}
 
 				.toggle__handler {
@@ -540,8 +540,8 @@ definePage(() => ({
 			width: 50px - 6;
 			height: 50px - 6;
 			background-color: #FFCF96;
-			border-radius: 50px;
-			box-shadow: 0 2px 6px rgba(0,0,0,.3);
+			border-radius: var(--MI-radius-full);
+			box-shadow: var(--MI-shadow-md);
 			transition: all 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
 			transform:  rotate(-45deg);
 

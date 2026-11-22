@@ -8,7 +8,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<template #empty><MkResult type="empty"/></template>
 
 	<template #default="{ items }">
-		<MkChannelPreview v-for="item in items" :key="item.id" class="_margin" :channel="extractor(item)"/>
+		<div class="_cardGrid">
+			<MkChannelPreview v-for="item in items" :key="item.id" :channel="extractor(item)"/>
+		</div>
 	</template>
 </MkPagination>
 </template>

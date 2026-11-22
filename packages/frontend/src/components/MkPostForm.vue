@@ -57,7 +57,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkAcct :user="u"/>
 				<button class="_button" style="padding: 4px 8px;" @click="removeVisibleUser(u.id)"><i class="ti ti-x"></i></button>
 			</span>
-			<button class="_buttonPrimary" style="padding: 4px; border-radius: 8px;" @click="addVisibleUser"><i class="ti ti-plus ti-fw"></i></button>
+			<button class="_buttonPrimary" style="padding: 4px; border-radius: var(--MI-radius-sm);" @click="addVisibleUser"><i class="ti ti-plus ti-fw"></i></button>
 		</div>
 	</div>
 	<MkInfo v-if="!store.r.tips.value.postForm" :class="$style.showHowToUse" closable @close="closeTip('postForm')">
@@ -1552,7 +1552,7 @@ defineExpose({
 		outline: none;
 
 		> .submitInner {
-			outline: 2px solid var(--MI_THEME-fgOnAccent);
+			outline: 2px solid var(--MI-c-fgOnAccent);
 			outline-offset: -4px;
 		}
 	}
@@ -1584,7 +1584,7 @@ defineExpose({
 	left: 12px;
 	width: 5px;
 	height: 100% ;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	pointer-events: none;
 }
 
@@ -1592,17 +1592,17 @@ defineExpose({
 	padding: 0 12px;
 	line-height: 34px;
 	font-weight: bold;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	min-width: 90px;
 	box-sizing: border-box;
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 }
 
 .headerRightItem {
 	margin: 0;
 	padding: 8px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	&:hover {
 		background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
@@ -1657,7 +1657,7 @@ html[data-color-scheme=light] .preview {
 
 .withQuote {
 	margin: 0 0 8px 0;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .toSpecified {
@@ -1676,7 +1676,7 @@ html[data-color-scheme=light] .preview {
 .visibleUser {
 	margin-right: 14px;
 	padding: 8px 0 8px 8px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	background: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 }
 
@@ -1734,7 +1734,7 @@ html[data-color-scheme=light] .preview {
 	padding: 2px 6px;
 	font-size: .9em;
 	color: var(--MI_THEME-warn);
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	max-width: 100%;
 	min-width: 1.6em;
 	text-align: center;
@@ -1776,7 +1776,7 @@ html[data-color-scheme=light] .preview {
 	padding: 4px 6px;
 	font-size: .9em;
 	color: var(--MI_THEME-warn);
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	min-width: 1.6em;
 	text-align: center;
 
@@ -1816,19 +1816,19 @@ html[data-color-scheme=light] .preview {
 	font-size: 1em;
 	width: auto;
 	height: 100%;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 
 	&:hover {
 		background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.05));
 	}
 
 	&.footerButtonActive {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 
 .previewButtonActive {
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 @container (max-width: 500px) {

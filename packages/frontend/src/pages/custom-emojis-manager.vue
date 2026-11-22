@@ -422,7 +422,7 @@ definePage(() => ({
 				text-align: left;
 
 				&:hover {
-					color: var(--MI_THEME-accent);
+					color: var(--MI-c-accentInk);
 				}
 
 				> .img {

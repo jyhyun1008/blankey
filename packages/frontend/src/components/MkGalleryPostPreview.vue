@@ -4,11 +4,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<MkA :to="`/gallery/${post.id}`" class="ttasepnz _panel" tabindex="-1" @pointerenter="enterHover" @pointerleave="leaveHover">
-	<div class="thumbnail">
+<MkMediaPreviewCard
+	:to="`/gallery/${post.id}`"
+	:title="post.title"
+	:createdAt="post.createdAt"
+	:tags="tags"
+	:user="post.user"
+	:compact="compact"
+	@pointerenter="hover = true"
+	@pointerleave="hover = false"
+>
+	<template #thumbnail="{ imageClass }">
 		<Transition>
 			<MkImgWithBlurhash
-				class="img layered"
+				:class="imageClass"
 				:transition="safe ? null : {
 					duration: 500,
 					leaveActiveClass: $style.transition_toggle_leaveActive,
@@ -19,39 +28,28 @@ SPDX-License-Identifier: AGPL-3.0-only
 				:forceBlurhash="!show"
 			/>
 		</Transition>
-	</div>
-	<article>
-		<header>
-			<MkAvatar :user="post.user" class="avatar" link preview/>
-		</header>
-		<footer>
-			<span class="title">{{ post.title }}</span>
-		</footer>
-	</article>
-</MkA>
+	</template>
+</MkMediaPreviewCard>
 </template>
 
 <script lang="ts" setup>
 import * as Misskey from 'misskey-js';
 import { computed, ref } from 'vue';
 import MkImgWithBlurhash from '@/components/MkImgWithBlurhash.vue';
+import MkMediaPreviewCard from '@/components/MkMediaPreviewCard.vue';
 import { prefer } from '@/preferences.js';
+import { getGalleryPostHashtags } from '@/utility/post-hashtags.js';
 
 const props = defineProps<{
 	post: Misskey.entities.GalleryPost;
+	compact?: boolean;
 }>();
+const tags = computed(() => getGalleryPostHashtags(props.post));
 
 const hover = ref(false);
 const safe = computed(() => prefer.s.nsfw === 'ignore' || prefer.s.nsfw === 'respect' && !props.post.isSensitive);
 const show = computed(() => safe.value || hover.value);
 
-function enterHover(): void {
-	hover.value = true;
-}
-
-function leaveHover(): void {
-	hover.value = false;
-}
 </script>
 
 <style lang="scss" module>
@@ -64,99 +62,5 @@ function leaveHover(): void {
 
 .transition_toggle_leaveTo {
 	opacity: 0;
-}
-</style>
-
-<style lang="scss" scoped>
-.ttasepnz {
-	display: block;
-	position: relative;
-	height: 200px;
-
-	&:hover {
-		text-decoration: none;
-		color: var(--MI_THEME-accent);
-
-		> .thumbnail {
-			transform: scale(1.1);
-		}
-
-		> article {
-			> footer {
-				&::before {
-					opacity: 1;
-				}
-			}
-		}
-	}
-
-	> .thumbnail {
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		transition: transform 0.5s ease;
-
-		> .img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-
-			&.layered {
-				position: absolute;
-				top: 0;
-			}
-		}
-	}
-
-	> article {
-		position: absolute;
-		z-index: 1;
-		width: 100%;
-		height: 100%;
-
-		> header {
-			position: absolute;
-			top: 0;
-			width: 100%;
-			padding: 12px;
-			box-sizing: border-box;
-			display: flex;
-
-			> .avatar {
-				margin-left: auto;
-				width: 32px;
-				height: 32px;
-			}
-		}
-
-		> footer {
-			position: absolute;
-			bottom: 0;
-			width: 100%;
-			padding: 16px;
-			box-sizing: border-box;
-			color: #fff;
-			text-shadow: 0 0 8px #000;
-			background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-
-			&::before {
-				content: "";
-				display: block;
-				position: absolute;
-				z-index: -1;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				background: linear-gradient(rgba(0, 0, 0, 0.4), transparent);
-				opacity: 0;
-				transition: opacity 0.5s ease;
-			}
-
-			> .title {
-				font-weight: bold;
-			}
-		}
-	}
 }
 </style>

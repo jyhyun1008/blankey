@@ -349,7 +349,7 @@ function onSignupApiError() {
 	text-align: center;
 	font-size: 26px;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .captcha {

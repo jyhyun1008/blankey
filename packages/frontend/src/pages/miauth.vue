@@ -93,7 +93,7 @@ definePage(() => ({
 	z-index: 10;
 	border-radius: var(--MI-radius);
 	background-color: var(--MI_THEME-panel);
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
 	max-width: 500px;
 	width: calc(100vw - 64px);

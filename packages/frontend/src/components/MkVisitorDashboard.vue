@@ -24,9 +24,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkInfo v-else-if="instance.federation === 'none'" warn>{{ i18n.ts.federationDisabled }}</MkInfo>
 			</div>
 			<div class="_gaps_s" :class="$style.mainActions">
-				<MkButton :class="$style.mainAction" full rounded gradate data-testid="signup" style="margin-right: 12px;" @click="signup()">{{ i18n.ts.joinThisServer }}</MkButton>
+				<MkButton :class="$style.mainAction" full rounded gradate data-testid="signup" style="margin-right: 12px;" @click="openSignupDialog">{{ i18n.ts.joinThisServer }}</MkButton>
 				<MkButton :class="$style.mainAction" full rounded type="a" target="_blank" rel="noopener" href="https://misskey-hub.net/servers/">{{ i18n.ts.exploreOtherServers }}</MkButton>
-				<MkButton :class="$style.mainAction" full rounded data-testid="signin" @click="signin()">{{ i18n.ts.login }}</MkButton>
+				<MkButton :class="$style.mainAction" full rounded data-testid="signin" @click="openSigninDialog">{{ i18n.ts.login }}</MkButton>
 			</div>
 		</div>
 	</div>
@@ -59,12 +59,11 @@ import { instanceName } from '@@/js/config.js';
 import MkButton from '@/components/MkButton.vue';
 import MkStreamingNotesTimeline from '@/components/MkStreamingNotesTimeline.vue';
 import MkInfo from '@/components/MkInfo.vue';
-import * as os from '@/os.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
 import { instance } from '@/instance.js';
 import MkNumber from '@/components/MkNumber.vue';
-import { openInstanceMenu } from '@/ui/_common_/common.js';
+import { openInstanceMenu, openSigninDialog, openSignupDialog } from '@/ui/_common_/common.js';
 
 const XActiveUsersChart = defineAsyncComponent(() => import('@/components/MkVisitorDashboard.ActiveUsersChart.vue'));
 
@@ -73,22 +72,6 @@ const stats = ref<Misskey.entities.StatsResponse | null>(null);
 if (instance.clientOptions.showActivitiesForVisitor !== false) {
 	misskeyApi('stats', {}).then((res) => {
 		stats.value = res;
-	});
-}
-
-async function signin() {
-	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkSigninDialog.vue').then((x) => x.default), {
-		autoSet: true,
-	}, {
-		closed: () => dispose(),
-	});
-}
-
-async function signup() {
-	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkSignupDialog.vue').then((x) => x.default), {
-		autoSet: true,
-	}, {
-		closed: () => dispose(),
 	});
 }
 
@@ -110,7 +93,7 @@ function showMenu(ev: PointerEvent) {
 	position: relative;
 	background: var(--MI_THEME-panel);
 	border-radius: var(--MI-radius);
-	box-shadow: 0 12px 32px rgb(0 0 0 / 25%);
+	box-shadow: var(--MI-shadow-pop);
 }
 
 .main {
@@ -130,7 +113,7 @@ function showMenu(ev: PointerEvent) {
 	right: 16px;
 	width: 32px;
 	height: 32px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	font-size: 18px;
 	z-index: 50;
 }
@@ -188,7 +171,7 @@ function showMenu(ev: PointerEvent) {
 .statsItemCount {
 	font-weight: bold;
 	font-size: 1.2em;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .tl {

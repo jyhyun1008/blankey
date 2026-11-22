@@ -439,6 +439,14 @@ export const meta = {
 				type: 'string',
 				optional: false, nullable: true,
 			},
+			webFontRegularUrl: {
+				type: 'string',
+				optional: false, nullable: true,
+			},
+			webFontBoldUrl: {
+				type: 'string',
+				optional: false, nullable: true,
+			},
 			defaultLightTheme: {
 				type: 'string',
 				optional: false, nullable: true,
@@ -685,6 +693,8 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				app512IconUrl: instance.app512IconUrl,
 				backgroundImageUrl: instance.backgroundImageUrl,
 				logoImageUrl: instance.logoImageUrl,
+				webFontRegularUrl: instance.webFontRegularUrl,
+				webFontBoldUrl: instance.webFontBoldUrl,
 				defaultLightTheme: instance.defaultLightTheme,
 				defaultDarkTheme: instance.defaultDarkTheme,
 				clientOptions: instance.clientOptions,

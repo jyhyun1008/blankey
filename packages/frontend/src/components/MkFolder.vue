@@ -212,7 +212,7 @@ watch(opened, (isOpened) => {
 .transition_toggle_enterActive,
 .transition_toggle_leaveActive {
 	overflow-y: hidden; // 子要素のmarginが突き出るため clip を使ってはいけない
-	transition: opacity 0.3s, height 0.3s;
+	transition: opacity var(--MI-duration-slow) var(--MI-ease), height var(--MI-duration-slow) var(--MI-ease);
 }
 
 @supports (interpolate-size: allow-keywords) {
@@ -240,12 +240,15 @@ watch(opened, (isOpened) => {
 	align-items: center;
 	width: 100%;
 	box-sizing: border-box;
-	padding: 9px 12px 9px 12px;
+	min-height: 44px;
+	padding: 9px 14px;
 	background: var(--MI_THEME-folderHeaderBg);
 	-webkit-backdrop-filter: var(--MI-blur, blur(15px));
 	backdrop-filter: var(--MI-blur, blur(15px));
-	border-radius: 6px;
-	transition: border-radius 0.3s;
+	border-radius: var(--MI-radius-md);
+	transition:
+		border-radius var(--MI-duration-slow) var(--MI-ease),
+		background var(--MI-duration-fast) var(--MI-ease);
 
 	&:hover {
 		text-decoration: none;
@@ -257,12 +260,12 @@ watch(opened, (isOpened) => {
 	}
 
 	&.active {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 		background: var(--MI_THEME-folderHeaderHoverBg);
 	}
 
 	&.opened {
-		border-radius: 6px 6px 0 0;
+		border-radius: var(--MI-radius-md) var(--MI-radius-md) 0 0;
 	}
 }
 
@@ -272,7 +275,7 @@ watch(opened, (isOpened) => {
 }
 
 .headerLower {
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	color: var(--MI-c-fgMuted);
 	font-size: .85em;
 	padding-left: 4px;
 }
@@ -281,7 +284,7 @@ watch(opened, (isOpened) => {
 	margin-right: 0.75em;
 	flex-shrink: 0;
 	text-align: center;
-	opacity: 0.8;
+	color: var(--MI-c-accentInk);
 
 	&:empty {
 		display: none;
@@ -306,13 +309,13 @@ watch(opened, (isOpened) => {
 }
 
 .headerTextSub {
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	color: var(--MI-c-fgMuted);
 	font-size: .85em;
 }
 
 .headerRight {
 	margin-left: auto;
-	color: color(from var(--MI_THEME-fg) srgb r g b / 0.75);
+	color: var(--MI-c-fgMuted);
 	white-space: nowrap;
 }
 
@@ -322,14 +325,14 @@ watch(opened, (isOpened) => {
 
 .body {
 	background: var(--MI_THEME-panel);
-	border-radius: 0 0 6px 6px;
+	border-radius: 0 0 var(--MI-radius-md) var(--MI-radius-md);
 	container-type: inline-size;
 
 	&.bgSame {
-		background: var(--MI_THEME-bg);
+		background: var(--MI-c-inset);
 
 		.inBodyHeader {
-			background: color(from var(--MI_THEME-bg) srgb r g b / 0.75);
+			background: color(from var(--MI-c-inset) srgb r g b / 0.75);
 		}
 	}
 }
@@ -348,6 +351,6 @@ watch(opened, (isOpened) => {
 	backdrop-filter: var(--MI-blur, blur(15px));
 	background-size: auto auto;
 	background-image: repeating-linear-gradient(135deg, transparent, transparent 5px, var(--MI_THEME-panel) 5px, var(--MI_THEME-panel) 10px);
-	border-radius: 0 0 6px 6px;
+	border-radius: 0 0 var(--MI-radius-md) var(--MI-radius-md);
 }
 </style>

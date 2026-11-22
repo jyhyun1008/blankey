@@ -142,7 +142,7 @@ function onClosed() {
 	width: var(--height);
 	height: var(--height);
 	font-size: 16px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 
 .title {

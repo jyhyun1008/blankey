@@ -13,43 +13,53 @@ SPDX-License-Identifier: AGPL-3.0-only
 	@closed="emit('closed')"
 >
 	<template v-if="emoji" #header>:{{ emoji.name }}:</template>
-	<template v-else #header>New emoji</template>
+	<template v-else #header>{{ i18n.ts.customEmojis }} · {{ i18n.ts.add }}</template>
 
 	<div style="display: flex; flex-direction: column; min-height: 100%;">
 		<div class="_spacer" style="--MI_SPACER-min: 20px; --MI_SPACER-max: 28px; flex-grow: 1;">
 			<div class="_gaps_m">
 				<div v-if="imgUrl != null" :class="$style.imgs">
 					<div style="background: #000;" :class="$style.imgContainer">
-						<img :src="imgUrl" :class="$style.img"/>
+						<img :src="imgUrl" alt="" :class="$style.img"/>
 					</div>
 					<div style="background: #222;" :class="$style.imgContainer">
-						<img :src="imgUrl" :class="$style.img"/>
+						<img :src="imgUrl" alt="" :class="$style.img"/>
 					</div>
 					<div style="background: #ddd;" :class="$style.imgContainer">
-						<img :src="imgUrl" :class="$style.img"/>
+						<img :src="imgUrl" alt="" :class="$style.img"/>
 					</div>
 					<div style="background: #fff;" :class="$style.imgContainer">
-						<img :src="imgUrl" :class="$style.img"/>
+						<img :src="imgUrl" alt="" :class="$style.img"/>
 					</div>
 				</div>
 				<MkButton rounded style="margin: 0 auto;" @click="changeImage">{{ i18n.ts.selectFile }}</MkButton>
-				<MkInput v-model="name" pattern="[a-z0-9_]" autocapitalize="off">
+				<MkInput v-model="name" :ariaLabel="i18n.ts.name" :pattern="namePattern" autocapitalize="off">
 					<template #label>{{ i18n.ts.name }}</template>
+					<template v-if="streamerUsername" #caption>{{ i18n.ts._profile.streamingCustomEmojiNameHint }}</template>
+					<template v-if="streamerUsername" #suffix>_{{ streamerUsername }}</template>
 				</MkInput>
-				<MkInput v-model="category" :datalist="customEmojiCategories.filter(x => x != null)">
+				<MkInput v-model="category" :ariaLabel="i18n.ts.category" :disabled="streamerUsername != null" :datalist="streamerUsername == null ? customEmojiCategories.filter(x => x != null) : undefined">
 					<template #label>{{ i18n.ts.category }}</template>
 				</MkInput>
-				<MkInput v-model="aliases" autocapitalize="off">
+				<MkInput v-model="aliases" :ariaLabel="i18n.ts.tags" autocapitalize="off">
 					<template #label>{{ i18n.ts.tags }}</template>
 					<template #caption>
 						{{ i18n.ts.theKeywordWhenSearchingForCustomEmoji }}<br/>
 						{{ i18n.ts.setMultipleBySeparatingWithSpace }}
 					</template>
 				</MkInput>
-				<MkInput v-model="license" :mfmAutocomplete="true">
+				<MkInput v-model="license" :ariaLabel="i18n.ts.license" :mfmAutocomplete="true">
 					<template #label>{{ i18n.ts.license }}</template>
 				</MkInput>
-				<MkFolder>
+				<MkFolder v-if="emoji && emoji.host === null">
+					<template #label>{{ i18n.ts._profile.streamerAccount }}</template>
+					<template #suffix>{{ streamerId ? streamerLabel : i18n.ts.none }}</template>
+					<div class="_buttons">
+						<MkButton @click="selectStreamer">{{ i18n.ts.selectUser }}</MkButton>
+						<MkButton v-if="streamerId" @click="streamerId = null">{{ i18n.ts.remove }}</MkButton>
+					</div>
+				</MkFolder>
+				<MkFolder v-if="streamerUsername == null">
 					<template #label>{{ i18n.ts.rolesThatCanBeUsedThisEmojiAsReaction }}</template>
 					<template #suffix>{{ rolesThatCanBeUsedThisEmojiAsReaction.length === 0 ? i18n.ts.all : rolesThatCanBeUsedThisEmojiAsReaction.length }}</template>
 
@@ -66,13 +76,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<MkInfo warn>{{ i18n.ts.rolesThatCanBeUsedThisEmojiAsReactionPublicRoleWarn }}</MkInfo>
 					</div>
 				</MkFolder>
-				<MkSwitch v-model="isSensitive">{{ i18n.ts.sensitive }}</MkSwitch>
-				<MkSwitch v-model="localOnly">{{ i18n.ts.localOnly }}</MkSwitch>
+				<MkSwitch v-if="streamerUsername == null" v-model="isSensitive">{{ i18n.ts.sensitive }}</MkSwitch>
+				<MkSwitch v-if="streamerUsername == null" v-model="localOnly">{{ i18n.ts.localOnly }}</MkSwitch>
 				<MkButton v-if="emoji" danger @click="del()"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
 			</div>
 		</div>
 		<div :class="$style.footer">
-			<MkButton primary rounded style="margin: 0 auto;" @click="done"><i class="ti ti-check"></i> {{ props.emoji ? i18n.ts.update : i18n.ts.create }}</MkButton>
+			<MkButton primary rounded style="margin: 0 auto;" :disabled="streamerUsername != null && !canCreateStreamerEmoji" @click="done"><i class="ti ti-check"></i> {{ props.emoji ? i18n.ts.update : i18n.ts.create }}</MkButton>
 		</div>
 	</div>
 </MkWindow>
@@ -91,11 +101,12 @@ import { misskeyApi } from '@/utility/misskey-api.js';
 import { i18n } from '@/i18n.js';
 import { customEmojiCategories } from '@/custom-emojis.js';
 import MkSwitch from '@/components/MkSwitch.vue';
-import { selectFile } from '@/utility/drive.js';
+import { chooseDriveFile, selectFile } from '@/utility/drive.js';
 import MkRolePreview from '@/components/MkRolePreview.vue';
 
 const props = defineProps<{
 	emoji?: Misskey.entities.EmojiDetailed,
+	streamerUsername?: string,
 }>();
 
 const emit = defineEmits<{
@@ -105,14 +116,32 @@ const emit = defineEmits<{
 
 const windowEl = useTemplateRef('windowEl');
 const name = ref<string>(props.emoji ? props.emoji.name : '');
-const category = ref<string>(props.emoji?.category ? props.emoji.category : '');
+const category = ref(props.streamerUsername ?? props.emoji?.category ?? '');
 const aliases = ref<string>(props.emoji ? props.emoji.aliases.join(' ') : '');
 const license = ref<string>(props.emoji?.license ? props.emoji.license : '');
 const isSensitive = ref(props.emoji ? props.emoji.isSensitive : false);
 const localOnly = ref(props.emoji ? props.emoji.localOnly : false);
 const roleIdsThatCanBeUsedThisEmojiAsReaction = ref(props.emoji ? props.emoji.roleIdsThatCanBeUsedThisEmojiAsReaction : []);
 const rolesThatCanBeUsedThisEmojiAsReaction = ref<Misskey.entities.Role[]>([]);
+const streamerId = ref<string | null>(props.emoji?.streamerId ?? null);
+const streamerLabel = ref('');
+
+watch(streamerId, async (id, _, onCleanup) => {
+	streamerLabel.value = id ?? '';
+	if (id == null) return;
+	let active = true;
+	onCleanup(() => { active = false; });
+	const user = await misskeyApi('users/show', { userId: id }).catch(() => null);
+	if (active && user) streamerLabel.value = '@' + user.username;
+}, { immediate: true });
+
 const file = ref<Misskey.entities.DriveFile>();
+const savingStreamerEmoji = ref(false);
+const namePattern = computed(() => props.streamerUsername == null
+	? '[a-zA-Z0-9_]+'
+	: `[a-z0-9_]{1,${127 - props.streamerUsername.length}}`);
+const canCreateStreamerEmoji = computed(() => !savingStreamerEmoji.value && file.value != null
+	&& /^[a-z0-9_]+$/.test(name.value) && name.value.length + (props.streamerUsername?.length ?? 0) + 1 <= 128);
 
 watch(roleIdsThatCanBeUsedThisEmojiAsReaction, async () => {
 	rolesThatCanBeUsedThisEmojiAsReaction.value = (await Promise.all(roleIdsThatCanBeUsedThisEmojiAsReaction.value.map((id) => misskeyApi('admin/roles/show', { roleId: id }).catch(() => null)))).filter(x => x != null);
@@ -121,11 +150,12 @@ watch(roleIdsThatCanBeUsedThisEmojiAsReaction, async () => {
 const imgUrl = computed(() => file.value ? file.value.url : props.emoji ? props.emoji.url : null);
 
 async function changeImage(ev: PointerEvent) {
-	file.value = await selectFile({
-		anchorElement: ev.currentTarget ?? ev.target,
-		multiple: false,
-	});
-	const candidate = file.value.name.replace(/\.(.+)$/, '');
+	const selected = props.streamerUsername != null
+		? (await chooseDriveFile({ excludeSensitive: true }))[0]
+		: await selectFile({ anchorElement: ev.currentTarget ?? ev.target, multiple: false });
+	if (!selected) return;
+	file.value = selected;
+	const candidate = selected.name.replace(/\.(.+)$/, '');
 	if (candidate.match(/^[a-z0-9_]+$/)) {
 		name.value = candidate;
 	}
@@ -147,6 +177,16 @@ async function removeRole(role: Misskey.entities.RoleLite) {
 	rolesThatCanBeUsedThisEmojiAsReaction.value = rolesThatCanBeUsedThisEmojiAsReaction.value.filter(x => x.id !== role.id);
 }
 
+async function selectStreamer() {
+	const user = await os.selectUser({ includeSelf: true, localOnly: true });
+	const account = await os.apiWithDialog('users/show', { userId: user.id });
+	if (!account.isStreamer) {
+		await os.alert({ type: 'warning', text: i18n.ts._profile.streamingEmojiSelectStreamer });
+		return;
+	}
+	streamerId.value = account.id;
+}
+
 async function done() {
 	const params = {
 		name: name.value,
@@ -159,6 +199,27 @@ async function done() {
 		fileId: file.value ? file.value.id : undefined,
 	} satisfies Misskey.entities.AdminEmojiUpdateRequest;
 
+	if (props.streamerUsername != null) {
+		if (!canCreateStreamerEmoji.value || params.fileId == null) return;
+
+		savingStreamerEmoji.value = true;
+		try {
+			const created = await os.apiWithDialog('i/streamer-emojis/create', {
+				name: params.name,
+				fileId: params.fileId,
+				aliases: params.aliases,
+				license: params.license,
+			});
+			emit('done', { created });
+			windowEl.value?.close();
+		} catch {
+			// apiWithDialog displays the server error.
+		} finally {
+			savingStreamerEmoji.value = false;
+		}
+		return;
+	}
+
 	if (props.emoji) {
 		const emojiDetailed = {
 			id: props.emoji.id,
@@ -166,6 +227,8 @@ async function done() {
 			name: params.name,
 			category: params.category,
 			host: props.emoji.host,
+			streamerId: streamerId.value ?? undefined,
+			isStreamerOwned: streamerId.value === props.emoji.streamerId ? props.emoji.isStreamerOwned : undefined,
 			url: file.value ? file.value.url : props.emoji.url,
 			license: params.license,
 			isSensitive: params.isSensitive,
@@ -176,6 +239,7 @@ async function done() {
 		await os.apiWithDialog('admin/emoji/update', {
 			id: props.emoji.id,
 			...params,
+			streamerId: streamerId.value === (props.emoji.streamerId ?? null) ? undefined : streamerId.value,
 		});
 
 		emit('done', {
@@ -228,7 +292,7 @@ async function del() {
 
 .imgContainer {
 	padding: 8px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .img {

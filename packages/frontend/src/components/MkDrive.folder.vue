@@ -342,7 +342,7 @@ function onContextmenu(ev: PointerEvent) {
 			bottom: -4px;
 			left: -4px;
 			border: 2px dashed var(--MI_THEME-focus);
-			border-radius: 4px;
+			border-radius: var(--MI-radius-xs);
 		}
 	}
 }
@@ -369,7 +369,7 @@ function onContextmenu(ev: PointerEvent) {
 		height: 18px;
 		background: #fff;
 		border: solid 2px var(--MI_THEME-divider);
-		border-radius: 4px;
+		border-radius: var(--MI-radius-xs);
 		box-sizing: border-box;
 
 		&.checked {

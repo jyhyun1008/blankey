@@ -99,6 +99,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				roleIdsThatCanBeUsedThisEmojiAsReaction: emoji.roleIdsThatCanBeUsedThisEmojiAsReaction,
 			}, me);
 
+			if (!addedEmoji) throw new ApiError(meta.errors.duplicateName);
 			return this.emojiEntityService.packDetailed(addedEmoji);
 		});
 	}

@@ -3,14 +3,18 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { Readable } from 'node:stream';
 import cluster from 'node:cluster';
 import * as fs from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import Fastify, { type FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import fastifyRawBody from 'fastify-raw-body';
 import { IsNull } from 'typeorm';
+import { PrivateLiveService } from '@/core/PrivateLiveService.js';
+import { BuyMeACoffeeService } from '@/core/BuyMeACoffeeService.js';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import type { Config } from '@/config.js';
 import type { EmojisRepository, MiMeta, UserProfilesRepository, UsersRepository } from '@/models/_.js';
@@ -33,6 +37,8 @@ import { ClientServerService } from './web/ClientServerService.js';
 import { OpenApiServerService } from './api/openapi/OpenApiServerService.js';
 import { OAuth2ProviderService } from './oauth/OAuth2ProviderService.js';
 import { registerHttpAccessLog } from './http-access-log.js';
+import { coffeeOverlayHtml, coffeeOverlayScript } from './coffee-overlay.js';
+import { liveChatOverlayHtml, liveChatOverlayScript } from './live-chat-overlay.js';
 
 const _dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -57,6 +63,8 @@ export class ServerService implements OnApplicationShutdown {
 		@Inject(DI.emojisRepository)
 		private emojisRepository: EmojisRepository,
 
+		private privateLiveService: PrivateLiveService,
+		private buyMeACoffeeService: BuyMeACoffeeService,
 		private userEntityService: UserEntityService,
 		private apiServerService: ApiServerService,
 		private openApiServerService: OpenApiServerService,
@@ -151,6 +159,90 @@ export class ServerService implements OnApplicationShutdown {
 				].join('\n'));
 			});
 		}
+
+		fastify.post<{ Params: { id: string } }>('/webhooks/buy-me-a-coffee/:id', {
+			config: { rawBody: true },
+			bodyLimit: 64 * 1024,
+		}, async (request, reply) => {
+			const { id } = request.params;
+			if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(id)) return reply.code(404).send();
+			const { rawBody } = request as typeof request & { rawBody?: Buffer };
+			const status = await this.buyMeACoffeeService.receive(id, rawBody, request.headers['x-signature-sha256'], request.body);
+			return reply.code(status).send();
+		});
+
+		fastify.get<{ Params: { creatorId: string; '*': string } }>('/private-live/:creatorId/*', async (request, reply) => {
+			reply.header('Cache-Control', 'private, no-store');
+			reply.header('X-Content-Type-Options', 'nosniff');
+			const { creatorId } = request.params;
+			const file = request.params['*'];
+			const mediaUrl = this.privateLiveService.getMediaUrl(creatorId, file);
+			if (mediaUrl === null) return reply.code(404).send();
+			if (!await this.privateLiveService.canPlay(creatorId, request.headers.authorization)) return reply.code(403).send();
+
+			const range = request.headers.range;
+			if (range && !/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/.test(range)) return reply.code(416).send();
+			const headers = new Headers();
+			if (range) headers.set('Range', range);
+			const originAuthorization = this.privateLiveService.originAuthorization;
+			if (originAuthorization) headers.set('Authorization', originAuthorization);
+			const upstream = await fetch(mediaUrl, {
+				headers,
+				redirect: 'error',
+				signal: AbortSignal.timeout(15_000),
+			}).catch(() => null);
+			if (!upstream?.ok || upstream.body === null) {
+				await upstream?.body?.cancel();
+				const status = upstream?.status;
+				return reply.code(status === 404 || status === 416 ? status : 502).send();
+			}
+			const mediaType = file.endsWith('.m3u8') ? 'application/vnd.apple.mpegurl' : 'application/octet-stream';
+			const contentRange = upstream.headers.get('content-range');
+			if (contentRange) reply.header('Content-Range', contentRange);
+			return reply.code(upstream.status).type(mediaType).send(Readable.fromWeb(upstream.body));
+		});
+
+		fastify.get('/obs/buy-me-a-coffee/app.js', (_request, reply) =>
+			reply.header('X-Content-Type-Options', 'nosniff').type('application/javascript; charset=utf-8').send(coffeeOverlayScript));
+
+		fastify.get('/obs/buy-me-a-coffee/art.png', (_request, reply) =>
+			reply.header('Cache-Control', 'public, max-age=86400').type('image/png')
+				.send(fs.createReadStream(resolve(this.config.rootDir, 'assets/ai.png'))));
+
+		fastify.get('/obs/buy-me-a-coffee/:id', (_request, reply) => reply
+			.header('Cache-Control', 'no-store')
+			.header('Referrer-Policy', 'no-referrer')
+			.header('Content-Security-Policy', "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; img-src 'self'; media-src 'self'; font-src 'self' https:; base-uri 'none'; frame-ancestors 'none'")
+			.type('text/html; charset=utf-8').send(coffeeOverlayHtml));
+
+		fastify.get<{ Params: { id: string }; Querystring: { since?: string } }>('/obs/buy-me-a-coffee/:id/events', async (request, reply) => {
+			reply.header('Cache-Control', 'private, no-store');
+			const { id } = request.params;
+			if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(id)) return reply.code(404).send();
+			const since = Number(request.query.since ?? Date.now());
+			if (!Number.isSafeInteger(since) || since < 0) return reply.code(400).send();
+			const events = await this.buyMeACoffeeService.getOverlayEvents(id, request.headers.authorization, since);
+			if (!events) return reply.code(403).send();
+			return reply.send(events);
+		});
+
+		fastify.get('/obs/live-chat/app.js', (_request, reply) =>
+			reply.header('X-Content-Type-Options', 'nosniff').type('application/javascript; charset=utf-8').send(liveChatOverlayScript));
+
+		fastify.get('/obs/live-chat/:creatorId', (_request, reply) => reply
+			.header('Cache-Control', 'no-store')
+			.header('Referrer-Policy', 'no-referrer')
+			.header('Content-Security-Policy', "default-src 'none'; script-src 'self'; connect-src 'self'; style-src 'unsafe-inline'; font-src 'self' https:; base-uri 'none'; frame-ancestors 'none'")
+			.type('text/html; charset=utf-8').send(liveChatOverlayHtml));
+
+		fastify.get<{ Params: { creatorId: string } }>('/obs/live-chat/:creatorId/messages', async (request, reply) => {
+			reply.header('Cache-Control', 'private, no-store');
+			const { creatorId } = request.params;
+			if (!/^[a-zA-Z0-9]{1,32}$/.test(creatorId)) return reply.code(404).send();
+			const messages = await this.privateLiveService.getOverlayChat(creatorId, request.headers.authorization);
+			if (!messages) return reply.code(403).send();
+			return reply.send({ messages, time: Date.now() });
+		});
 
 		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
 		fastify.register(this.openApiServerService.createServer);
@@ -252,7 +344,7 @@ export class ServerService implements OnApplicationShutdown {
 
 		fastify.register(this.clientServerService.createServer);
 
-		this.streamingApiServerService.attach(fastify.server);
+		this.streamingApiServerService.attach(fastify.server, !this.config.frontendEmbedManifestExists);
 
 		const handleListenError = (err: unknown): void => {
 			switch ((err as NodeJS.ErrnoException).code) {

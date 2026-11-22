@@ -11,7 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</button>
 
-	<button :class="$style.item" class="_button" @click="mainRouter.push('/')">
+	<button :class="$style.item" class="_button" :aria-label="i18n.ts.home" @click="mainRouter.push('/')">
 		<div :class="$style.itemInner">
 			<i :class="$style.itemIcon" class="ti ti-home"></i>
 		</div>
@@ -26,12 +26,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</div>
 	</button>
 
-	<button :class="$style.item" class="_button" @click="widgetsShowing = true">
-		<div :class="$style.itemInner">
-			<i :class="$style.itemIcon" class="ti ti-apps"></i>
-		</div>
-	</button>
-
 	<button :class="[$style.item, $style.post]" class="_button" @click="os.post()">
 		<div :class="$style.itemInner">
 			<i :class="$style.itemIcon" class="ti ti-pencil"></i>
@@ -42,13 +36,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { computed, ref, useTemplateRef, watch } from 'vue';
+import { i18n } from '@/i18n.js';
 import { $i } from '@/i.js';
 import * as os from '@/os.js';
 import { mainRouter } from '@/router.js';
 import { navbarItemDef } from '@/navbar.js';
 
 const drawerMenuShowing = defineModel<boolean>('drawerMenuShowing');
-const widgetsShowing = defineModel<boolean>('widgetsShowing');
 
 const rootEl = useTemplateRef('rootEl');
 
@@ -79,38 +73,29 @@ watch(rootEl, () => {
 .root {
 	position: relative;
 	z-index: 1;
-	padding-bottom: env(safe-area-inset-bottom, 0px);
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-	width: 100%;
+	grid-template-columns: repeat(4, 1fr);
+	margin: 0 10px max(10px, env(safe-area-inset-bottom, 0px));
+	padding: 6px;
 	box-sizing: border-box;
 	background: var(--MI_THEME-navBg);
 	color: var(--MI_THEME-navFg);
-	border-top: solid 0.5px var(--MI_THEME-divider);
+	border-radius: var(--MI-radius-xl);
+	box-shadow: var(--MI-shadow-pop);
 }
 
 .item {
-	padding: 12px 0;
-
-	&:first-child {
-		padding-left: 12px;
-	}
-
-	&:last-child {
-		padding-right: 12px;
-	}
+	padding: 2px 0;
 
 	&.post {
 		.itemInner {
+			color: var(--MI-c-fgOnAccent);
 			background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
-			color: var(--MI_THEME-fgOnAccent);
+			box-shadow: 0 6px 14px -6px color(from var(--MI_THEME-accent) srgb r g b / 0.6);
 
 			&:hover {
-				background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
-			}
-
-			&:active {
-				background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
+				background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
+				filter: brightness(1.05);
 			}
 		}
 	}
@@ -118,32 +103,35 @@ watch(rootEl, () => {
 
 .itemInner {
 	position: relative;
-	padding: 0;
-	aspect-ratio: 1;
+	display: grid;
+	place-items: center;
 	width: 100%;
-	max-width: 42px;
+	max-width: 52px;
+	height: 44px;
 	margin: auto;
-	align-content: center;
-	border-radius: 100%;
+	border-radius: var(--MI-radius-md);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		transform var(--MI-duration) var(--MI-easeSpring);
 
 	&:hover {
-		background: var(--MI_THEME-panelHighlight);
+		background: var(--MI-c-hover);
 	}
 
 	&:active {
-		background: var(--MI_THEME-panelHighlight);
+		background: var(--MI-c-pressed);
+		transform: scale(0.94);
 	}
 }
 
 .itemIcon {
-	font-size: 15px;
+	font-size: 18px;
 }
 
 .itemIndicator {
 	position: absolute;
-	bottom: -4px;
-	left: 0;
-	right: 0;
+	top: 2px;
+	right: 6px;
 	color: var(--MI_THEME-indicator);
 	font-size: 10px;
 	pointer-events: none;
@@ -151,6 +139,12 @@ watch(rootEl, () => {
 	&:has(.itemIndicateValueIcon) {
 		animation: none;
 		font-size: 8px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.itemInner:active {
+		transform: none;
 	}
 }
 </style>

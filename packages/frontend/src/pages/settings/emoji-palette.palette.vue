@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</template>
 
 	<div>
-		<div v-panel style="border-radius: 6px;">
+		<div v-panel style="border-radius: var(--MI-radius-xs);">
 			<MkDraggable
 				:modelValue="emojis.map(emoji => ({ id: emoji, emoji }))"
 				direction="horizontal"
@@ -138,7 +138,7 @@ function del(ev: PointerEvent) {
 .tab {
 	margin: calc(var(--MI-margin) / 2) 0;
 	padding: calc(var(--MI-margin) / 2) 0;
-	background: var(--MI_THEME-bg);
+	background: var(--MI-c-inset);
 }
 
 .emojis {

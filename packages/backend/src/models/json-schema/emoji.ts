@@ -19,6 +19,16 @@ export const packedEmojiSimpleSchema = {
 			type: 'string',
 			optional: false, nullable: false,
 		},
+		isStreamerOwned: {
+			type: 'boolean',
+			optional: true, nullable: false,
+			description: 'Whether this emoji was registered by the streamer it is assigned to.',
+		},
+		streamerId: {
+			type: 'string',
+			optional: true, nullable: false,
+			format: 'id',
+		},
 		category: {
 			type: 'string',
 			optional: false, nullable: true,
@@ -26,6 +36,11 @@ export const packedEmojiSimpleSchema = {
 		url: {
 			type: 'string',
 			optional: false, nullable: false,
+		},
+		license: {
+			type: 'string',
+			optional: true, nullable: true,
+			description: 'License of a self-registered streamer emoji, if supplied.',
 		},
 		localOnly: {
 			type: 'boolean',
@@ -67,6 +82,16 @@ export const packedEmojiDetailedSchema = {
 		name: {
 			type: 'string',
 			optional: false, nullable: false,
+		},
+		isStreamerOwned: {
+			type: 'boolean',
+			optional: true, nullable: false,
+			description: 'Whether this emoji was registered by the streamer it is assigned to.',
+		},
+		streamerId: {
+			type: 'string',
+			optional: true, nullable: false,
+			format: 'id',
 		},
 		category: {
 			type: 'string',

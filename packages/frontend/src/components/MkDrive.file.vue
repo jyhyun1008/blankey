@@ -93,7 +93,7 @@ function onDragend() {
 	position: relative;
 	padding: 8px 0 0 0;
 	min-height: 180px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	cursor: pointer;
 
 	&:hover {
@@ -151,11 +151,11 @@ function onDragend() {
 		}
 
 		.name {
-			color: var(--MI_THEME-fgOnAccent);
+			color: var(--MI-c-fgOnAccent);
 		}
 
 		.thumbnail {
-			color: var(--MI_THEME-fgOnAccent);
+			color: var(--MI-c-fgOnAccent);
 		}
 	}
 

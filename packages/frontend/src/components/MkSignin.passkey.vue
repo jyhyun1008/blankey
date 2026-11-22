@@ -76,7 +76,7 @@ onMounted(() => {
 .passkeyIcon {
 	margin: 0 auto;
 	background-color: var(--MI_THEME-accentedBg);
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	text-align: center;
 	height: 64px;
 	width: 64px;

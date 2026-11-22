@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<{
 	--size: 38px;
 
 	&.colored {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 
 	&.inline {

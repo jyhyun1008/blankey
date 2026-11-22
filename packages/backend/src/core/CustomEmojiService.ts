@@ -15,7 +15,7 @@ import { bindThis } from '@/decorators.js';
 import { DI } from '@/di-symbols.js';
 import { MemoryKVCache, RedisSingleCache } from '@/misc/cache.js';
 import { sqlLikeEscape } from '@/misc/sql-like-escape.js';
-import type { EmojisRepository, MiRole, MiUser } from '@/models/_.js';
+import type { EmojisRepository, MiDriveFile, MiRole, MiUser } from '@/models/_.js';
 import type { MiEmoji } from '@/models/Emoji.js';
 import type { Serialized } from '@/types.js';
 
@@ -102,8 +102,8 @@ export class CustomEmojiService implements OnApplicationShutdown {
 		isSensitive: boolean;
 		localOnly: boolean;
 		roleIdsThatCanBeUsedThisEmojiAsReaction: MiRole['id'][];
-	}, moderator?: MiUser): Promise<MiEmoji> {
-		const emoji = await this.emojisRepository.insertOne({
+	}, moderator?: MiUser): Promise<MiEmoji | null> {
+		const insert = (emojis: EmojisRepository) => emojis.insertOne({
 			id: this.idService.gen(),
 			updatedAt: new Date(),
 			name: data.name,
@@ -119,12 +119,16 @@ export class CustomEmojiService implements OnApplicationShutdown {
 			roleIdsThatCanBeUsedThisEmojiAsReaction: data.roleIdsThatCanBeUsedThisEmojiAsReaction,
 		});
 
-		if (data.host == null) {
-			this.localEmojisCache.refresh();
+		const emoji = data.host === null
+			? await this.withLocalEmojiRegistration(async emojis => {
+				if (await emojis.existsBy({ name: data.name, host: IsNull() })) return null;
+				return insert(emojis);
+			})
+			: await insert(this.emojisRepository);
+		if (emoji == null) return null;
 
-			this.globalEventService.publishBroadcastStream('emojiAdded', {
-				emoji: await this.emojiEntityService.packDetailed(emoji.id),
-			});
+		if (data.host == null) {
+			await this.publishEmojiAdded(emoji);
 
 			if (moderator) {
 				this.moderationLogService.log(moderator, 'addCustomEmoji', {
@@ -135,6 +139,56 @@ export class CustomEmojiService implements OnApplicationShutdown {
 		}
 
 		return emoji;
+	}
+
+	@bindThis
+	public async addStreamerEmoji(streamer: Pick<MiUser, 'id' | 'username'>, data: {
+		name: string;
+		aliases: string[];
+		license: string | null;
+	}, file: MiDriveFile): Promise<MiEmoji | 'DUPLICATE_NAME' | 'LIMIT_EXCEEDED' | 'NAME_TOO_LONG'> {
+		const name = `${data.name}_${streamer.username}`;
+		if (name.length > 128) return 'NAME_TOO_LONG';
+		const streamerId = streamer.id;
+		const emoji = await this.withLocalEmojiRegistration(async emojis => {
+			if (await emojis.countBy({ streamerCreatorId: streamerId }) >= 20) return 'LIMIT_EXCEEDED';
+			if (await emojis.existsBy({ name, host: IsNull() })) return 'DUPLICATE_NAME';
+
+			return emojis.insertOne({
+				id: this.idService.gen(),
+				updatedAt: new Date(),
+				host: null,
+				name,
+				category: streamer.username,
+				aliases: data.aliases,
+				license: data.license,
+				originalUrl: file.url,
+				publicUrl: file.webpublicUrl ?? file.url,
+				type: file.webpublicType ?? file.type,
+				streamerId,
+				streamerCreatorId: streamerId,
+			});
+		});
+		if (typeof emoji !== 'string') await this.publishEmojiAdded(emoji);
+		return emoji;
+	}
+
+	@bindThis
+	private async withLocalEmojiRegistration<T>(run: (emojis: EmojisRepository) => Promise<T>): Promise<T> {
+		return this.emojisRepository.manager.transaction(async manager => {
+			// Local emoji names share a namespace, including names created or changed by moderators.
+			await manager.query("SELECT pg_advisory_xact_lock(hashtext('local-emoji-registration'))");
+			return run(manager.withRepository(this.emojisRepository));
+		});
+	}
+
+	@bindThis
+	private async publishEmojiAdded(emoji: MiEmoji): Promise<void> {
+		this.localEmojisCache.refresh();
+
+		this.globalEventService.publishBroadcastStream('emojiAdded', {
+			emoji: await this.emojiEntityService.packDetailed(emoji),
+		});
 	}
 
 	@bindThis
@@ -149,6 +203,7 @@ export class CustomEmojiService implements OnApplicationShutdown {
 		license?: string | null;
 		isSensitive?: boolean;
 		localOnly?: boolean;
+		streamerId?: MiUser['id'] | null;
 		roleIdsThatCanBeUsedThisEmojiAsReaction?: MiRole['id'][];
 	}, moderator?: MiUser): Promise<
 		null
@@ -158,17 +213,12 @@ export class CustomEmojiService implements OnApplicationShutdown {
 		const emoji = data.id
 			? await this.getEmojiById(data.id)
 			: await this.getEmojiByName(data.name!);
-		if (emoji === null) return 'NO_SUCH_EMOJI';
+		if (emoji === null || (data.streamerId !== undefined && emoji.host !== null)) return 'NO_SUCH_EMOJI';
 		const id = emoji.id;
 
 		// IDと絵文字名が両方指定されている場合は絵文字名の変更を行うため重複チェックが必要
 		const doNameUpdate = data.id && data.name && (data.name !== emoji.name);
-		if (doNameUpdate) {
-			const isDuplicate = await this.checkDuplicate(data.name!);
-			if (isDuplicate) return 'SAME_NAME_EMOJI_EXISTS';
-		}
-
-		await this.emojisRepository.update(emoji.id, {
+		const update = (emojis: EmojisRepository) => emojis.update(id, {
 			updatedAt: new Date(),
 			name: data.name,
 			category: data.category,
@@ -176,11 +226,23 @@ export class CustomEmojiService implements OnApplicationShutdown {
 			license: data.license,
 			isSensitive: data.isSensitive,
 			localOnly: data.localOnly,
+			streamerId: data.streamerId,
 			originalUrl: data.originalUrl,
 			publicUrl: data.publicUrl,
 			type: data.fileType,
 			roleIdsThatCanBeUsedThisEmojiAsReaction: data.roleIdsThatCanBeUsedThisEmojiAsReaction ?? undefined,
 		});
+
+		if (doNameUpdate) {
+			const updated = await this.withLocalEmojiRegistration(async emojis => {
+				if (await emojis.existsBy({ name: data.name!, host: IsNull() })) return false;
+				await update(emojis);
+				return true;
+			});
+			if (!updated) return 'SAME_NAME_EMOJI_EXISTS';
+		} else {
+			await update(this.emojisRepository);
+		}
 
 		this.localEmojisCache.refresh();
 
@@ -300,10 +362,15 @@ export class CustomEmojiService implements OnApplicationShutdown {
 	}
 
 	@bindThis
-	public async delete(id: MiEmoji['id'], moderator?: MiUser) {
-		const emoji = await this.emojisRepository.findOneByOrFail({ id: id });
+	public async delete(id: MiEmoji['id'], moderator?: MiUser, streamerCreatorId?: MiUser['id']) {
+		const criteria = streamerCreatorId === undefined ? { id } : { id, streamerCreatorId, host: IsNull() };
+		const emoji = streamerCreatorId === undefined
+			? await this.emojisRepository.findOneByOrFail(criteria)
+			: await this.emojisRepository.findOneBy(criteria);
+		if (emoji == null) return false;
 
-		await this.emojisRepository.delete(emoji.id);
+		const deleted = await this.emojisRepository.delete(criteria);
+		if (!deleted.affected) return false;
 
 		this.localEmojisCache.refresh();
 
@@ -317,6 +384,7 @@ export class CustomEmojiService implements OnApplicationShutdown {
 				emoji: emoji,
 			});
 		}
+		return true;
 	}
 
 	@bindThis

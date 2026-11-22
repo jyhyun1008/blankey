@@ -6,6 +6,7 @@
 import { defineAsyncComponent } from 'vue';
 import type { AsyncComponentLoader } from 'vue';
 import type { RouteDef } from '@/lib/nirax.js';
+import { instance } from '@/instance.js';
 import { $i, iAmModerator } from '@/i.js';
 import MkLoading from '@/pages/_loading_.vue';
 import MkError from '@/pages/_error_.vue';
@@ -24,7 +25,17 @@ function chatPage(...args: Parameters<typeof page>) {
 export const ROUTE_DEF = [{
 	name: 'index',
 	path: '/',
-	component: $i ? PageTimeline : page(() => import('@/pages/welcome.vue')),
+	component: !$i && instance.requireSetup
+		? page(() => import('@/pages/welcome.vue'))
+		: page(() => import('@/pages/site-home.vue')),
+}, {
+	path: '/welcome',
+	component: page(() => import('@/pages/welcome.vue')),
+}, {
+	name: 'deck',
+	path: '/deck',
+	component: PageTimeline,
+	loginRequired: true,
 }, {
 	path: '/timeline',
 	component: PageTimeline,
@@ -37,6 +48,18 @@ export const ROUTE_DEF = [{
 }, {
 	path: '/@:acct/followers',
 	component: page(() => import('@/pages/user/followers.vue')),
+}, {
+	// 動画 / グッズ・サービスの 1 件追加と編集 (詳細ページより前に置く)
+	path: '/@:acct/:section/new',
+	component: page(() => import('@/pages/user/streaming-resource-edit.vue')),
+	loginRequired: true,
+}, {
+	path: '/@:acct/:section/:resourceId/edit',
+	component: page(() => import('@/pages/user/streaming-resource-edit.vue')),
+	loginRequired: true,
+}, {
+	path: '/@:acct/:section/:resourceId',
+	component: page(() => import('@/pages/user/streaming-resource.vue')),
 }, {
 	name: 'user',
 	path: '/@:acct/:page?',
@@ -88,6 +111,18 @@ export const ROUTE_DEF = [{
 		path: '/privacy',
 		name: 'privacy',
 		component: page(() => import('@/pages/settings/privacy.vue')),
+	}, {
+		path: '/streamer',
+		name: 'streamer',
+		component: page(() => import('@/pages/settings/streamer.vue')),
+	}, {
+		path: '/streamer-emojis',
+		name: 'streamer-emojis',
+		component: page(() => import('@/pages/settings/streamer-emojis.vue')),
+	}, {
+		path: '/live',
+		name: 'live',
+		component: page(() => import('@/pages/settings/live.vue')),
 	}, {
 		path: '/emoji-palette',
 		name: 'emoji-palette',
@@ -244,7 +279,7 @@ export const ROUTE_DEF = [{
 	hash: 'initialTab',
 }, {
 	path: '/search',
-	component: page(() => import('@/pages/search.vue')),
+	component: page(() => import('@/pages/explore.vue')),
 	query: {
 		q: 'query',
 		userId: 'userId',
@@ -310,6 +345,7 @@ export const ROUTE_DEF = [{
 	loginRequired: true,
 }, {
 	path: '/pages',
+	name: 'contents',
 	component: page(() => import('@/pages/pages.vue')),
 }, {
 	path: '/play/:id/edit',
@@ -338,7 +374,16 @@ export const ROUTE_DEF = [{
 	component: page(() => import('@/pages/gallery/post.vue')),
 }, {
 	path: '/gallery',
+	name: 'contents',
 	component: page(() => import('@/pages/gallery/index.vue')),
+}, {
+	path: '/videos',
+	name: 'contents',
+	component: page(() => import('@/pages/videos.vue')),
+}, {
+	path: '/goods',
+	name: 'contents',
+	component: page(() => import('@/pages/goods.vue')),
 }, {
 	path: '/channels/:channelId/edit',
 	component: page(() => import('@/pages/channel-editor.vue')),
@@ -352,6 +397,7 @@ export const ROUTE_DEF = [{
 	component: page(() => import('@/pages/channel.vue')),
 }, {
 	path: '/channels',
+	name: 'contents',
 	component: page(() => import('@/pages/channels.vue')),
 }, {
 	path: '/custom-emojis-manager',

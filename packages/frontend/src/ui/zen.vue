@@ -52,7 +52,7 @@ provideMetadataReceiver((metadataGetter) => {
 provideReactiveMetadata(pageMetadata);
 
 function goToDeck() {
-	window.location.href = '/';
+	window.location.href = '/deck';
 }
 </script>
 

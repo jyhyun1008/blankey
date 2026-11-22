@@ -45,7 +45,7 @@ import { $i } from '@/i.js';
 	overflow: clip;
 	contain: strict;
 	background: var(--MI_THEME-accent);
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 
 	@container (max-width: 1000px) {
 		display: block;

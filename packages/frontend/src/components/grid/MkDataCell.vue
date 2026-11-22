@@ -387,7 +387,7 @@ $cellHeight: 28px;
 	height: 18px;
 	background: var(--MI_THEME-panel);
 	border: solid 2px var(--MI_THEME-divider);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	box-sizing: border-box;
 
 	&.boolTrue {
@@ -399,7 +399,7 @@ $cellHeight: 28px;
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
-			color: var(--MI_THEME-fgOnAccent);
+			color: var(--MI-c-fgOnAccent);
 			font-size: 12px;
 			line-height: 18px;
 		}

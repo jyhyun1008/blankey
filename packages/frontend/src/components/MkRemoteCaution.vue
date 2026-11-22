@@ -27,6 +27,6 @@ defineProps<{
 
 .link {
 	margin-left: 4px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 </style>

@@ -5,8 +5,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <component :is="prefer.s.enablePullToRefresh ? MkPullToRefresh : 'div'" :refresher="() => reload()">
-	<div class="_spacer" :style="{ '--MI_SPACER-w': narrow ? '800px' : '1100px' }">
-		<div ref="rootEl" class="ftskorzw" :class="{ wide: !narrow }" style="container-type: inline-size;">
+	<div class="_spacer" style="--MI_SPACER-w: 1240px;">
+		<div class="ftskorzw" :class="$style.profileLayout" style="container-type: inline-size;">
 			<div class="main _gaps">
 				<!-- TODO -->
 				<!-- <div class="punished" v-if="user.isSuspended"><i class="ti ti-alert-triangle" style="margin-right: 8px;"></i> {{ i18n.ts.userSuspended }}</div> -->
@@ -22,7 +22,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<div class="banner" :style="style"></div>
 							<div class="fade"></div>
 							<div class="title">
-								<MkUserName class="name" :user="user" :nowrap="true"/>
+								<div class="name">
+									<MkUserName :user="user" :nowrap="true" :class="$style.nickname"/>
+									<i v-if="isStreamer" class="ti ti-headset" :class="$style.streamerIcon" role="img" :aria-label="i18n.ts._profile.streamerAccount" :title="i18n.ts._profile.streamerAccount"></i>
+								</div>
 								<div class="bottom">
 									<span class="username"><MkAcct :user="user" :detail="true"/></span>
 									<span v-if="user.isLocked"><i class="ti ti-lock"></i></span>
@@ -40,7 +43,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</div>
 						<MkAvatar class="avatar" :user="user" indicator/>
 						<div class="title">
-							<MkUserName :user="user" :nowrap="false" class="name"/>
+							<div class="name">
+								<MkUserName :user="user" :nowrap="false" :class="$style.nickname"/>
+								<i v-if="isStreamer" class="ti ti-headset" :class="$style.streamerIcon" role="img" :aria-label="i18n.ts._profile.streamerAccount" :title="i18n.ts._profile.streamerAccount"></i>
+							</div>
 							<div class="bottom">
 								<span class="username"><MkAcct :user="user" :detail="true"/></span>
 								<span v-if="user.isLocked"><i class="ti ti-lock"></i></span>
@@ -48,7 +54,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</div>
 						</div>
 						<div v-if="user.followedMessage != null" class="followedMessage">
-							<MkFukidashi class="fukidashi" :tail="narrow ? 'none' : 'left'" negativeMargin>
+							<MkFukidashi class="fukidashi" tail="none" negativeMargin>
 								<div class="messageHeader">{{ i18n.ts.messageToFollower }}</div>
 								<div><MkSparkle><Mfm :plain="true" :text="user.followedMessage" :author="user" class="_selectable"/></MkSparkle></div>
 							</MkFukidashi>
@@ -87,31 +93,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 								<p v-else class="empty">{{ i18n.ts.noAccountDescription }}</p>
 							</MkOmit>
 						</div>
-						<div class="fields system">
-							<dl v-if="user.location" class="field">
-								<dt class="name"><i class="ti ti-map-pin ti-fw"></i> {{ i18n.ts.location }}</dt>
-								<dd class="value">{{ user.location }}</dd>
-							</dl>
-							<dl v-if="user.birthday" class="field">
-								<dt class="name"><i class="ti ti-cake ti-fw"></i> {{ i18n.ts.birthday }}</dt>
-								<dd class="value">{{ user.birthday.replace('-', '/').replace('-', '/') }} ({{ i18n.tsx.yearsOld({ age }) }})</dd>
-							</dl>
-							<dl class="field">
-								<dt class="name"><i class="ti ti-calendar ti-fw"></i> {{ i18n.ts.registeredDate }}</dt>
-								<dd class="value">{{ dateString(user.createdAt) }} (<MkTime :time="user.createdAt"/>)</dd>
-							</dl>
-						</div>
-						<div v-if="user.fields.length > 0" class="fields">
-							<dl v-for="(field, i) in user.fields" :key="i" class="field">
-								<dt class="name">
-									<Mfm :text="field.name" :author="user" :plain="true" :colored="false" class="_selectable"/>
-								</dt>
-								<dd class="value">
-									<Mfm :text="field.value" :author="user" :colored="false" class="_selectable"/>
-									<i v-if="user.verifiedLinks.includes(field.value)" v-tooltip:dialog="i18n.ts.verifiedLink" class="ti ti-circle-check" :class="$style.verifiedLink"></i>
-								</dd>
-							</dl>
-						</div>
 						<div class="status">
 							<MkA :to="userPage(user, 'notes')">
 								<b>{{ number(user.notesCount) }}</b>
@@ -129,37 +110,106 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</div>
 				</div>
 
+				<ul v-if="streamingBanners.length" :class="$style.streamingBanners" :aria-label="i18n.ts._profile.streamingBanners">
+					<li v-for="(banner, index) in streamingBanners" :key="banner.imageUrl">
+						<component
+							:is="banner.link ? 'a' : 'div'"
+							:class="$style.streamingBanner"
+							:href="banner.link || undefined"
+							:target="banner.link ? '_blank' : undefined"
+							:rel="banner.link ? 'nofollow noopener noreferrer' : undefined"
+							:title="banner.link || undefined"
+						>
+							<img :src="getProxiedImageUrl(banner.imageUrl, 'preview', true, true)" :alt="i18n.tsx._profile.streamingBannerAlt({ n: index + 1 })" loading="lazy"/>
+							<i v-if="banner.link" class="ti ti-external-link" :class="$style.bannerLinkIcon" aria-hidden="true"></i>
+						</component>
+					</li>
+				</ul>
+
 				<div class="contents _gaps">
-					<div v-if="user.pinnedNotes.length > 0" class="_gaps">
-						<MkNote v-for="note in user.pinnedNotes" :key="note.id" class="note _panel" :note="note" :pinned="true"/>
-					</div>
-					<MkInfo v-else-if="$i && $i.id === user.id">{{ i18n.ts.userPagePinTip }}</MkInfo>
-					<template v-if="narrow">
-						<MkLazy>
-							<XFiles :key="user.id" :user="user" @showMore="emit('showMoreFiles')"/>
-						</MkLazy>
-						<MkLazy>
-							<XActivity :key="user.id" :user="user"/>
-						</MkLazy>
-					</template>
-					<div v-if="!disableNotes">
-						<MkLazy>
-							<XTimeline ref="timelineEl" :user="user"/>
-						</MkLazy>
-					</div>
+					<XStreamerOverview :key="user.id" :user="user" @communityResolved="streamingCommunity = $event"/>
 				</div>
 			</div>
-			<div v-if="!narrow" class="sub _gaps" style="container-type: inline-size;">
-				<XFiles :key="user.id" :user="user" @showMore="emit('showMoreFiles')"/>
-				<XActivity :key="user.id" :user="user"/>
-			</div>
+			<aside :class="$style.profileSidebar" class="_gaps">
+				<section class="_gaps_s">
+					<h2 :class="$style.sideHeading">{{ i18n.ts.basicInfo }}</h2>
+					<div class="_panel">
+						<XProfileFields :user="user" :profileFields="profileFields" compact/>
+					</div>
+					<div v-if="isStreamer" :class="$style.streamingLinks" class="_panel">
+						<h3>{{ i18n.ts._profile.streamingQuickLinks }}</h3>
+						<ul :class="$style.linkRows">
+							<li v-for="link in streamingLinks" :key="link.name">
+								<MkLink :url="link.url" :class="$style.linkRow">
+									<span :class="[$style.linkIcon, { [$style.featuredLinkIcon]: link.primary }]" aria-hidden="true">
+										<i :class="['ti', link.icon]"></i>
+									</span>
+									<span :class="$style.linkText">
+										<strong>{{ link.label }}</strong>
+										<small v-if="link.kind === 'support'">{{ i18n.ts._profile.streamingSupport }}</small>
+										<small v-else-if="link.label !== i18n.ts._profile.streamingChannel">{{ i18n.ts._profile.streamingChannel }}</small>
+									</span>
+								</MkLink>
+							</li>
+							<li>
+								<MkA :to="userPage(user, 'custom-emojis')" :class="$style.linkRow">
+									<span :class="$style.linkIcon" aria-hidden="true"><i class="ti ti-mood-smile"></i></span>
+									<strong :class="$style.linkText">{{ i18n.ts._profile.streamingOpenCustomEmojis }}</strong>
+									<i class="ti ti-chevron-right" aria-hidden="true"></i>
+								</MkA>
+							</li>
+							<li v-if="streamingCommunity?.userId === user.id">
+								<MkA :to="`/channels/${streamingCommunity.id}`" :class="$style.linkRow">
+									<span :class="$style.linkIcon" aria-hidden="true"><i class="ti ti-users"></i></span>
+									<span :class="$style.linkText">
+										<strong>{{ streamingCommunity.name }}</strong>
+										<small>{{ i18n.ts._profile.streamingCommunity }}</small>
+									</span>
+									<i class="ti ti-chevron-right" aria-hidden="true"></i>
+								</MkA>
+							</li>
+							<li v-for="{ tag, label } in streamingTags" :key="tag">
+								<MkA :to="`/tags/${encodeURIComponent(tag)}`" :class="$style.linkRow">
+									<span :class="$style.linkIcon" aria-hidden="true"><i class="ti ti-hash"></i></span>
+									<span :class="$style.linkText">
+										<strong>#{{ tag }}</strong>
+										<small>{{ label || i18n.ts.hashtags }}</small>
+									</span>
+									<i class="ti ti-chevron-right" aria-hidden="true"></i>
+								</MkA>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="_gaps_s">
+					<h2 :class="$style.sideHeading">{{ i18n.ts._profile.streamingRecentNews }}</h2>
+					<div class="_gaps_s">
+						<h3 :class="$style.newsHeading">{{ i18n.ts.pinnedNotes }}</h3>
+						<template v-if="user.pinnedNotes.length">
+							<MkNote v-for="note in user.pinnedNotes" :key="note.id" class="note _panel" :note="note" :pinned="true"/>
+						</template>
+						<MkInfo v-else-if="$i && $i.id === user.id">{{ i18n.ts.userPagePinTip }}</MkInfo>
+						<p v-else :class="$style.emptyNews" class="_panel">{{ i18n.ts.noNotes }}</p>
+					</div>
+					<div v-if="!disableNotes" class="_gaps_s">
+						<h3 :class="$style.newsHeading">{{ i18n.ts.notes }}</h3>
+						<MkLazy>
+							<XTimeline :key="user.id" ref="timelineEl" :user="user" :showFilters="false"/>
+						</MkLazy>
+					</div>
+				</section>
+				<template v-if="!isStreamer">
+					<MkLazy><XFiles :key="user.id" :user="user" @showMore="emit('showMoreFiles')"/></MkLazy>
+					<MkLazy><XActivity :key="user.id" :user="user"/></MkLazy>
+				</template>
+			</aside>
 		</div>
 	</div>
 </component>
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, computed, onMounted, onUnmounted, onActivated, onDeactivated, nextTick, watch, ref, useTemplateRef } from 'vue';
+import { defineAsyncComponent, computed, shallowRef, onMounted, onUnmounted, onActivated, onDeactivated, nextTick, watch, ref, useTemplateRef } from 'vue';
 import * as Misskey from 'misskey-js';
 import { getScrollContainer } from '@@/js/scroll.js';
 import MkNote from '@/components/MkNote.vue';
@@ -171,42 +221,33 @@ import MkTextarea from '@/components/MkTextarea.vue';
 import MkOmit from '@/components/MkOmit.vue';
 import MkInfo from '@/components/MkInfo.vue';
 import MkButton from '@/components/MkButton.vue';
+import MkLink from '@/components/MkLink.vue';
+import XProfileFields from './profile-fields.vue';
 import { getUserMenu } from '@/utility/get-user-menu.js';
 import number from '@/filters/number.js';
 import { userPage } from '@@/js/user.js';
+import { tryParseUrl } from '@@/js/url.js';
 import * as os from '@/os.js';
 import { i18n } from '@/i18n.js';
 import { $i, iAmModerator } from '@/i.js';
-import { dateString } from '@/filters/date.js';
 import { confetti } from '@/utility/confetti.js';
 import { misskeyApi } from '@/utility/misskey-api.js';
 import { isFollowingVisibleForMe, isFollowersVisibleForMe } from '@/utility/isFfVisibleForMe.js';
 import { useRouter } from '@/router.js';
-import { getStaticImageUrl } from '@/utility/media-proxy.js';
+import { getProxiedImageUrl, getStaticImageUrl } from '@/utility/media-proxy.js';
+import { getStreamingBanners, streamingBannerFieldName } from '@/utility/streaming-banners.js';
+import { getStreamingPlatformName, streamingChannelFieldName, streamingSupportFieldName } from '@/utility/streaming-platforms.js';
+import { streamingResourceFieldNames, getStreamingTagLinks, streamingCommunityFieldName, streamingTagsFieldName } from '@/utility/streaming-overview.js';
 import MkSparkle from '@/components/MkSparkle.vue';
 import { prefer } from '@/preferences.js';
 import MkPullToRefresh from '@/components/MkPullToRefresh.vue';
 import { isBirthday } from '@/utility/is-birthday.js';
 import type XTimeline_TypeReferenceOnly from './index.timeline.vue';
 
-function calcAge(birthdate: string): number {
-	const date = new Date(birthdate);
-	const now = new Date();
-
-	let yearDiff = now.getFullYear() - date.getFullYear();
-	const monthDiff = now.getMonth() - date.getMonth();
-	const pastDate = now.getDate() < date.getDate();
-
-	if (monthDiff < 0 || (monthDiff === 0 && pastDate)) {
-		yearDiff--;
-	}
-
-	return yearDiff;
-}
-
 const XFiles = defineAsyncComponent(() => import('./index.files.vue'));
 const XActivity = defineAsyncComponent(() => import('./index.activity.vue'));
 const XTimeline = defineAsyncComponent(() => import('./index.timeline.vue'));
+const XStreamerOverview = defineAsyncComponent(() => import('./streamer-overview.vue'));
 
 const props = withDefaults(defineProps<{
 	user: Misskey.entities.UserDetailed;
@@ -226,8 +267,35 @@ const emit = defineEmits<{
 const router = useRouter();
 
 const user = ref(props.user);
-const narrow = ref<null | boolean>(null);
-const rootEl = useTemplateRef('rootEl');
+const isStreamer = computed(() => user.value.host == null && user.value.isStreamer);
+const streamingLinks = computed(() => {
+	if (!isStreamer.value) return [];
+
+	const linkTypes = [
+		{ name: streamingChannelFieldName, kind: 'channel', icon: 'ti-device-tv', primary: true },
+		{ name: streamingSupportFieldName, kind: 'support', icon: 'ti-heart', primary: false },
+	] as const;
+
+	return linkTypes.flatMap(link => {
+		for (const field of user.value.fields) {
+			if (field.name !== link.name || !field.value.startsWith('https://')) continue;
+			const url = tryParseUrl(field.value);
+			if (!url) continue;
+
+			const platform = getStreamingPlatformName(url, link.kind);
+			if (link.kind === 'support' && !platform) continue;
+			return [{ ...link, field, url: url.href, label: platform ?? i18n.ts._profile.streamingChannel }];
+		}
+		return [];
+	});
+});
+const streamingBanners = computed(() => isStreamer.value ? getStreamingBanners(user.value.fields) : []);
+const streamingTags = computed(() => getStreamingTagLinks(user.value.fields));
+const streamingCommunity = shallowRef<Misskey.entities.Channel>();
+const profileFields = computed(() => user.value.fields.filter(field => {
+	if (user.value.host == null && [streamingBannerFieldName, streamingChannelFieldName, streamingSupportFieldName, streamingTagsFieldName, streamingCommunityFieldName, ...streamingResourceFieldNames].includes(field.name)) return false;
+	return !streamingLinks.value.some(link => link.field === field);
+}));
 const bannerEl = useTemplateRef('bannerEl');
 const memoTextareaEl = useTemplateRef('memoTextareaEl');
 const timelineEl = useTemplateRef<InstanceType<typeof XTimeline_TypeReferenceOnly>>('timelineEl');
@@ -255,10 +323,6 @@ const style = computed(() => {
 			backgroundImage: `url(${ props.user.bannerUrl })`,
 		};
 	};
-});
-
-const age = computed(() => {
-	return props.user.birthday ? calcAge(props.user.birthday) : NaN;
 });
 
 function menu(ev: PointerEvent) {
@@ -335,8 +399,6 @@ function disposeBannerParallaxResizeObserver() {
 }
 
 onMounted(() => {
-	narrow.value = rootEl.value!.clientWidth < 1000;
-
 	if (isBirthday(user.value)) {
 		confetti({
 			duration: 1000 * 4,
@@ -412,7 +474,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 						color: #fff;
 						background: rgba(0, 0, 0, 0.7);
 						font-size: 0.7em;
-						border-radius: 6px;
+						border-radius: var(--MI-radius-xs);
 					}
 
 					> .actions {
@@ -423,7 +485,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 						backdrop-filter: var(--MI-blur, blur(8px));
 						background: rgba(0, 0, 0, 0.2);
 						padding: 8px;
-						border-radius: 24px;
+						border-radius: var(--MI-radius-xl);
 
 						> .menu {
 							vertical-align: bottom;
@@ -450,7 +512,8 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 						color: #fff;
 
 						> .name {
-							display: block;
+							display: flex;
+							align-items: center;
 							margin: -10px;
 							padding: 10px;
 							line-height: 32px;
@@ -476,7 +539,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 								color: #fff;
 								-webkit-backdrop-filter: var(--MI-blur, blur(8px));
 								backdrop-filter: var(--MI-blur, blur(8px));
-								border-radius: 24px;
+								border-radius: var(--MI-radius-xl);
 								padding: 4px 8px;
 								font-size: 80%;
 							}
@@ -508,7 +571,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 					z-index: 2;
 					width: 120px;
 					height: 120px;
-					box-shadow: 1px 1px 3px rgba(#000, 0.2);
+					box-shadow: var(--MI-shadow-md);
 				}
 
 				> .followedMessage {
@@ -536,7 +599,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 
 					> .role {
 						border: solid 1px var(--color, var(--MI_THEME-divider));
-						border-radius: 999px;
+						border-radius: var(--MI-radius-full);
 						margin-right: 4px;
 						padding: 3px 8px;
 					}
@@ -551,7 +614,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 					background: transparent;
 					color: var(--MI_THEME-fg);
 					border: 1px solid var(--MI_THEME-divider);
-					border-radius: 8px;
+					border-radius: var(--MI-radius-sm);
 					padding: 8px;
 					line-height: 0;
 
@@ -589,43 +652,6 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 					}
 				}
 
-				> .fields {
-					padding: 24px;
-					font-size: 0.9em;
-					border-top: solid 0.5px var(--MI_THEME-divider);
-
-					> .field {
-						display: flex;
-						padding: 0;
-						margin: 0;
-						align-items: center;
-
-						&:not(:last-child) {
-							margin-bottom: 8px;
-						}
-
-						> .name {
-							width: 30%;
-							overflow: hidden;
-							white-space: nowrap;
-							text-overflow: ellipsis;
-							font-weight: bold;
-							text-align: center;
-						}
-
-						> .value {
-							width: 70%;
-							overflow: hidden;
-							white-space: nowrap;
-							text-overflow: ellipsis;
-							margin: 0;
-						}
-					}
-
-					&.system > .field > .name {
-					}
-				}
-
 				> .status {
 					display: flex;
 					padding: 24px;
@@ -636,7 +662,7 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 						text-align: center;
 
 						&.active {
-							color: var(--MI_THEME-accent);
+							color: var(--MI-c-accentInk);
 						}
 
 						&:hover {
@@ -663,21 +689,6 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 		}
 	}
 
-	&.wide {
-		display: flex;
-		width: 100%;
-
-		> .main {
-			width: 100%;
-			min-width: 0;
-		}
-
-		> .sub {
-			max-width: 350px;
-			min-width: 350px;
-			margin-left: var(--MI-margin);
-		}
-	}
 }
 
 @container (max-width: 500px) {
@@ -732,10 +743,6 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 					text-align: center;
 				}
 
-				> .fields {
-					padding: 16px;
-				}
-
 				> .status {
 					padding: 16px;
 				}
@@ -781,14 +788,178 @@ onDeactivated(disposeBannerParallaxResizeObserver);
 </style>
 
 <style lang="scss" module>
+.profileLayout {
+	display: flex;
+	flex-direction: column;
+	gap: var(--MI-margin);
+
+	@container (min-width: 740px) {
+		display: grid;
+		grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+		align-items: start;
+	}
+
+	> :global(.main) {
+		min-width: 0;
+	}
+}
+
+.profileSidebar {
+	min-width: 0;
+	container-type: inline-size;
+}
+
+.sideHeading,
+.newsHeading {
+	margin: 0;
+}
+
+.sideHeading {
+	font-size: 1.125em;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	&::before {
+		content: '';
+		flex-shrink: 0;
+		width: 6px;
+		height: 6px;
+		border-radius: var(--MI-radius-full);
+		background: var(--MI_THEME-accent);
+	}
+}
+
+.newsHeading {
+	font-size: 0.9em;
+}
+
+.emptyNews {
+	margin: 0;
+	padding: 12px;
+	font-size: 0.8em;
+}
+
+.streamingBanners {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 100px), 130px));
+	gap: 8px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+
+	img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: cover;
+		border-radius: var(--MI-radius-sm);
+		background: var(--MI_THEME-panel);
+	}
+}
+
+.streamingBanner {
+	position: relative;
+	display: block;
+	border-radius: var(--MI-radius-sm);
+
+	&:is(a):hover {
+		box-shadow: 0 0 0 2px var(--MI_THEME-accent);
+	}
+}
+
+.bannerLinkIcon {
+	position: absolute;
+	inset-inline-end: 6px;
+	inset-block-end: 6px;
+	padding: 4px;
+	border-radius: var(--MI-radius-sm);
+	background: var(--MI_THEME-accent);
+	color: var(--MI-c-fgOnAccent);
+}
+
+.nickname {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.streamerIcon {
+	flex-shrink: 0;
+	margin-inline-start: 0.35em;
+	font-size: 0.8em;
+}
+
+.streamingLinks {
+	padding: 12px;
+	font-size: 0.9em;
+
+	> h3 {
+		margin: 0 0 6px;
+		padding-inline: 8px;
+		font-size: 1em;
+	}
+}
+
+.linkRows {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.linkRows > li + li {
+	border-top: 1px solid var(--MI_THEME-divider);
+}
+
+.streamingLinks .linkRow {
+	display: grid;
+	grid-template-columns: 34px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 8px;
+	padding: 8px;
+	border-radius: var(--MI-radius-sm);
+	color: var(--MI_THEME-fg);
+	text-decoration: none;
+
+	&:hover {
+		background: var(--MI_THEME-buttonBg);
+	}
+}
+
+.linkIcon {
+	display: grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	border-radius: var(--MI-radius-sm);
+	background: var(--MI_THEME-buttonBg);
+}
+
+.featuredLinkIcon {
+	background: color-mix(in srgb, var(--MI_THEME-accent) 16%, var(--MI_THEME-panel));
+	color: var(--MI-c-accentInk);
+}
+
+.linkText {
+	display: grid;
+	gap: 1px;
+	min-width: 0;
+	word-break: normal;
+	overflow-wrap: anywhere;
+
+	> small {
+		opacity: 0.7;
+	}
+}
+
 .tl {
 	background: var(--MI_THEME-bg);
 	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
+	--MI-paginationControl-margin: 0;
+	--MI-paginationControl-padding: 10px 12px;
+	--MI-paginationControl-border: solid 1px var(--MI-c-border);
 }
 
-.verifiedLink {
-	margin-left: 4px;
-	color: var(--MI_THEME-success);
-}
 </style>

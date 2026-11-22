@@ -368,7 +368,7 @@ definePage(() => ({
 .queue {
 	padding: 14px 18px;
 	background-color: var(--MI_THEME-panel);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	cursor: pointer;
 }
 

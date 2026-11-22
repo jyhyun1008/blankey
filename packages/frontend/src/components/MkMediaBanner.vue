@@ -46,7 +46,7 @@ async function reveal() {
 <style lang="scss" module>
 .root {
 	width: 100%;
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	margin-top: 4px;
 	overflow: clip;
 }
@@ -69,7 +69,7 @@ async function reveal() {
 }
 
 .audio {
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 }
 </style>

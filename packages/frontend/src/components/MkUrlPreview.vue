@@ -4,7 +4,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<template v-if="player.url && playerEnabled">
+<MkMediaPreviewCard v-if="mediaCard" v-appear="loadPreview" v-bind="mediaCard" :to="mediaCard.to ?? maybeRelativeUrl" :external="!mediaCard.to && !self">
+	<template v-if="thumbnail && !thumbnailFailed && !sensitive && !prefer.s.dataSaver.urlPreviewThumbnail" #thumbnail="{ imageClass }">
+		<img :src="thumbnail" alt="" loading="lazy" :class="imageClass" @error="thumbnailFailed = true"/>
+	</template>
+</MkMediaPreviewCard>
+<template v-else-if="player.url && playerEnabled">
 	<div
 		:class="$style.player"
 		:style="player.width ? `padding: ${(player.height || 0) / player.width * 100}% 0 0` : `padding: ${(player.height || 0)}px 0 0`"
@@ -20,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		></iframe>
 		<span v-else>invalid url</span>
 	</div>
-	<div :class="$style.action">
+	<div v-if="!expandPlayer" :class="$style.action">
 		<MkButton :small="true" inline @click="playerEnabled = false">
 			<i class="ti ti-x"></i> {{ i18n.ts.disablePlayer }}
 		</MkButton>
@@ -87,11 +92,13 @@ import { computed, defineAsyncComponent, onDeactivated, onUnmounted, ref } from 
 import { url as local } from '@@/js/config.js';
 import { versatileLang } from '@@/js/intl-const.js';
 import { maybeMakeRelative } from '@@/js/url.js';
+import type { entities } from 'misskey-js';
 import type { SummalyResult } from '@misskey-dev/summaly';
 import { i18n } from '@/i18n.js';
 import * as os from '@/os.js';
 import { deviceKind } from '@/utility/device-kind.js';
 import MkButton from '@/components/MkButton.vue';
+import MkMediaPreviewCard from '@/components/MkMediaPreviewCard.vue';
 import { transformPlayerUrl } from '@/utility/url-preview.js';
 import { store } from '@/store.js';
 import { prefer } from '@/preferences.js';
@@ -101,6 +108,9 @@ const props = withDefaults(defineProps<{
 	detail?: boolean;
 	compact?: boolean;
 	showActions?: boolean;
+	mediaCard?: { to?: string; title: string; user?: entities.UserLite; tags?: string[]; compact?: boolean; createdAt?: string };
+	/** プレイヤーがあれば最初から開き、閉じるボタンを出さない (動画の詳細ページ用) */
+	expandPlayer?: boolean;
 }>(), {
 	detail: false,
 	compact: false,
@@ -119,11 +129,12 @@ const summalyResult = ref<SummalyResult | null>(null);
 const title = computed(() => summalyResult.value?.title ?? null);
 const description = computed(() => summalyResult.value?.description ?? null);
 const thumbnail = computed(() => summalyResult.value?.thumbnail ?? null);
+const thumbnailFailed = ref(false);
 const icon = computed(() => summalyResult.value?.icon ?? null);
 const sitename = computed(() => summalyResult.value?.sitename ?? null);
 const sensitive = computed(() => summalyResult.value?.sensitive ?? false);
 const player = computed(() => summalyResult.value?.player ?? { url: null, width: null, height: null });
-const playerEnabled = ref(prefer.s.expandUrlPreviewAutomatically);
+const playerEnabled = ref(props.expandPlayer || prefer.s.expandUrlPreviewAutomatically);
 const tweetId = ref<string | null>(null);
 const tweetExpanded = ref(props.detail);
 const embedId = `embed${Math.random().toString().replace(/\D/, '')}`;
@@ -131,7 +142,7 @@ const tweetHeight = ref(150);
 const unknownUrl = ref(false);
 
 onDeactivated(() => {
-	playerEnabled.value = false;
+	if (!props.expandPlayer) playerEnabled.value = false;
 });
 
 const requestUrl = new URL(props.url, window.location.href);
@@ -147,30 +158,37 @@ if (requestUrl.hostname === 'music.youtube.com' && requestUrl.pathname.match('^/
 }
 
 requestUrl.hash = '';
+let requested = false;
+const previewRequest = new AbortController();
 
-window.fetch(`/url?url=${encodeURIComponent(requestUrl.href)}&lang=${versatileLang}`)
-	.then(res => {
+async function loadPreview() {
+	if (requested) return;
+	requested = true;
+	try {
+		const res = await window.fetch(`/url?url=${encodeURIComponent(requestUrl.href)}&lang=${versatileLang}`, {
+			signal: previewRequest.signal,
+		});
 		if (!res.ok) {
 			if (_DEV_) {
 				console.warn(`[HTTP${res.status}] Failed to fetch url preview`);
 			}
-			return null;
-		}
-
-		return res.json();
-	})
-	.then((info: SummalyResult | null) => {
-		if (!info || info.url == null) {
-			fetching.value = false;
 			unknownUrl.value = true;
 			return;
 		}
-
-		fetching.value = false;
-		unknownUrl.value = false;
-
+		const info: SummalyResult | null = await res.json();
+		if (!info || info.url == null) {
+			unknownUrl.value = true;
+			return;
+		}
 		summalyResult.value = info;
-	});
+	} catch {
+		unknownUrl.value = true;
+	} finally {
+		fetching.value = false;
+	}
+}
+
+if (!props.mediaCard) void loadPreview();
 
 function adjustTweetHeight(message: MessageEvent) {
 	if (message.origin !== 'https://platform.twitter.com') return;
@@ -193,9 +211,10 @@ function openPlayer(): void {
 	});
 }
 
-window.addEventListener('message', adjustTweetHeight);
+if (!props.mediaCard) window.addEventListener('message', adjustTweetHeight);
 
 onUnmounted(() => {
+	previewRequest.abort();
 	window.removeEventListener('message', adjustTweetHeight);
 });
 </script>
@@ -237,7 +256,7 @@ onUnmounted(() => {
 	display: block;
 	font-size: 14px;
 	box-shadow: 0 0 0 1px var(--MI_THEME-divider);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 	text-align: left;
 
@@ -267,7 +286,7 @@ onUnmounted(() => {
 	height: 100%;
 	background-position: center;
 	background-size: cover;
-	background-color: var(--MI_THEME-bg);
+	background-color: var(--MI-c-inset);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -342,7 +361,7 @@ onUnmounted(() => {
 
 @container (max-width: 350px) {
 	.link {
-		font-size: 10px;
+		font-size: 0.8em;
 
 		&.compact {
 			> .thumbnail {

@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { PrimaryColumn, Entity, Index, Column } from 'typeorm';
+import { PrimaryColumn, Entity, Index, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { MiUser } from './User.js';
 import { id } from './util/id.js';
 
 @Entity('emoji')
@@ -29,6 +30,22 @@ export class MiEmoji {
 		length: 128, nullable: true,
 	})
 	public host: string | null;
+
+	@Index('IDX_EMOJI_STREAMER_ID')
+	@Column({ ...id(), nullable: true })
+	public streamerId: MiUser['id'] | null;
+
+	@ManyToOne(() => MiUser, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'streamerId', foreignKeyConstraintName: 'FK_EMOJI_STREAMER_ID' })
+	public streamer: MiUser | null;
+
+	@Index('IDX_EMOJI_STREAMER_CREATOR_ID')
+	@Column({ ...id(), nullable: true })
+	public streamerCreatorId: MiUser['id'] | null;
+
+	@ManyToOne(() => MiUser, { onDelete: 'SET NULL' })
+	@JoinColumn({ name: 'streamerCreatorId', foreignKeyConstraintName: 'FK_EMOJI_STREAMER_CREATOR_ID' })
+	public streamerCreator: MiUser | null;
 
 	@Column('varchar', {
 		length: 128, nullable: true,

@@ -31,8 +31,11 @@ export class EmojiEntityService {
 			aliases: emoji.aliases,
 			name: emoji.name,
 			category: emoji.category,
+			streamerId: emoji.streamerId ?? undefined,
+			isStreamerOwned: emoji.streamerId != null && emoji.streamerId === emoji.streamerCreatorId ? true : undefined,
 			// || emoji.originalUrl してるのは後方互換性のため（publicUrlはstringなので??はだめ）
 			url: emoji.publicUrl || emoji.originalUrl,
+			license: emoji.streamerCreatorId != null ? emoji.license ?? undefined : undefined,
 			localOnly: emoji.localOnly ? true : undefined,
 			isSensitive: emoji.isSensitive ? true : undefined,
 			roleIdsThatCanBeUsedThisEmojiAsReaction: emoji.roleIdsThatCanBeUsedThisEmojiAsReaction.length > 0 ? emoji.roleIdsThatCanBeUsedThisEmojiAsReaction : undefined,
@@ -57,6 +60,8 @@ export class EmojiEntityService {
 			aliases: emoji.aliases,
 			name: emoji.name,
 			category: emoji.category,
+			streamerId: emoji.streamerId ?? undefined,
+			isStreamerOwned: emoji.streamerId != null && emoji.streamerId === emoji.streamerCreatorId ? true : undefined,
 			host: emoji.host,
 			// || emoji.originalUrl してるのは後方互換性のため（publicUrlはstringなので??はだめ）
 			url: emoji.publicUrl || emoji.originalUrl,

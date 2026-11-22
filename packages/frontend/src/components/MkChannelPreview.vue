@@ -5,42 +5,40 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <div style="position: relative;">
-	<MkA :to="`/channels/${channel.id}`" class="eftoefju _panel" @click="updateLastReadedAt">
+	<MkA :to="`/channels/${channel.id}`" class="eftoefju" @click="updateLastReadedAt">
 		<div class="banner" :style="bannerStyle">
-			<div class="fade"></div>
-			<div class="name"><i class="ti ti-device-tv"></i> {{ channel.name }}</div>
+			<i v-if="!channel.bannerUrl" class="ti ti-device-tv bannerIcon" aria-hidden="true"></i>
 			<div v-if="channel.isSensitive" class="sensitiveIndicator">{{ i18n.ts.sensitive }}</div>
+		</div>
+		<article>
+			<h3 class="name"><i class="ti ti-device-tv" aria-hidden="true"></i> {{ channel.name }}</h3>
+			<p v-if="channel.description" class="description" :title="channel.description">{{ channel.description }}</p>
 			<div class="status">
-				<div>
+				<span>
 					<i class="ti ti-users ti-fw"></i>
-					<I18n :src="i18n.ts._channel.usersCount" tag="span" style="margin-left: 4px;">
+					<I18n :src="i18n.ts._channel.usersCount" tag="span">
 						<template #n>
 							<b>{{ channel.usersCount }}</b>
 						</template>
 					</I18n>
-				</div>
-				<div>
+				</span>
+				<span>
 					<i class="ti ti-pencil ti-fw"></i>
-					<I18n :src="i18n.ts._channel.notesCount" tag="span" style="margin-left: 4px;">
+					<I18n :src="i18n.ts._channel.notesCount" tag="span">
 						<template #n>
 							<b>{{ channel.notesCount }}</b>
 						</template>
 					</I18n>
-				</div>
-				<div v-if="$i != null && $i.id === channel.userId" style="color: var(--MI_THEME-warn)">
+				</span>
+				<span v-if="$i != null && $i.id === channel.userId" class="admin">
 					<i class="ti ti-user-star ti-fw"></i>
-					<span style="margin-left: 4px;">{{ i18n.ts.youAreAdmin }}</span>
-				</div>
+					<span>{{ i18n.ts.youAreAdmin }}</span>
+				</span>
 			</div>
-		</div>
-		<article v-if="channel.description">
-			<p :title="channel.description">{{ channel.description.length > 85 ? channel.description.slice(0, 85) + '…' : channel.description }}</p>
-		</article>
-		<footer>
-			<span v-if="channel.lastNotedAt">
+			<footer v-if="channel.lastNotedAt">
 				{{ i18n.ts.updatedAt }}: <MkTime :time="channel.lastNotedAt"/>
-			</span>
-		</footer>
+			</footer>
+		</article>
 	</MkA>
 	<div
 		v-if="channel.lastNotedAt && (channel.isFavorited || channel.isFollowing) && (!lastReadedAt || Date.parse(channel.lastNotedAt) > lastReadedAt)"
@@ -78,20 +76,27 @@ const bannerStyle = computed(() => {
 	if (props.channel.bannerUrl) {
 		return { backgroundImage: `url(${props.channel.bannerUrl})` };
 	} else {
-		return { backgroundColor: '#4c5e6d' };
+		return {};
 	}
 });
 </script>
 
 <style lang="scss" scoped>
+// 一覧用カード: MkPagePreview と同じく上に 16:9 バナー、下に本文。区切りは枠線のみ
 .eftoefju {
-	display: block;
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 	overflow: hidden;
-	width: 100%;
+	background: var(--MI_THEME-panel);
+	border-radius: var(--MI-radius-lg);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
+	transition: box-shadow var(--MI-duration-fast) var(--MI-ease);
 
 	&:hover {
 		text-decoration: none;
+		box-shadow: 0 0 0 1px var(--MI-c-borderStrong);
 	}
 
 	&:focus-within {
@@ -100,10 +105,7 @@ const bannerStyle = computed(() => {
 		&::after {
 			content: '';
 			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
+			inset: 0;
 			border-radius: inherit;
 			pointer-events: none;
 			box-shadow: inset 0 0 0 2px var(--MI_THEME-focus);
@@ -112,106 +114,77 @@ const bannerStyle = computed(() => {
 
 	> .banner {
 		position: relative;
-		width: 100%;
-		height: 200px;
+		display: grid;
+		place-items: center;
+		aspect-ratio: 16 / 9;
+		background-color: var(--MI-c-sunken);
 		background-position: center;
 		background-size: cover;
 
-		> .fade {
-			position: absolute;
-			bottom: 0;
-			left: 0;
-			width: 100%;
-			height: 64px;
-			background: linear-gradient(0deg, var(--MI_THEME-panel), color(from var(--MI_THEME-panel) srgb r g b / 0));
-		}
-
-		> .name {
-			position: absolute;
-			top: 16px;
-			left: 16px;
-			max-width: calc(100% - 32px);
-			padding: 12px 16px;
-			box-sizing: border-box;
-			background: rgba(0, 0, 0, 0.7);
-			color: #fff;
-			font-size: 1.2em;
-		}
-
-		> .status {
-			position: absolute;
-			z-index: 1;
-			bottom: 16px;
-			right: 16px;
-			padding: 8px 12px;
-			font-size: 80%;
-			background: rgba(0, 0, 0, 0.7);
-			border-radius: 6px;
-			color: #fff;
+		> .bannerIcon {
+			color: var(--MI-c-fgSubtle);
+			font-size: 1.5em;
 		}
 
 		> .sensitiveIndicator {
 			position: absolute;
-			z-index: 1;
-			bottom: 16px;
-			left: 16px;
-			background: rgba(0, 0, 0, 0.7);
+			top: 10px;
+			left: 10px;
+			padding: 3px 8px;
+			background: var(--MI_THEME-panel);
 			color: var(--MI_THEME-warn);
-			border-radius: 6px;
+			border-radius: var(--MI-radius-full);
 			font-weight: bold;
-			font-size: 1em;
-			padding: 4px 7px;
+			font-size: 0.75em;
 		}
 	}
 
 	> article {
-		padding: 16px;
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: 6px;
+		padding: 12px 14px 14px;
 
-		> p {
+		> .name {
 			margin: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 			font-size: 1em;
-		}
-	}
 
-	> footer {
-		padding: 12px 16px;
-		border-top: solid 0.5px var(--MI_THEME-divider);
-
-		> span {
-			opacity: 0.7;
-			font-size: 0.9em;
-		}
-	}
-
-	@media (max-width: 550px) {
-		font-size: 0.9em;
-
-		> .banner {
-			height: 80px;
-
-			> .status {
-				display: none;
+			> i {
+				color: var(--MI-c-accentInk);
 			}
 		}
 
-		> article {
-			padding: 12px;
+		> .description {
+			display: -webkit-box;
+			margin: 0;
+			overflow: hidden;
+			color: var(--MI-c-fgMuted);
+			font-size: 0.85em;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+		}
+
+		> .status {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 4px 12px;
+			color: var(--MI-c-fgMuted);
+			font-size: 0.8em;
+
+			> .admin {
+				color: var(--MI_THEME-warn);
+			}
 		}
 
 		> footer {
-			display: none;
-		}
-	}
-
-	@media (max-width: 500px) {
-		font-size: 0.8em;
-
-		> .banner {
-			height: 70px;
-		}
-
-		> article {
-			padding: 8px;
+			margin-top: auto;
+			padding-top: 4px;
+			color: var(--MI-c-fgSubtle);
+			font-size: 0.8em;
 		}
 	}
 }
@@ -228,5 +201,4 @@ const bannerStyle = computed(() => {
 	height: 1.5rem;
 	aspect-ratio: 1 / 1;
 }
-
 </style>

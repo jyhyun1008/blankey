@@ -33,12 +33,14 @@ function close() {
 <style lang="scss" module>
 .root {
 	display: flex;
-  align-items: center;
-	padding: 12px 14px;
+	align-items: center;
+	gap: 4px;
+	padding: 12px 16px;
 	font-size: 90%;
+	line-height: 1.5;
 	background: var(--MI_THEME-infoBg);
 	color: var(--MI_THEME-infoFg);
-	border-radius: var(--MI-radius);
+	border-radius: var(--MI-radius-md);
 
 	&.warn {
 		background: var(--MI_THEME-infoWarnBg);
@@ -52,6 +54,11 @@ function close() {
 
 .button {
 	margin-left: auto;
-	padding: 4px;
+	padding: 6px;
+	border-radius: var(--MI-radius-full);
+
+	&:hover {
+		background: var(--MI-c-hover);
+	}
 }
 </style>

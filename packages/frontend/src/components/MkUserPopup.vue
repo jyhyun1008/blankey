@@ -161,7 +161,7 @@ onMounted(() => {
 	color: #fff;
 	background: rgba(0, 0, 0, 0.7);
 	font-size: 0.7em;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .avatarBack {
@@ -242,7 +242,7 @@ onMounted(() => {
 	right: 44px;
 	padding: 6px;
 	background: var(--MI_THEME-panel);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 
 .follow {

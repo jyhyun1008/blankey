@@ -35,7 +35,7 @@ $buttonSize : 1.8em;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 9999px;
+	border-radius: var(--MI-radius-full);
 	padding: 4px 6px;
 	gap: 3px;
 
@@ -57,7 +57,7 @@ $buttonSize : 1.8em;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 9999px;
+	border-radius: var(--MI-radius-full);
 	max-height: $buttonSize;
 	max-width: $buttonSize;
 	min-height: $buttonSize;

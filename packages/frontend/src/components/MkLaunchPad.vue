@@ -36,6 +36,7 @@ import { prefer } from '@/preferences.js';
 const props = withDefaults(defineProps<{
 	anchorElement?: HTMLElement | null;
 	anchor?: { x: string; y: string; };
+	excludeItems?: readonly string[];
 }>(), {
 	anchorElement: null,
 	anchor: () => ({ x: 'right', y: 'center' }),
@@ -53,7 +54,7 @@ const modal = useTemplateRef('modal');
 
 const menu = prefer.s.menu;
 
-const items = Object.keys(navbarItemDef).filter(k => !menu.includes(k)).map(k => navbarItemDef[k]).filter(def => def.show == null ? true : def.show).map(def => ({
+const items = Object.keys(navbarItemDef).filter(k => !menu.includes(k) && !props.excludeItems?.includes(k)).map(k => navbarItemDef[k]).filter(def => def.show == null ? true : def.show).map(def => ({
 	type: def.to ? 'link' : 'button',
 	text: def.title,
 	icon: def.icon,
@@ -78,12 +79,12 @@ function close() {
 	overflow: auto;
 	overscroll-behavior: contain;
 	text-align: left;
-	border-radius: 16px;
+	border-radius: var(--MI-radius-lg);
 
 	&.asDrawer {
 		width: 100%;
 		padding: 16px 16px max(env(safe-area-inset-bottom, 0px), 16px) 16px;
-		border-radius: 24px;
+		border-radius: var(--MI-radius-xl);
 		border-bottom-right-radius: 0;
 		border-bottom-left-radius: 0;
 		text-align: center;
@@ -101,12 +102,12 @@ function close() {
 			justify-content: center;
 			vertical-align: bottom;
 			height: 100px;
-			border-radius: 10px;
+			border-radius: var(--MI-radius-sm);
 			padding: 10px;
 			box-sizing: border-box;
 
 			&:hover {
-				color: var(--MI_THEME-accent);
+				color: var(--MI-c-accentInk);
 				background: var(--MI_THEME-accentedBg);
 				text-decoration: none;
 			}

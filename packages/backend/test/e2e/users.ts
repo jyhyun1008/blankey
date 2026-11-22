@@ -72,6 +72,8 @@ describe('ユーザー', () => {
 			location: user.location,
 			birthday: user.birthday,
 			lang: user.lang,
+			isStreamer: user.isStreamer,
+		streamingSchedule: user.streamingSchedule,
 			fields: user.fields,
 			verifiedLinks: user.verifiedLinks,
 			followersCount: user.followersCount,
@@ -485,6 +487,36 @@ describe('ユーザー', () => {
 		const response = await successfulApiCall({ endpoint: 'i/update', parameters: parameters(), user: alice });
 		const expected = { ...meDetailed(alice, true), ...parameters() };
 		assert.deepStrictEqual(response, expected, inspect(parameters()));
+	});
+
+	test('saves the streamer account setting and exposes it on the profile', async () => {
+		assert.strictEqual((await show(alice.id)).isStreamer, false);
+
+		const enabled = await successfulApiCall({ endpoint: 'i/update', parameters: { isStreamer: true }, user: alice });
+		assert.strictEqual(enabled.isStreamer, true);
+		await successfulApiCall({ endpoint: 'i/update', parameters: {}, user: alice });
+		assert.strictEqual((await show(alice.id)).isStreamer, true);
+
+		const disabled = await successfulApiCall({ endpoint: 'i/update', parameters: { isStreamer: false }, user: alice });
+		assert.strictEqual(disabled.isStreamer, false);
+		assert.strictEqual((await show(alice.id)).isStreamer, false);
+	});
+
+	test('saves and clears the weekly streaming schedule', async () => {
+		assert.deepStrictEqual((await show(alice.id)).streamingSchedule, []);
+
+		const schedule = ['20:00 Game stream', '', '', '', '21:00 Chatting', '', ''];
+		const saved = await successfulApiCall({
+			endpoint: 'i/update',
+			parameters: { streamingSchedule: ['  ' + schedule[0] + '  ', ...schedule.slice(1)] },
+			user: alice,
+		});
+		assert.deepStrictEqual(saved.streamingSchedule, schedule);
+		assert.deepStrictEqual((await show(alice.id)).streamingSchedule, schedule);
+
+		const cleared = Array<string>(7).fill('');
+		await successfulApiCall({ endpoint: 'i/update', parameters: { streamingSchedule: cleared }, user: alice });
+		assert.deepStrictEqual((await show(alice.id)).streamingSchedule, cleared);
 	});
 
 	test('を書き換えることができる(Avatar)', async () => {

@@ -50,7 +50,7 @@ $bodyInfoHieght: 16px;
 	align-items: center;
 	padding: 16px;
 	background: var(--MI_THEME-panel);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 
 .avatar {

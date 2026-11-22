@@ -101,7 +101,7 @@ definePage(() => ({
 	text-align: start;
 	padding: 16px;
 	background: var(--MI_THEME-panel);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	font-size: 0.9em;
 }
 

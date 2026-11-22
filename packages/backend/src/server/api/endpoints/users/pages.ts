@@ -57,7 +57,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				.limit(ps.limit)
 				.getMany();
 
-			return await this.pageEntityService.packMany(pages);
+			return await this.pageEntityService.packMany(pages, me);
 		});
 	}
 }

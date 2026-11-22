@@ -222,7 +222,7 @@ function onContextmenu(ev: PointerEvent) {
 	border-radius: 100%;
 	font-size: 120%;
 	background: var(--MI_THEME-accent);
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	scale: 1;
 	transition: scale 100ms ease;
 }

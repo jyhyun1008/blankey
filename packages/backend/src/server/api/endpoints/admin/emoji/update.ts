@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { IsNull } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { CustomEmojiService } from '@/core/CustomEmojiService.js';
-import type { DriveFilesRepository, MiEmoji } from '@/models/_.js';
+import type { DriveFilesRepository, UsersRepository } from '@/models/_.js';
 import { DI } from '@/di-symbols.js';
 import { ApiError } from '../../../error.js';
 
@@ -27,6 +28,11 @@ export const meta = {
 			message: 'No such file.',
 			code: 'NO_SUCH_FILE',
 			id: '14fb9fd9-0731-4e2f-aeb9-f09e4740333d',
+		},
+		invalidStreamer: {
+			message: 'Select a local streamer account.',
+			code: 'INVALID_STREAMER',
+			id: '617313a7-8b88-4201-828b-2f6a0b426fbe',
 		},
 		sameNameEmojiExists: {
 			message: 'Emoji that have same name already exists.',
@@ -71,6 +77,7 @@ export const paramDef = {
 				license: { type: 'string', nullable: true },
 				isSensitive: { type: 'boolean' },
 				localOnly: { type: 'boolean' },
+				streamerId: { type: 'string', format: 'misskey:id', nullable: true },
 				roleIdsThatCanBeUsedThisEmojiAsReaction: { type: 'array', items: {
 					type: 'string',
 				} },
@@ -85,9 +92,18 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		@Inject(DI.driveFilesRepository)
 		private driveFilesRepository: DriveFilesRepository,
 
+		@Inject(DI.usersRepository)
+		private usersRepository: UsersRepository,
+
 		private customEmojiService: CustomEmojiService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
+			if (ps.streamerId != null && !await this.usersRepository.existsBy({
+				id: ps.streamerId,
+				host: IsNull(),
+				isStreamer: true,
+			})) throw new ApiError(meta.errors.invalidStreamer);
+
 			let driveFile;
 			if (ps.fileId) {
 				driveFile = await this.driveFilesRepository.findOneBy({ id: ps.fileId });
@@ -108,6 +124,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				license: ps.license,
 				isSensitive: ps.isSensitive,
 				localOnly: ps.localOnly,
+				streamerId: ps.streamerId,
 				roleIdsThatCanBeUsedThisEmojiAsReaction: ps.roleIdsThatCanBeUsedThisEmojiAsReaction,
 			}, me);
 

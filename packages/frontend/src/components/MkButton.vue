@@ -143,18 +143,21 @@ function onMousedown(evt: MouseEvent): void {
 	z-index: 1; // 他コンポーネントのbox-shadowに隠されないようにするため
 	display: block;
 	min-width: 100px;
+	min-height: 36px;
 	width: max-content;
-	padding: 7px 14px;
+	padding: 8px 16px;
 	text-align: center;
 	font-weight: normal;
 	font-size: 95%;
 	box-shadow: none;
 	text-decoration: none;
 	background: var(--MI_THEME-buttonBg);
-	border-radius: 5px;
+	border-radius: var(--MI-radius-md);
 	overflow: clip;
 	box-sizing: border-box;
-	transition: background 0.1s ease;
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		transform var(--MI-duration) var(--MI-easeSpring);
 
 	&:hover {
 		text-decoration: none;
@@ -166,21 +169,25 @@ function onMousedown(evt: MouseEvent): void {
 
 	&:not(:disabled):active {
 		background: var(--MI_THEME-buttonHoverBg);
+		transform: scale(0.97);
 	}
 
 	&.iconOnly {
-		padding: 7px;
-		min-width: auto;
+		padding: 8px;
+		min-width: 36px;
 	}
 
 	&.small {
 		font-size: 90%;
+		min-height: var(--MI-controlHeightSm);
 		padding: 6px 12px;
+		border-radius: var(--MI-radius-sm);
 	}
 
 	&.large {
 		font-size: 100%;
-		padding: 8px 16px;
+		min-height: var(--MI-controlHeight);
+		padding: 10px 20px;
 	}
 
 	&.full {
@@ -188,50 +195,42 @@ function onMousedown(evt: MouseEvent): void {
 	}
 
 	&.rounded {
-		border-radius: 999px;
+		border-radius: var(--MI-radius-full);
 	}
 
 	&.primary {
 		font-weight: bold;
-		color: var(--MI_THEME-fgOnAccent) !important;
+		color: var(--MI-c-fgOnAccent) !important;
 		background: var(--MI_THEME-accent);
 
 		&:not(:disabled):hover {
-			background: hsl(from var(--MI_THEME-accent) h s calc(l + 5));
+			background: var(--MI-c-accentHover);
 		}
 
 		&:not(:disabled):active {
-			background: hsl(from var(--MI_THEME-accent) h s calc(l + 5));
+			background: var(--MI-c-accentPressed);
 		}
 	}
 
 	&.asLike {
-		background: rgba(255, 86, 125, 0.07);
-		color: #ff002f;
+		color: var(--MI_THEME-love);
+		background: color(from var(--MI_THEME-love) srgb r g b / 0.08);
 
 		&:not(:disabled):hover {
-			background: rgba(255, 74, 116, 0.11);
+			background: color(from var(--MI_THEME-love) srgb r g b / 0.14);
 		}
 
 		&:not(:disabled):active {
-			background: rgba(224, 57, 96, 0.125);
-		}
-
-		> .ripples {
-			> .ripple {
-				background: rgba(255, 60, 106, 0.15);
-			}
+			background: color(from var(--MI_THEME-love) srgb r g b / 0.18);
 		}
 
 		&.primary {
-			background: rgb(241 97 132);
+			color: oklch(from var(--MI_THEME-love) clamp(0.25, (0.66 - l) * 1000, 1) 0 h) !important;
+			background: var(--MI_THEME-love);
 
-			&:not(:disabled):hover {
-				background: rgb(241 92 128);
-			}
-
+			&:not(:disabled):hover,
 			&:not(:disabled):active {
-				background: rgb(241 92 128);
+				background: oklch(from var(--MI_THEME-love) calc(l + 0.04) c h);
 			}
 		}
 	}
@@ -242,15 +241,15 @@ function onMousedown(evt: MouseEvent): void {
 
 	&.gradate {
 		font-weight: bold;
-		color: var(--MI_THEME-fgOnAccent) !important;
+		color: var(--MI-c-fgOnAccent) !important;
 		background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 
 		&:not(:disabled):hover {
-			background: linear-gradient(90deg, hsl(from var(--MI_THEME-buttonGradateA) h s calc(l + 5)), hsl(from var(--MI_THEME-buttonGradateB) h s calc(l + 5)));
+			background: linear-gradient(90deg, oklch(from var(--MI_THEME-buttonGradateA) calc(l + 0.04) c h), oklch(from var(--MI_THEME-buttonGradateB) calc(l + 0.04) c h));
 		}
 
 		&:not(:disabled):active {
-			background: linear-gradient(90deg, hsl(from var(--MI_THEME-buttonGradateA) h s calc(l + 5)), hsl(from var(--MI_THEME-buttonGradateB) h s calc(l + 5)));
+			background: linear-gradient(90deg, oklch(from var(--MI_THEME-buttonGradateA) calc(l - 0.05) c h), oklch(from var(--MI_THEME-buttonGradateB) calc(l - 0.05) c h));
 		}
 	}
 
@@ -259,21 +258,22 @@ function onMousedown(evt: MouseEvent): void {
 		color: var(--MI_THEME-error);
 
 		&.primary {
-			color: #fff;
+			color: var(--MI-c-fgOnError) !important;
 			background: var(--MI_THEME-error);
 
 			&:not(:disabled):hover {
-				background: hsl(from var(--MI_THEME-error) h s calc(l + 10));
+				background: oklch(from var(--MI_THEME-error) calc(l + 0.04) c h);
 			}
 
 			&:not(:disabled):active {
-				background: hsl(from var(--MI_THEME-error) h s calc(l - 10));
+				background: oklch(from var(--MI_THEME-error) calc(l - 0.05) c h);
 			}
 		}
 	}
 
 	&.active {
-		color: var(--MI_THEME-accent) !important;
+		color: var(--MI-c-accentInk) !important;
+		background: var(--MI-c-accentSoft);
 	}
 
 	&:disabled {
@@ -294,8 +294,15 @@ function onMousedown(evt: MouseEvent): void {
 		min-width: 100px;
 	}
 
-	&.primary > .ripples > .ripple {
-		background: rgba(0, 0, 0, 0.15);
+	&.primary > .ripples > .ripple,
+	&.gradate > .ripples > .ripple {
+		background: color(from var(--MI-c-fgOnAccent) srgb r g b / 0.25);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.root:not(:disabled):active {
+		transform: none;
 	}
 }
 
@@ -306,7 +313,7 @@ function onMousedown(evt: MouseEvent): void {
 	left: 0;
 	width: 100%;
 	height: 100%;
-	border-radius: 6px;
+	border-radius: inherit;
 	overflow: clip;
 	pointer-events: none;
 }
@@ -316,7 +323,7 @@ function onMousedown(evt: MouseEvent): void {
 	width: 2px;
 	height: 2px;
 	border-radius: 100%;
-	background: rgba(0, 0, 0, 0.1);
+	background: color(from currentColor srgb r g b / 0.12);
 }
 
 .content {

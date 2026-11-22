@@ -67,7 +67,7 @@ defineExpose<WidgetComponentExpose>({
 	display: inline-block;
 	width: 60px;
 	height: 60px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	box-sizing: border-box;
 	border: solid 3px #fff;
 }

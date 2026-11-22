@@ -122,7 +122,7 @@ const vote = async (id: number) => {
 	padding: 4px;
 	//border: solid 0.5px var(--MI_THEME-divider);
 	background: var(--MI_THEME-accentedBg);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	overflow: clip;
 	cursor: pointer;
 }
@@ -142,7 +142,7 @@ const vote = async (id: number) => {
 	display: inline-block;
 	padding: 3px 5px;
 	background: var(--MI_THEME-panel);
-	border-radius: 3px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .info {

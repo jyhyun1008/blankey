@@ -425,7 +425,7 @@ defineExpose({
 
 .controlButton {
 	padding: 6px;
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 
 	&:disabled {
 		opacity: 0.7;
@@ -434,7 +434,7 @@ defineExpose({
 
 	&:hover {
 		background-color: var(--MI_THEME-accentedBg);
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 
 	&:focus-visible {

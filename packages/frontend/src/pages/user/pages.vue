@@ -4,28 +4,51 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div class="_spacer" style="--MI_SPACER-w: 700px;">
+<XPostCategoryList class="_spacer _profileContent" :userId="user.id" :pageSize="pageSize" :loadBatch="loadBatch" :getTags="getPageHashtags">
+	<template #actions>
+		<div v-if="$i?.id === user.id" class="_buttons">
+			<MkButton primary type="routerLink" to="/pages/new"><i class="ti ti-plus"></i> {{ i18n.ts.add }}</MkButton>
+		</div>
+	</template>
 	<MkPagination v-slot="{items}" :paginator="paginator" withControl>
-		<MkPagePreview v-for="page in items" :key="page.id" :page="page" class="_margin"/>
+		<div class="_cardGrid">
+			<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
+		</div>
 	</MkPagination>
-</div>
+	<template #filtered="{ items }">
+		<div class="_cardGrid">
+			<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
+		</div>
+	</template>
+</XPostCategoryList>
 </template>
 
 <script lang="ts" setup>
 import { computed, markRaw } from 'vue';
-import * as Misskey from 'misskey-js';
+import type * as Misskey from 'misskey-js';
+import XPostCategoryList from './post-category-list.vue';
+import MkButton from '@/components/MkButton.vue';
 import MkPagePreview from '@/components/MkPagePreview.vue';
 import MkPagination from '@/components/MkPagination.vue';
 import { Paginator } from '@/utility/paginator.js';
+import { getPageHashtags } from '@/utility/post-hashtags.js';
+import { misskeyApi } from '@/utility/misskey-api.js';
+import { $i } from '@/i.js';
+import { i18n } from '@/i18n.js';
 
 const props = defineProps<{
 	user: Misskey.entities.User;
 }>();
 
+const pageSize = 20;
 const paginator = markRaw(new Paginator('users/pages', {
-	limit: 20,
+	limit: pageSize,
 	computedParams: computed(() => ({
 		userId: props.user.id,
 	})),
 }));
+
+function loadBatch(userId: string, limit: number, untilId: string | undefined, signal: AbortSignal) {
+	return misskeyApi('users/pages', { userId, limit, untilId }, undefined, signal);
+}
 </script>

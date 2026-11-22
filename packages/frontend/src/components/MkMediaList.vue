@@ -272,7 +272,7 @@ defineExpose({
 
 .media {
 	overflow: hidden; // clipにするとバグる
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	cursor: zoom-in;
 }
 

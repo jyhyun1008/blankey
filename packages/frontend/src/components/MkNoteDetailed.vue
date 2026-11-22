@@ -453,7 +453,7 @@ const keymap = {
 	width: 28px;
 	height: 28px;
 	margin: 0 8px 0 0;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .renoteText {
@@ -525,7 +525,7 @@ const keymap = {
 	font-size: 80%;
 	line-height: 1;
 	border: solid 0.5px var(--MI_THEME-divider);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .noteHeaderInfo {
@@ -570,7 +570,7 @@ const keymap = {
 }
 
 .noteReplyTarget {
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	margin-right: 0.5em;
 }
 
@@ -598,7 +598,7 @@ const keymap = {
 .quoteNote {
 	padding: 16px;
 	border: dashed 1px var(--MI_THEME-renote);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 }
 
@@ -633,7 +633,7 @@ const keymap = {
 	opacity: 0.7;
 
 	&.reacted {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 
@@ -642,20 +642,35 @@ const keymap = {
 }
 
 .tabs {
-	border-top: solid 0.5px var(--MI_THEME-divider);
-	border-bottom: solid 0.5px var(--MI_THEME-divider);
 	display: flex;
+	gap: 4px;
+	margin: 4px 16px 8px;
+	padding: 4px;
+	background: var(--MI-c-sunken);
+	border-radius: var(--MI-radius-md);
 }
 
 .tab {
 	flex: 1;
-	padding: 12px 8px;
-	border-top: solid 2px transparent;
-	border-bottom: solid 2px transparent;
+	min-height: var(--MI-controlHeightSm);
+	padding: 6px 8px;
+	color: var(--MI-c-fgMuted);
+	border-radius: calc(var(--MI-radius-md) - 4px);
+	transition:
+		background var(--MI-duration-fast) var(--MI-ease),
+		color var(--MI-duration-fast) var(--MI-ease);
+
+	&:not(.tabActive):hover {
+		color: var(--MI_THEME-fgHighlighted);
+		background: var(--MI-c-hover);
+	}
 }
 
 .tabActive {
-	border-bottom: solid 2px var(--MI_THEME-accent);
+	font-weight: bold;
+	color: var(--MI-c-accentInk);
+	background: light-dark(var(--MI_THEME-panel), color-mix(in srgb, var(--MI_THEME-fg) 14%, var(--MI_THEME-panel)));
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 }
 
 .tab_renotes {
@@ -674,13 +689,19 @@ const keymap = {
 }
 
 .reactionTab {
-	padding: 4px 6px;
-	border: solid 1px var(--MI_THEME-divider);
-	border-radius: 6px;
+	padding: 4px 10px;
+	border: solid 1px var(--MI-c-border);
+	border-radius: var(--MI-radius-full);
+	transition: background var(--MI-duration-fast) var(--MI-ease);
+
+	&:hover {
+		background: var(--MI-c-hover);
+	}
 }
 
 .reactionTabActive {
-	border-color: var(--MI_THEME-accent);
+	background: var(--MI-c-accentSoft);
+	border-color: color(from var(--MI_THEME-accent) srgb r g b / 0.5);
 }
 
 @container (max-width: 500px) {
@@ -739,9 +760,9 @@ const keymap = {
 	text-align: center;
 	padding: 32px;
 	margin: 6px 32px 32px;
-	--color: light-dark(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15));
+	--color: var(--MI-c-hover);
 	background-size: auto auto;
 	background-image: repeating-linear-gradient(135deg, transparent, transparent 10px, var(--color) 4px, var(--color) 14px);
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 </style>

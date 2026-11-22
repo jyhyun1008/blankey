@@ -18,7 +18,7 @@ const props = defineProps<{
 	display: inline-block;
 	font-family: Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
 	overflow-wrap: anywhere;
-	background: var(--MI_THEME-bg);
+	background: var(--MI-c-inset);
 	padding: .1em;
 	border-radius: .3em;
 }

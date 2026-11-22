@@ -108,7 +108,7 @@ async function done() {
 
 .imgContainer {
 	padding: 8px;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .img {

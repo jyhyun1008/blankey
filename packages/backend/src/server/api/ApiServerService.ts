@@ -92,6 +92,9 @@ export class ApiServerService {
 					Body: Record<string, unknown>,
 					Querystring: Record<string, unknown>,
 				}>('/' + endpoint.name, { bodyLimit: 1024 * 1024 }, async (request, reply) => {
+					if (endpoint.name === 'i/private-live-publish-settings' || endpoint.name === 'i/private-live-chat' || endpoint.name === 'i/buy-me-a-coffee') {
+						reply.header('Cache-Control', 'no-store');
+					}
 					if (request.method === 'GET' && !endpoint.meta.allowGet) {
 						reply.code(405);
 						reply.send();

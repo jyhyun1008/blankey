@@ -512,7 +512,7 @@ $gap: 4px;
 
 	background: var(--MI_THEME-panel);
 	box-shadow: 0 0 2px 1px #ce8a5c, inset 0 0 1px 1px #693410;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 }
 
 @container (max-width: 400px) {

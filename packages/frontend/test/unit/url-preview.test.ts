@@ -4,7 +4,7 @@
  */
 
 import { describe, test, assert, afterEach } from 'vitest';
-import { render, cleanup, type RenderResult } from '@testing-library/vue';
+import { render, cleanup, waitFor, type RenderResult } from '@testing-library/vue';
 import type { SummalyResult } from '@misskey-dev/summaly';
 import { components } from '@/components/index.js';
 import { directives } from '@/directives/index.js';
@@ -68,6 +68,34 @@ describe('MkUrlPreview', () => {
 			description: 'Mocked description',
 		});
 		mkUrlPreview.getByText('Mocked description');
+	});
+
+	test('shows the owner title and lazily loads the thumbnail for a video card', async () => {
+		const url = 'https://example.local/watch';
+		const thumbnail = 'https://example.local/thumbnail.jpg';
+		let appear: (() => void) | undefined;
+		fetchMock.mockOnce(JSON.stringify({
+			url,
+			title: 'Video provider title',
+			thumbnail,
+			player: { url: 'https://example.local/player' },
+		}));
+		const preview = render(MkUrlPreview, {
+			props: { url, mediaCard: { title: 'My archive title', tags: ['archive'] } },
+			global: {
+				components,
+				directives: { ...directives, appear: { mounted: (_, binding) => { appear = binding.value; } } },
+			},
+		});
+
+		const link = preview.getByRole('link', { name: 'My archive title' });
+		assert.strictEqual(link.getAttribute('href'), url);
+		assert.include(link.textContent, '#archive');
+		assert.isNull(link.querySelector('img'));
+		assert.lengthOf(fetchMock.mock.calls, 0);
+		appear?.();
+		await waitFor(() => assert.strictEqual(link.querySelector('img')?.getAttribute('src'), thumbnail));
+		assert.isNull(preview.container.querySelector('iframe'));
 	});
 
 	test('Having a player should render a button', async () => {

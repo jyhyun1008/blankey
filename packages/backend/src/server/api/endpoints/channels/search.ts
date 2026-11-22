@@ -32,6 +32,7 @@ export const paramDef = {
 	type: 'object',
 	properties: {
 		query: { type: 'string' },
+		userId: { type: 'string', format: 'misskey:id', description: 'Filter by channel creator and exclude sensitive channels.' },
 		type: { type: 'string', enum: ['nameAndDescription', 'nameOnly'], default: 'nameAndDescription' },
 		sinceId: { type: 'string', format: 'misskey:id' },
 		untilId: { type: 'string', format: 'misskey:id' },
@@ -54,6 +55,10 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		super(meta, paramDef, async (ps, me) => {
 			const query = this.queryService.makePaginationQuery(this.channelsRepository.createQueryBuilder('channel'), ps.sinceId, ps.untilId, ps.sinceDate, ps.untilDate)
 				.andWhere('channel.isArchived = FALSE');
+
+			if (ps.userId) {
+				query.andWhere({ userId: ps.userId, isSensitive: false });
+			}
 
 			if (ps.query !== '') {
 				if (ps.type === 'nameAndDescription') {

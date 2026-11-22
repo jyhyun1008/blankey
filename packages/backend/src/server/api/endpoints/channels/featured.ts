@@ -27,7 +27,9 @@ export const meta = {
 
 export const paramDef = {
 	type: 'object',
-	properties: {},
+	properties: {
+		sort: { type: 'string', enum: ['recent', 'popular'], default: 'recent', description: 'Sort by latest post or by number of participants.' },
+	},
 	required: [],
 } as const;
 
@@ -42,8 +44,15 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		super(meta, paramDef, async (ps, me) => {
 			const query = this.channelsRepository.createQueryBuilder('channel')
 				.where('channel.lastNotedAt IS NOT NULL')
-				.andWhere('channel.isArchived = FALSE')
-				.orderBy('channel.lastNotedAt', 'DESC');
+				.andWhere('channel.isArchived = FALSE');
+
+			if (ps.sort === 'popular') {
+				query.orderBy('channel.usersCount', 'DESC')
+					.addOrderBy('channel.lastNotedAt', 'DESC');
+			} else {
+				query.orderBy('channel.lastNotedAt', 'DESC');
+			}
+			query.addOrderBy('channel.id', 'DESC');
 
 			const channels = await query.limit(10).getMany();
 

@@ -8,6 +8,7 @@ import * as Misskey from 'misskey-js';
 import { misskeyApi, misskeyApiGet } from '@/utility/misskey-api.js';
 import { get, set } from '@/utility/idb-proxy.js';
 
+const customEmojiFetchTimestampKey = 'lastEmojisWithStreamerMetadataFetchedAt';
 const storageCache = await get('emojis');
 export const customEmojis = shallowRef<Misskey.entities.EmojiSimple[]>(Array.isArray(storageCache) ? storageCache : []);
 export const customEmojiCategories = computed<[ ...string[], null ]>(() => {
@@ -45,19 +46,14 @@ export function removeCustomEmojis(emojis: Misskey.entities.EmojiSimple[]) {
 
 export async function fetchCustomEmojis(force = false) {
 	const now = Date.now();
+	const lastFetchedAt = await get(customEmojiFetchTimestampKey);
+	if (!force && lastFetchedAt && (now - lastFetchedAt) < 1000 * 60 * 60) return;
 
-	let res;
-	if (force) {
-		res = await misskeyApi('emojis', {});
-	} else {
-		const lastFetchedAt = await get('lastEmojisFetchedAt');
-		if (lastFetchedAt && (now - lastFetchedAt) < 1000 * 60 * 60) return;
-		res = await misskeyApiGet('emojis', {});
-	}
+	const res = force || !lastFetchedAt ? await misskeyApi('emojis', {}) : await misskeyApiGet('emojis', {});
 
 	customEmojis.value = res.emojis;
 	set('emojis', res.emojis);
-	set('lastEmojisFetchedAt', now);
+	set(customEmojiFetchTimestampKey, now);
 }
 
 let cachedTags: string[] | null = null;

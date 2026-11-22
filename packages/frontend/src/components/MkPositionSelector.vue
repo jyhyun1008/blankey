@@ -36,14 +36,14 @@ const y = defineModel<string>('y', { default: 'center' });
 	grid-template-columns: repeat(3, 1fr);
 	grid-template-rows: repeat(3, 1fr);
 	gap: 4px;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 }
 
 .item {
 	height: 32px;
 	background: var(--MI_THEME-panel);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	transition: background 0.1s ease;
 
 	&:not(.active):hover {
@@ -52,7 +52,7 @@ const y = defineModel<string>('y', { default: 'center' });
 
 	&.active {
 		background: var(--MI_THEME-accentedBg);
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 </style>

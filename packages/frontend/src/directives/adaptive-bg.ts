@@ -13,7 +13,7 @@ export const adaptiveBgDirective = {
 		const myBg = window.getComputedStyle(src).backgroundColor;
 
 		if (parentBg === myBg) {
-			src.style.backgroundColor = 'var(--MI_THEME-bg)';
+			src.style.backgroundColor = 'var(--MI-c-inset)';
 		} else {
 			src.style.backgroundColor = myBg;
 		}

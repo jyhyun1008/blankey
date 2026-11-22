@@ -42,7 +42,7 @@ const toggle = () => {
 
 <style lang="scss" module>
 .button {
-	--height: 21px;
+	--height: 22px;
 
 	position: relative;
 	display: inline-flex;
@@ -55,9 +55,11 @@ const toggle = () => {
 	background: var(--MI_THEME-switchOffBg);
 	background-clip: content-box;
 	border: solid 1px var(--MI_THEME-switchOffBg);
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	cursor: pointer;
-	transition: inherit;
+	transition:
+		background-color var(--MI-duration) var(--MI-ease),
+		border-color var(--MI-duration) var(--MI-ease);
 	user-select: none;
 }
 
@@ -76,8 +78,11 @@ const toggle = () => {
 	top: 3px;
 	width: calc(var(--height) - 6px);
 	height: calc(var(--height) - 6px);
-	border-radius: 999px;
-	transition: all 0.2s ease;
+	border-radius: var(--MI-radius-full);
+	box-shadow: var(--MI-shadow-sm);
+	transition:
+		left var(--MI-duration-slow) var(--MI-easeSpring),
+		background-color var(--MI-duration) var(--MI-ease);
 
 	&:not(.knobChecked) {
 		left: 3px;

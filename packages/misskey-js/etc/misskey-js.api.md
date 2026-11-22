@@ -958,6 +958,9 @@ type ChannelsCreateResponse = operations['channels___create']['responses']['200'
 type ChannelsFavoriteRequest = operations['channels___favorite']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
+type ChannelsFeaturedRequest = operations['channels___featured']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
 type ChannelsFeaturedResponse = operations['channels___featured']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
@@ -1728,6 +1731,7 @@ declare namespace entities {
         ChannelsCreateRequest,
         ChannelsCreateResponse,
         ChannelsFavoriteRequest,
+        ChannelsFeaturedRequest,
         ChannelsFeaturedResponse,
         ChannelsFollowRequest,
         ChannelsFollowedRequest,
@@ -1963,6 +1967,8 @@ declare namespace entities {
         IAppsResponse,
         IAuthorizedAppsRequest,
         IAuthorizedAppsResponse,
+        IBuyMeACoffeeRequest,
+        IBuyMeACoffeeResponse,
         IChangePasswordRequest,
         IClaimAchievementRequest,
         IDeleteAccountRequest,
@@ -1990,6 +1996,12 @@ declare namespace entities {
         IPagesResponse,
         IPinRequest,
         IPinResponse,
+        IPrivateLiveRequest,
+        IPrivateLiveResponse,
+        IPrivateLiveChatRequest,
+        IPrivateLiveChatResponse,
+        IPrivateLivePublishSettingsRequest,
+        IPrivateLivePublishSettingsResponse,
         IReadAnnouncementRequest,
         IRegenerateTokenRequest,
         IRegistryGetRequest,
@@ -2008,6 +2020,10 @@ declare namespace entities {
         IRevokeTokenRequest,
         ISigninHistoryRequest,
         ISigninHistoryResponse,
+        IStreamerEmojisCreateRequest,
+        IStreamerEmojisCreateResponse,
+        IStreamerEmojisDeleteRequest,
+        IStreamerEmojisListResponse,
         IUnpinRequest,
         IUnpinResponse,
         IUpdateRequest,
@@ -2105,6 +2121,8 @@ declare namespace entities {
         PagesDeleteRequest,
         PagesFeaturedResponse,
         PagesLikeRequest,
+        PagesRecentRequest,
+        PagesRecentResponse,
         PagesShowRequest,
         PagesShowResponse,
         PagesUnlikeRequest,
@@ -2606,6 +2624,12 @@ type IAuthorizedAppsRequest = operations['i___authorized-apps']['requestBody']['
 type IAuthorizedAppsResponse = operations['i___authorized-apps']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
+type IBuyMeACoffeeRequest = operations['i___buy-me-a-coffee']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IBuyMeACoffeeResponse = operations['i___buy-me-a-coffee']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
 type IChangePasswordRequest = operations['i___change-password']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
@@ -2726,6 +2750,24 @@ type IPinRequest = operations['i___pin']['requestBody']['content']['application/
 type IPinResponse = operations['i___pin']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
+type IPrivateLiveChatRequest = operations['i___private-live-chat']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IPrivateLiveChatResponse = operations['i___private-live-chat']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type IPrivateLivePublishSettingsRequest = operations['i___private-live-publish-settings']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IPrivateLivePublishSettingsResponse = operations['i___private-live-publish-settings']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type IPrivateLiveRequest = operations['i___private-live']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IPrivateLiveResponse = operations['i___private-live']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
 type IReadAnnouncementRequest = operations['i___read-announcement']['requestBody']['content']['application/json'];
 
 // @public (undocumented)
@@ -2821,6 +2863,18 @@ export interface IStream extends EventEmitter<StreamEvents> {
     // (undocumented)
     useChannel<C extends keyof Channels>(channel: C, params?: Channels[C]['params'], name?: string): IChannelConnection<Channels[C]>;
 }
+
+// @public (undocumented)
+type IStreamerEmojisCreateRequest = operations['i___streamer-emojis___create']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IStreamerEmojisCreateResponse = operations['i___streamer-emojis___create']['responses']['200']['content']['application/json'];
+
+// @public (undocumented)
+type IStreamerEmojisDeleteRequest = operations['i___streamer-emojis___delete']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type IStreamerEmojisListResponse = operations['i___streamer-emojis___list']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
 type IUnpinRequest = operations['i___unpin']['requestBody']['content']['application/json'];
@@ -3188,6 +3242,12 @@ type PagesFeaturedResponse = operations['pages___featured']['responses']['200'][
 
 // @public (undocumented)
 type PagesLikeRequest = operations['pages___like']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type PagesRecentRequest = operations['pages___recent']['requestBody']['content']['application/json'];
+
+// @public (undocumented)
+type PagesRecentResponse = operations['pages___recent']['responses']['200']['content']['application/json'];
 
 // @public (undocumented)
 type PagesShowRequest = operations['pages___show']['requestBody']['content']['application/json'];

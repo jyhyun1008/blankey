@@ -14,7 +14,7 @@ export const panelDirective = {
 		const myBg = themeManager.currentCompiledTheme!.panel;
 
 		if (parentBg === myBg) {
-			src.style.backgroundColor = 'var(--MI_THEME-bg)';
+			src.style.backgroundColor = 'var(--MI-c-inset)';
 		} else {
 			src.style.backgroundColor = 'var(--MI_THEME-panel)';
 		}

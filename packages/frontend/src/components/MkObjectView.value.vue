@@ -127,7 +127,7 @@ function collapsable(v: unknown): boolean {
 
 			> .toggle {
 				width: 16px;
-				color: var(--MI_THEME-accent);
+				color: var(--MI-c-accentInk);
 				visibility: hidden;
 
 				&.visible {

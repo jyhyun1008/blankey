@@ -130,7 +130,7 @@ async function onThumbnailClick(item: UploaderItem, ev: PointerEvent) {
 
 .item {
 	position: relative;
-	border-radius: 10px;
+	border-radius: var(--MI-radius-sm);
 	overflow: clip;
 
 	&::before {
@@ -169,7 +169,7 @@ async function onThumbnailClick(item: UploaderItem, ev: PointerEvent) {
 		}
 
 		.itemBody {
-			color: var(--MI_THEME-accent);
+			color: var(--MI-c-accentInk);
 		}
 	}
 
@@ -201,7 +201,7 @@ async function onThumbnailClick(item: UploaderItem, ev: PointerEvent) {
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 }
 
 .itemBody {

@@ -97,10 +97,10 @@ function copy() {
 }
 
 .outerStyle.codeBlockFallbackRoot {
-	background: var(--MI_THEME-bg);
+	background: var(--MI-c-inset);
 	padding: 1em;
 	margin: .5em 0;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	border: 1px solid var(--MI_THEME-divider);
 }
 
@@ -117,11 +117,11 @@ function copy() {
 	cursor: pointer;
 
 	box-sizing: border-box;
-	border-radius: 8px;
+	border-radius: var(--MI-radius-sm);
 	padding: 24px;
 	margin-top: 4px;
 	color: var(--MI_THEME-fg);
-	background: var(--MI_THEME-bg);
+	background: var(--MI-c-inset);
 }
 
 .codePlaceholderContainer {

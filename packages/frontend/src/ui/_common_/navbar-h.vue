@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-click-anime :class="[$style.item, $style.instance]" class="_button" @click="openInstanceMenu">
 				<img :class="$style.instanceIcon" :src="instance.iconUrl ?? '/favicon.ico'" draggable="false"/>
 			</button>
-			<MkA v-click-anime v-tooltip="i18n.ts.timeline" :class="$style.item" :activeClass="$style.active" to="/" exact>
+			<MkA v-click-anime v-tooltip="i18n.ts.home" :aria-label="i18n.ts.home" :class="$style.item" :activeClass="$style.active" to="/" exact>
 				<i :class="$style.itemIcon" class="ti ti-home ti-fw"></i>
 			</MkA>
 			<template v-for="item in menu">
@@ -50,7 +50,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import { openInstanceMenu } from './common.js';
 import * as os from '@/os.js';
-import { navbarItemDef } from '@/navbar.js';
+import { getCoveredMenuItems, navbarItemDef } from '@/navbar.js';
 import MkButton from '@/components/MkButton.vue';
 import { instance } from '@/instance.js';
 import { i18n } from '@/i18n.js';
@@ -83,6 +83,7 @@ async function more(ev: PointerEvent) {
 	const { dispose } = await os.popupAsyncWithDialog(import('@/components/MkLaunchPad.vue').then(x => x.default), {
 		anchorElement: target,
 		anchor: { x: 'center', y: 'bottom' },
+		excludeItems: getCoveredMenuItems(prefer.s.menu),
 	}, {
 		closed: () => dispose(),
 	});

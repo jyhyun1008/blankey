@@ -145,7 +145,7 @@ definePage(() => ({
 	align-items: center;
 
 	&:hover {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 
@@ -165,7 +165,7 @@ definePage(() => ({
 	height: 12px;
 	background: rgba(0, 0, 0, 0.1);
 	overflow: clip;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 }
 
 .meterValue {

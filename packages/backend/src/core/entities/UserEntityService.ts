@@ -52,6 +52,7 @@ import type { OnModuleInit } from '@nestjs/common';
 import type { NoteEntityService } from './NoteEntityService.js';
 import type { PageEntityService } from './PageEntityService.js';
 import { toArray } from '@/misc/prelude/array.js';
+import { appendQuery, query } from '@/misc/prelude/url.js';
 
 const Ajv = _Ajv.default;
 const ajv = new Ajv();
@@ -382,6 +383,22 @@ export class UserEntityService implements OnModuleInit {
 		);
 	}
 
+	/**
+	 * リモートユーザーのデコレーション (RemoteAvatarDecorationService が取り込んだもの) は
+	 * ローカルの一覧を参照せず、保存された URL をメディアプロキシ経由で返す。
+	 */
+	@bindThis
+	private packRemoteAvatarDecorations(decorations: MiUser['avatarDecorations']) {
+		return decorations.flatMap(ud => ud.url == null ? [] : [{
+			id: ud.id,
+			angle: ud.angle || undefined,
+			flipH: ud.flipH || undefined,
+			offsetX: ud.offsetX || undefined,
+			offsetY: ud.offsetY || undefined,
+			url: appendQuery(`${this.config.mediaProxy}/image.webp`, query({ url: ud.url })),
+		}]);
+	}
+
 	@bindThis
 	public getIdenticonUrl(user: MiUser): string {
 		if ((user.host == null || user.host === this.config.host) && user.username.includes('.') && this.meta.iconUrl) { // ローカルのシステムアカウントの場合
@@ -490,14 +507,14 @@ export class UserEntityService implements OnModuleInit {
 			host: user.host,
 			avatarUrl: (user.avatarId == null ? null : user.avatarUrl) ?? this.getIdenticonUrl(user),
 			avatarBlurhash: (user.avatarId == null ? null : user.avatarBlurhash),
-			avatarDecorations: user.avatarDecorations.length > 0 ? this.avatarDecorationService.getAll().then(decorations => user.avatarDecorations.filter(ud => decorations.some(d => d.id === ud.id)).map(ud => ({
+			avatarDecorations: user.avatarDecorations.length === 0 ? [] : user.host != null ? this.packRemoteAvatarDecorations(user.avatarDecorations) : this.avatarDecorationService.getAll().then(decorations => user.avatarDecorations.filter(ud => decorations.some(d => d.id === ud.id)).map(ud => ({
 				id: ud.id,
 				angle: ud.angle || undefined,
 				flipH: ud.flipH || undefined,
 				offsetX: ud.offsetX || undefined,
 				offsetY: ud.offsetY || undefined,
 				url: decorations.find(d => d.id === ud.id)!.url,
-			}))) : [],
+			}))),
 			isBot: user.isBot,
 			isCat: user.isCat,
 			requireSigninToViewContents: user.requireSigninToViewContents === false ? undefined : true,
@@ -544,6 +561,8 @@ export class UserEntityService implements OnModuleInit {
 				location: profile!.location,
 				birthday: profile!.birthday,
 				lang: profile!.lang,
+				isStreamer: user.isStreamer,
+				streamingSchedule: profile!.streamingSchedule,
 				fields: profile!.fields,
 				verifiedLinks: profile!.verifiedLinks,
 				followersCount: followersCount ?? 0,

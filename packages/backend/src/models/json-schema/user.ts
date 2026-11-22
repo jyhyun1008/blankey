@@ -277,6 +277,20 @@ export const packedUserDetailedNotMeOnlySchema = {
 			nullable: true, optional: false,
 			example: 'ja-JP',
 		},
+		isStreamer: {
+			type: 'boolean',
+			nullable: false, optional: false,
+		},
+		streamingSchedule: {
+			type: 'array',
+			nullable: false, optional: false,
+			maxItems: 7,
+			items: {
+				type: 'string',
+				nullable: false, optional: false,
+				maxLength: 120,
+			},
+		},
 		fields: {
 			type: 'array',
 			nullable: false, optional: false,

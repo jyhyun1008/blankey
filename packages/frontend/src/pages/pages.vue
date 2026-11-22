@@ -4,20 +4,32 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<PageWithHeader v-model:tab="tab" :actions="headerActions" :tabs="headerTabs" :swipable="true">
-	<div class="_spacer" style="--MI_SPACER-w: 700px;">
-		<div v-if="tab === 'featured'">
-			<MkPagination v-slot="{items}" :paginator="featuredPagesPaginator">
-				<div class="_gaps">
-					<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
-				</div>
-			</MkPagination>
+<PageWithHeader :tab="hub.tab" :actions="headerActions" :tabs="hub.tabs.value" :swipable="false">
+	<div class="_spacer _profileContent">
+		<MkTab v-model="tab" :tabs="subTabs" :class="$style.subTabs"/>
+		<div v-if="tab === 'featured'" class="_gaps">
+			<MkFoldableSection>
+				<template #header><i class="ti ti-clock"></i>{{ i18n.ts.recentPosts }}</template>
+				<MkPagination v-slot="{items}" :paginator="recentPagesPaginator">
+					<div class="_cardGrid">
+						<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
+					</div>
+				</MkPagination>
+			</MkFoldableSection>
+			<MkFoldableSection>
+				<template #header><i class="ti ti-comet"></i>{{ i18n.ts.popularPosts }}</template>
+				<MkPagination v-slot="{items}" :paginator="featuredPagesPaginator">
+					<div class="_cardGrid">
+						<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
+					</div>
+				</MkPagination>
+			</MkFoldableSection>
 		</div>
 
 		<div v-else-if="tab === 'my'" class="_gaps">
-			<MkButton class="new" @click="create()"><i class="ti ti-plus"></i></MkButton>
+			<MkButton @click="create()"><i class="ti ti-plus"></i> {{ i18n.ts.create }}</MkButton>
 			<MkPagination v-slot="{items}" :paginator="myPagesPaginator">
-				<div class="_gaps">
+				<div class="_cardGrid">
 					<MkPagePreview v-for="page in items" :key="page.id" :page="page"/>
 				</div>
 			</MkPagination>
@@ -25,7 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<div v-else-if="tab === 'liked'">
 			<MkPagination v-slot="{items}" :paginator="likedPagesPaginator">
-				<div class="_gaps">
+				<div class="_cardGrid">
 					<MkPagePreview v-for="like in items" :key="like.page.id" :page="like.page"/>
 				</div>
 			</MkPagination>
@@ -36,18 +48,27 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <script lang="ts" setup>
 import { computed, markRaw, ref } from 'vue';
+import MkFoldableSection from '@/components/MkFoldableSection.vue';
 import MkPagePreview from '@/components/MkPagePreview.vue';
 import MkPagination from '@/components/MkPagination.vue';
 import MkButton from '@/components/MkButton.vue';
+import MkTab from '@/components/MkTab.vue';
+import type { Tab } from '@/components/MkTab.vue';
+import { useContentHub } from '@/utility/content-hub.js';
 import { i18n } from '@/i18n.js';
+import { $i } from '@/i.js';
 import { definePage } from '@/page.js';
 import { useRouter } from '@/router.js';
 import { Paginator } from '@/utility/paginator.js';
 
 const router = useRouter();
 
-const tab = ref('featured');
+const hub = useContentHub('pages');
+const tab = ref<'featured' | 'my' | 'liked'>('featured');
 
+const recentPagesPaginator = markRaw(new Paginator('pages/recent', {
+	limit: 6,
+}));
 const featuredPagesPaginator = markRaw(new Paginator('pages/featured', {
 	noPaging: true,
 }));
@@ -68,22 +89,20 @@ const headerActions = computed(() => [{
 	handler: create,
 }]);
 
-const headerTabs = computed(() => [{
-	key: 'featured',
-	title: i18n.ts._pages.featured,
-	icon: 'ti ti-flare',
-}, {
-	key: 'my',
-	title: i18n.ts._pages.my,
-	icon: 'ti ti-edit',
-}, {
-	key: 'liked',
-	title: i18n.ts._pages.liked,
-	icon: 'ti ti-heart',
-}]);
+const allSubTabs: Tab<'featured' | 'my' | 'liked'>[] = [
+	{ key: 'featured', label: i18n.ts._pages.posts, icon: 'ti ti-note' },
+	{ key: 'my', label: i18n.ts._pages.my, icon: 'ti ti-edit' },
+	{ key: 'liked', label: i18n.ts._pages.liked, icon: 'ti ti-heart' },
+];
 
-definePage(() => ({
-	title: i18n.ts.pages,
-	icon: 'ti ti-note',
-}));
+// 「自分の投稿」「いいね」はログイン時だけ出す
+const subTabs = computed(() => $i ? allSubTabs : allSubTabs.slice(0, 1));
+
+definePage(() => hub.metadata);
 </script>
+
+<style lang="scss" module>
+.subTabs {
+	margin-bottom: var(--MI-margin);
+}
+</style>

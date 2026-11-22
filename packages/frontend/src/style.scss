@@ -7,7 +7,66 @@
  */
 
 :root {
-	--MI-radius: 12px;
+	/*
+	 * Blankey design tokens
+	 * 色はすべてテーマ変数 (--MI_THEME-*) から派生させ、ユーザーテーマとの互換を保つ
+	 */
+
+	// radius
+	--MI-radius-xs: 6px; // インラインコード、極小バッジ
+	--MI-radius-sm: 10px; // タグ、カード内メディア、小さなチップ
+	--MI-radius-md: 12px; // ボタン、入力、タブ、メニュー項目
+	--MI-radius-lg: 16px; // カード、パネル、ポップアップ
+	--MI-radius-xl: 24px; // モーダル、ヒーロー
+	--MI-radius-full: 999px; // アバター、ピル、トグル
+	--MI-radius: var(--MI-radius-lg);
+
+	// control size
+	--MI-controlHeight: 40px;
+	--MI-controlHeightSm: 32px;
+	--MI-controlHeightLg: 46px;
+
+	// surface / line
+	--MI-c-border: color(from var(--MI_THEME-fg) srgb r g b / 0.1);
+	--MI-c-borderStrong: color(from var(--MI_THEME-fg) srgb r g b / 0.2);
+	--MI-c-sunken: color-mix(in srgb, var(--MI_THEME-fg) 5%, var(--MI_THEME-panel));
+	// ページ全体の地の色。ライトではパネル色 (白系) にし、カードは枠線と影で区切る
+	--MI-c-themeBg: var(--MI_THEME-bg);
+	--MI-c-canvas: light-dark(var(--MI_THEME-panel), var(--MI_THEME-bg));
+	// サイドバーなど外枠。ライトでは白い本文と区別できるようごく薄く色を付ける
+	--MI-c-shell: light-dark(color-mix(in srgb, var(--MI_THEME-fg) 4%, var(--MI_THEME-navBg)), var(--MI_THEME-navBg));
+	// パネル内でへこませる面 (コードブロック等)。以前 --MI_THEME-bg で表していた用途
+	--MI-c-inset: light-dark(var(--MI-c-sunken), var(--MI_THEME-bg));
+	--MI-c-hover: color(from var(--MI_THEME-fg) srgb r g b / 0.06);
+	--MI-c-pressed: color(from var(--MI_THEME-fg) srgb r g b / 0.1);
+	--MI-c-fgMuted: color(from var(--MI_THEME-fg) srgb r g b / 0.7);
+	--MI-c-fgSubtle: color(from var(--MI_THEME-fg) srgb r g b / 0.5);
+
+	// accent
+	--MI-c-accentSoft: color(from var(--MI_THEME-accent) srgb r g b / 0.16);
+	--MI-c-accentSoftHover: color(from var(--MI_THEME-accent) srgb r g b / 0.26);
+	--MI-c-accentHover: oklch(from var(--MI_THEME-accent) calc(l + 0.04) c h);
+	--MI-c-accentPressed: oklch(from var(--MI_THEME-accent) calc(l - 0.05) c h);
+	// 文字・アイコンとして使うアクセント: 背景とのコントラストを確保するため明度だけを制限する (面の色は変えない)
+	--MI-c-accentInk: light-dark(oklch(from var(--MI_THEME-accent) min(l, 0.52) c h), oklch(from var(--MI_THEME-accent) max(l, 0.78) c h));
+	// アクセント/エラー上の文字色: 背景の明度に応じて同系色の濃いインクか白を自動選択する
+	// アクセントはパステル系でも白文字を優先し、黄色・黄緑のようなごく明るい色 (L > 0.86) のときだけ濃いインクにする
+	--MI-c-fgOnAccent: oklch(from var(--MI_THEME-accent) clamp(0.25, (0.86 - l) * 1000, 1) calc(min(c, 0.09) * clamp(0, (l - 0.86) * 1000, 1)) h);
+	--MI-c-fgOnError: oklch(from var(--MI_THEME-error) clamp(0.25, (0.66 - l) * 1000, 1) calc(min(c, 0.09) * clamp(0, (l - 0.66) * 1000, 1)) h);
+
+	// elevation
+	--MI-shadow-sm: 0 1px 2px var(--MI_THEME-shadow);
+	--MI-shadow-md: 0 1px 2px var(--MI_THEME-shadow), 0 4px 12px -4px var(--MI_THEME-shadow);
+	--MI-shadow-pop: 0 0 0 1px var(--MI-c-border), 0 2px 6px var(--MI_THEME-shadow), 0 16px 40px -12px var(--MI_THEME-shadow);
+	--MI-focusRing: 0 0 0 3px var(--MI_THEME-focus);
+
+	// motion
+	--MI-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--MI-easeSpring: cubic-bezier(0.34, 1.56, 0.64, 1);
+	--MI-duration-fast: 120ms;
+	--MI-duration: 200ms;
+	--MI-duration-slow: 360ms;
+
 	--MI-marginFull: 16px;
 	--MI-marginHalf: 10px;
 
@@ -25,7 +84,7 @@
 html {
 	overflow: auto;
 	overflow-wrap: break-word;
-	font-family: 'Hiragino Maru Gothic Pro', "BIZ UDGothic", Roboto, HelveticaNeue, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	font-family: 'Instance Web Font', 'Hiragino Maru Gothic Pro', "BIZ UDGothic", Roboto, HelveticaNeue, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	font-size: 14px;
 	line-height: 1.35;
 	text-size-adjust: 100%;
@@ -33,7 +92,7 @@ html {
 	-webkit-text-size-adjust: 100%;
 	touch-action: manipulation;
 	scroll-behavior: smooth;
-	background-color: var(--MI_THEME-bg);
+	background-color: var(--MI-c-canvas);
 	color: var(--MI_THEME-fg);
 	accent-color: var(--MI_THEME-accent);
 
@@ -74,7 +133,7 @@ html::view-transition-old(theme-changing) {
 }
 
 html::selection {
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	background-color: var(--MI_THEME-accent);
 }
 
@@ -104,6 +163,8 @@ body,
 }
 
 body {
+	// html 要素のテーマ値はそのままに、body 以下では --MI_THEME-bg を地の色に差し替える
+	--MI_THEME-bg: var(--MI-c-canvas);
 	/* NOTE: htmlにも overflow: clip を設定したいところだが、設定すると何故か少なくともChromeで html が main thread scrolling になりパフォーマンスが(多分)落ちる */
 	overflow: clip;
 }
@@ -140,7 +201,7 @@ optgroup, option {
 hr {
 	margin: 0;
 	border: none;
-	border-radius: 999px;
+	border-radius: var(--MI-radius-full);
 	height: 1px;
 	background: var(--MI_THEME-divider);
 }
@@ -188,6 +249,10 @@ rt {
 	--MI_SPACER-w: initial;
 	--MI_SPACER-min: initial;
 	--MI_SPACER-max: initial;
+}
+
+._spacer._profileContent {
+	--MI_SPACER-w: 880px;
 }
 
 ._forceShrinkSpacer ._spacer {
@@ -243,14 +308,14 @@ rt {
 
 ._indicateCounter {
 	display: inline-flex;
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	font-weight: 700;
 	background: var(--MI_THEME-indicator);
 	height: 1.5em;
 	min-width: 1.5em;
 	align-items: center;
 	justify-content: center;
-	border-radius: 99rem;
+	border-radius: var(--MI-radius-full);
 	padding: 0.3em 0.5em;
 }
 
@@ -289,7 +354,7 @@ rt {
 }
 
 ._shadow {
-	box-shadow: 0px 4px 32px var(--MI_THEME-shadow) !important;
+	box-shadow: var(--MI-shadow-pop) !important;
 }
 
 ._button {
@@ -317,40 +382,42 @@ rt {
 
 ._buttonPrimary {
 	@extend ._button;
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	background: var(--MI_THEME-accent);
 
+	transition: background var(--MI-duration-fast) var(--MI-ease);
+
 	&:not(:disabled):hover {
-		background: hsl(from var(--MI_THEME-accent) h s calc(l + 5));
+		background: var(--MI-c-accentHover);
 	}
 
 	&:not(:disabled):active {
-		background: hsl(from var(--MI_THEME-accent) h s calc(l - 5));
+		background: var(--MI-c-accentPressed);
 	}
 }
 
 ._buttonGradate {
 	@extend ._buttonPrimary;
-	color: var(--MI_THEME-fgOnAccent);
+	color: var(--MI-c-fgOnAccent);
 	background: linear-gradient(90deg, var(--MI_THEME-buttonGradateA), var(--MI_THEME-buttonGradateB));
 
 	&:not(:disabled):hover {
-		background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
+		background: linear-gradient(90deg, oklch(from var(--MI_THEME-buttonGradateA) calc(l + 0.04) c h), oklch(from var(--MI_THEME-buttonGradateB) calc(l + 0.04) c h));
 	}
 
 	&:not(:disabled):active {
-		background: linear-gradient(90deg, hsl(from var(--MI_THEME-accent) h s calc(l + 5)), hsl(from var(--MI_THEME-accent) h s calc(l + 5)));
+		background: linear-gradient(90deg, oklch(from var(--MI_THEME-buttonGradateA) calc(l - 0.05) c h), oklch(from var(--MI_THEME-buttonGradateB) calc(l - 0.05) c h));
 	}
 }
 
 ._help {
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	cursor: help;
 }
 
 ._textButton {
 	@extend ._button;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 
 	&:focus-visible {
 		outline-offset: 2px;
@@ -361,9 +428,17 @@ rt {
 	}
 }
 
+// 一覧のサムネイル付きカードを並べるグリッド (ブログ、チャンネル等)
+._cardGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	gap: var(--MI-margin);
+}
+
 ._panel {
 	background: var(--MI_THEME-panel);
 	border-radius: var(--MI-radius);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	overflow: clip;
 }
 
@@ -403,7 +478,8 @@ rt {
 
 ._popup {
 	background: var(--MI_THEME-popup);
-	border-radius: var(--MI-radius);
+	border-radius: var(--MI-radius-lg);
+	box-shadow: 0 0 0 1px var(--MI-c-border);
 	contain: content;
 }
 
@@ -423,9 +499,9 @@ rt {
 	margin-left: 0.7em;
 	font-size: 65%;
 	padding: 2px 3px;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 	border: solid 1px var(--MI_THEME-accent);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	vertical-align: top;
 }
 
@@ -435,7 +511,7 @@ rt {
 	padding: 2px 3px;
 	color: var(--MI_THEME-warn);
 	border: solid 1px var(--MI_THEME-warn);
-	border-radius: 4px;
+	border-radius: var(--MI-radius-xs);
 	vertical-align: top;
 }
 
@@ -488,7 +564,7 @@ rt {
 	padding: 7px;
 	background: #8C4F26;
 	box-shadow: 0 6px 16px #0007, 0 0 1px 1px #693410, inset 0 0 2px 1px #ce8a5c;
-	border-radius: 10px;
+	border-radius: var(--MI-radius-sm);
 
 	--MI_THEME-bg: #F1E8DC;
 	--MI_THEME-fg: #693410;
@@ -510,7 +586,7 @@ html[data-color-scheme=dark] ._woodenFrame {
 	margin-top: 8px;
 	background: var(--MI_THEME-bg);
 	box-shadow: 0 0 2px 1px #ce8a5c, inset 0 0 1px 1px #693410;
-	border-radius: 6px;
+	border-radius: var(--MI-radius-xs);
 	color: var(--MI_THEME-fg);
 
 	&:first-child {

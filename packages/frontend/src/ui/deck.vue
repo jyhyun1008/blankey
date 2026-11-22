@@ -4,7 +4,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<div :class="[$style.root]">
+<XUniversal v-if="useUniversalLayout"/>
+<div v-else :class="[$style.root]">
 	<XTitlebar v-if="prefer.r.showTitlebar.value" style="flex-shrink: 0;"/>
 
 	<div :class="$style.nonTitlebarArea">
@@ -77,18 +78,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 			<XNavbarH v-if="!isMobile && prefer.r['deck.navbarPosition'].value === 'bottom'" :acrylic="withWallpaper"/>
 
-			<XMobileFooterMenu v-if="isMobile" v-model:drawerMenuShowing="drawerMenuShowing" v-model:widgetsShowing="widgetsShowing"/>
+			<XMobileFooterMenu v-if="isMobile" v-model:drawerMenuShowing="drawerMenuShowing"/>
 		</div>
 	</div>
 
-	<XCommon v-model:drawerMenuShowing="drawerMenuShowing" v-model:widgetsShowing="widgetsShowing"/>
+	<XCommon v-model:drawerMenuShowing="drawerMenuShowing"/>
 </div>
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, ref, useTemplateRef } from 'vue';
+import { computed, defineAsyncComponent, ref, useTemplateRef } from 'vue';
 import XCommon from './_common_/common.vue';
 import { genId } from '@/utility/id.js';
+import XUniversal from '@/ui/universal.vue';
 import XSidebar from '@/ui/_common_/navbar.vue';
 import XNavbarH from '@/ui/_common_/navbar-h.vue';
 import XMobileFooterMenu from '@/ui/_common_/mobile-footer-menu.vue';
@@ -141,8 +143,13 @@ const columnComponents = {
 	chat: XChatColumn,
 };
 
+const useUniversalLayout = computed(() => {
+	const path = mainRouter.currentRoute.value.path;
+	return path === '/' || path === '/timeline';
+});
+
 mainRouter.navHook = (path, flag): boolean => {
-	if (flag === 'forcePage') return false;
+	if (flag === 'forcePage' || ['/', '/timeline', '/deck'].includes(path.split(/[?#]/u, 1)[0])) return false;
 	const noMainColumn = !columns.value.some(x => x.type === 'main');
 	if (prefer.s['deck.navWindow'] || noMainColumn) {
 		os.pageWindow(path);
@@ -160,7 +167,6 @@ window.addEventListener('resize', () => {
 const snapScroll = ref(deviceKind === 'smartphone' || deviceKind === 'tablet');
 const withWallpaper = prefer.s['deck.wallpaper'] != null;
 const drawerMenuShowing = ref(false);
-const widgetsShowing = ref(false);
 const gap = prefer.r['deck.columnGap'];
 
 /*

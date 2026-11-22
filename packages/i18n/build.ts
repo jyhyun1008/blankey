@@ -66,9 +66,11 @@ function copyLocales(): void {
  * Service Worker が HTTP 経由で取得するために必要
  */
 async function writeFrontendLocalesJson(): Promise<void> {
-	// 動的 import でビルド済みモジュールから読み込み（循環参照回避）
-	const { writeFrontendLocalesJson: write } = await import('./built/index.js');
-	await write(_frontendLocalesDir, _rootPackage.version);
+	// Use a fresh module graph so watch builds pick up rebuilt translation overlays.
+	await execa(process.execPath, ['--input-type=module', '-e', `
+		import { writeFrontendLocalesJson } from './built/index.js';
+		await writeFrontendLocalesJson(process.argv[1], process.argv[2]);
+	`, _frontendLocalesDir, _rootPackage.version], { cwd: _dirname });
 	console.log(`[${_package.name}] frontend locales JSON written to ${_frontendLocalesDir}`);
 }
 
@@ -138,6 +140,8 @@ async function watchSrc(): Promise<void> {
 					console.error(`[${_package.name}] watch build failed:`, result);
 					return;
 				}
+				copyLocales();
+				await writeFrontendLocalesJson();
 				await buildDts();
 			});
 		},

@@ -347,11 +347,11 @@ onBeforeUnmount(() => {
 	aspect-ratio: 1;
 
 	&:hover {
-		color: var(--MI_THEME-accent);
+		color: var(--MI-c-accentInk);
 	}
 }
 .send {
 	margin-left: auto;
-	color: var(--MI_THEME-accent);
+	color: var(--MI-c-accentInk);
 }
 </style>

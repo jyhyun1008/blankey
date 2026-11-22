@@ -58,6 +58,12 @@ export class MiUserProfile {
 		value: string;
 	}[];
 
+	// Entries are ordered from Monday to Sunday.
+	@Column('jsonb', {
+		default: [],
+	})
+	public streamingSchedule: string[];
+
 	@Column('varchar', {
 		array: true,
 		default: '{}',

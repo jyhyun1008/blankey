@@ -1,10 +1,10 @@
 {
-	"name": "misskey",
+	"name": "blankey",
 	"version": "2026.11.1-alpha.1",
 	"codename": "nasubi",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/misskey-dev/misskey.git"
+		"url": "https://github.com/jyhyun1008/blankey.git"
 	},
 	"packageManager": "pnpm@12.17.0",
 	"workspaces": [

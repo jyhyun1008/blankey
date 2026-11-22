@@ -10,7 +10,7 @@
 import * as fs from 'node:fs';
 import { load as loadYaml } from 'js-yaml';
 import { languages, primaries } from './const.js';
-import { streamerProfileTranslations, pageTranslations, channelTranslations, rootTranslations } from './streamer-profile.js';
+import { streamerProfileTranslations, pageTranslations, channelTranslations, rootTranslations, blankeyRebrandKeys, rebrandToBlankey, rebrandOverrides } from './streamer-profile.js';
 import type { Locale } from './autogen/locale.js';
 import type { ILocale, ParameterizedString } from './types.js';
 
@@ -98,6 +98,7 @@ function build(): Record<Language, Locale> {
 		if (key === 'en-US' || key === 'ko-KR') {
 			const { pages, contentHub, ...pageLabels } = pageTranslations[key];
 			a[key] = merge<Locale>(a[key], { pages, contentHub, _profile: streamerProfileTranslations[key], _pages: pageLabels, _channel: channelTranslations[key], ...rootTranslations[key] });
+			a[key] = merge<Locale>(a[key], rebrandOverrides[key] as ILocale);
 		}
 		if (key === 'en-US') {
 			a[key]._siteHome = {
@@ -119,8 +120,26 @@ function build(): Record<Language, Locale> {
 			a[key]._gallery.liked = '좋아요한 갤러리';
 		}
 
+		applyBlankeyRebrand(a[key]);
+
 		return a;
 	}, {} as Record<Language, Locale>);
+}
+
+function applyBlankeyRebrand(locale: Locale): void {
+	for (const path of blankeyRebrandKeys) {
+		const keys = path.split('.');
+		const last = keys.pop()!;
+		let parent: Record<string, unknown> | undefined = locale as unknown as Record<string, unknown>;
+		for (const k of keys) {
+			const next: unknown = parent[k];
+			parent = next != null && typeof next === 'object' ? next as Record<string, unknown> : undefined;
+			if (parent == null) break;
+		}
+		if (parent != null && typeof parent[last] === 'string') {
+			parent[last] = rebrandToBlankey(parent[last]);
+		}
+	}
 }
 
 const locales = build() as {

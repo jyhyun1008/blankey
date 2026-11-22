@@ -317,3 +317,47 @@ export const rootTranslations = {
 		webFontUrlDescription: '폰트 파일(WOFF2 등)의 HTTPS URL을 입력하세요. 외부 서버를 사용하는 경우 CORS 허용이 필요합니다.',
 	},
 } satisfies Record<'en-US' | 'ko-KR', Pick<Locale, 'webFontRegularUrl' | 'webFontBoldUrl' | 'webFontUrlDescription'>>;
+
+/**
+ * ソフトウェア自体を指す「Misskey」を Blankey に置き換えるキー (全言語に適用)。
+ * 本家への謝辞・寄付・翻訳・ソースコード・ハッシュタグ・サーバー設定に関する文言は Misskey のまま残す。
+ */
+export const blankeyRebrandKeys = [
+	'introMisskey',
+	'flagAsBotDescription',
+	'useSoundOnlyWhenActive',
+	'scratchpadDescription',
+	'sendErrorReportsDescription',
+	'misskeyUpdated',
+	'goToMisskey',
+	'_initialAccountSetting.youCanContinueTutorial',
+	'_initialTutorial._landing.description',
+	'_initialTutorial._note.description',
+	'_initialTutorial._timeline.description1',
+	'_initialTutorial._postNote.description1',
+	'_achievements._types._notes1.flavor',
+	'_achievements._types._login1000.flavor',
+	'_achievements._types._client60min.title',
+	'_achievements._types._tutorialCompleted.title',
+	'_soundSettings.driveFileDurationWarnDescription',
+	'_bootErrors.otherOption4',
+	'invalidParamErrorDescription',
+	'_achievements._types._notes1.title',
+	'_achievements._types._login3.flavor',
+	'_achievements._types._login30.title',
+	'_achievements._types._login60.title',
+	'_achievements._types._login100.title',
+	'_achievements._types._login100.flavor',
+	'_achievements._types._client30min.description',
+	'_achievements._types._client60min.description',
+] as const;
+
+export function rebrandToBlankey(value: string): string {
+	return value.replace(/Misskey/gi, 'Blankey').replace(/미스키스트/g, '블랭키스트').replace(/미스키/g, 'Blankey');
+}
+
+/** 置き換えると意味が崩れる言葉遊びの文言は個別に上書きする */
+export const rebrandOverrides = {
+	'en-US': { _achievements: { _types: { _client60min: { title: 'Too Much Blankey' } } } },
+	'ko-KR': { _achievements: { _types: { _client60min: { title: 'Blankey 과몰입' } } } },
+};
